@@ -1,0 +1,61 @@
+############################
+# Gradle
+############################
+.gradle/
+**/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+############################
+# IntelliJ IDEA
+############################
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+############################
+# VS Code
+############################
+.vscode/
+*.code-workspace
+
+############################
+# Eclipse / STS
+############################
+.classpath
+.project
+.settings/
+.factorypath
+
+############################
+# NetBeans
+############################
+nbproject/
+nbactions.xml
+
+############################
+# OS junk
+############################
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+############################
+# Logs & temp
+############################
+*.log
+*.tmp
+*.swp
+*.swo
+
+############################
+# Env / secrets
+############################
+.env
+.env.*
+*.local
+*.key
+*.pem
+*.p12
+*.jks
