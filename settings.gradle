@@ -7,3 +7,17 @@
  */
 
 rootProject.name = 'ZipChak'
+
+include(
+        ':apps:admin',
+        ':apps:announcements',
+        ':apps:auth',
+        ':apps:core',
+        ':apps:mypage',
+        ':apps:policies'
+)
+
+
+include(
+        ':libs:announcements-contract'
+)
