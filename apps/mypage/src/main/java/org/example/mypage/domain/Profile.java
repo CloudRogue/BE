@@ -1,4 +1,4 @@
-package org.example.core.mypage.domain;
+package org.example.mypage.domain;
 
 
 import jakarta.annotation.Nonnull;
@@ -7,7 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.example.core.mypage.domain.enums.Gender;
+import org.example.mypage.domain.enums.Gender;
+import org.example.mypage.domain.enums.HouseholdRole;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -61,6 +62,11 @@ public class Profile {
 
     @Column(name = "deleted_at")
     private Instant deletedAt;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "household_role", nullable = false, length = 20)
+    private HouseholdRole householdRole;
 
     public Profile(@Nonnull String userId, @Nonnull String name, @Nonnull Gender gender, @Nonnull String regionSigungu, int incomeDecile, int householdSize, @Nonnull LocalDate birthDate) {
         this.userId = userId;

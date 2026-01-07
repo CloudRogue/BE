@@ -1,4 +1,4 @@
-package org.example.core.mypage.domain;
+package org.example.mypage.domain;
 
 
 import jakarta.annotation.Nonnull;
