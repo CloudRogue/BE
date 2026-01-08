@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
@@ -17,12 +18,6 @@ import java.time.Instant;
  *   <li>사용자 1명당 1개의 설정 row를 가집니다. ({@link #userId} 유니크)</li>
  *   <li>알림 채널별 on/off 및 리마인더(사전 알림) 시점을 저장합니다.</li>
  * </ul>
- *
- * <h2>리마인더 의미</h2>
- * <p>
- * {@link #reminderDaysBefore}, {@link #reminderHoursBefore}는 "이벤트/마감 시각" 기준으로
- * 며칠/몇 시간 전에 알림을 보낼지에 대한 사용자 선호값입니다.
- * </p>
  *
  * <h2>DB 제약/인덱스</h2>
  * <ul>
@@ -45,17 +40,19 @@ public class NotificationSetting {
     @Column(name = "user_id", nullable = false, unique = true, length = 26)
     private String userId;
 
+    @Setter
     @Column(name = "kakao_enabled", nullable = false)
     private boolean kakaoEnabled;
 
+    @Setter
     @Column(name = "email_enabled", nullable = false)
     private boolean emailEnabled;
 
     @Column(name = "reminder_days_before", nullable = false)
-    private int reminderDaysBefore;
+    private Integer reminderDaysBefore;
 
-    @Column(name = "reminder_hours_before", nullable = false)
-    private int reminderHoursBefore;
+    @Column(name = "send_at_hour", nullable = false)
+    private Integer sendAtHour;
 
     @UpdateTimestamp
     @Column(name = "updated_at", nullable = false)
@@ -65,13 +62,29 @@ public class NotificationSetting {
             @Nonnull String userId,
             boolean kakaoEnabled,
             boolean emailEnabled,
-            int reminderDaysBefore,
-            int reminderHoursBefore
+            Integer reminderDaysBefore,
+            Integer sendAtHour
     ) {
         this.userId = userId;
         this.kakaoEnabled = kakaoEnabled;
         this.emailEnabled = emailEnabled;
         this.reminderDaysBefore = reminderDaysBefore;
-        this.reminderHoursBefore = reminderHoursBefore;
+        this.sendAtHour = sendAtHour;
     }
+
+    public void updateReminder(Integer sendAtHour, Integer reminderDaysBefore){
+        this.sendAtHour = sendAtHour;
+        this.reminderDaysBefore = reminderDaysBefore;
+    }
+
+    public static NotificationSetting createDefault(String userId) {
+        NotificationSetting s = new NotificationSetting();
+        s.userId = userId;
+        s.reminderDaysBefore = 0;
+        s.sendAtHour = 0;
+        s.emailEnabled = false;
+        s.kakaoEnabled = false;
+        return s;
+    }
+
 }

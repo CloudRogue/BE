@@ -85,6 +85,8 @@ public class MyPageServiceImpl implements MyPageService, OnboardingService{
         myPageRepository.save(profile);
     }
 
+
+
     @Override
     @Transactional
     public void updateProfile(String userId, ProfilePatchRequest req) {
