@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.mypage.dto.request.EmailNotificationSettingPatchRequest;
 import org.example.mypage.dto.request.KakaoNotificationSettingPatchRequest;
 import org.example.mypage.dto.request.ReminderSettingUpsertRequest;
+import org.example.mypage.dto.response.NotificationSettingResponse;
 import org.example.mypage.dto.response.ReminderSettingResponse;
 import org.example.mypage.service.NotificationSettingService;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class NotificationSettingController {
 
 
     @GetMapping("/notification-settings/kakao")
-    public ResponseEntity<Boolean> getKakaoSetting(@AuthenticationPrincipal UserPrincipal principal) {
+    public ResponseEntity<NotificationSettingResponse> getKakaoSetting(@AuthenticationPrincipal UserPrincipal principal) {
 
         return ResponseEntity.ok(notificationSettingService.getKakaoEnabled(principal.getName()));
     }
@@ -38,7 +39,7 @@ public class NotificationSettingController {
 
 
     @GetMapping("/notification-settings/email")
-    public ResponseEntity<Boolean> getEmailSetting(@AuthenticationPrincipal UserPrincipal principal) {
+    public ResponseEntity<NotificationSettingResponse> getEmailSetting(@AuthenticationPrincipal UserPrincipal principal) {
 
         return ResponseEntity.ok(notificationSettingService.getEmailEnabled(principal.getName()));
     }
