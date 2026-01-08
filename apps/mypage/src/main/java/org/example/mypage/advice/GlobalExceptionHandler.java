@@ -34,13 +34,17 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotificationChannelDisabledException.class)
     public ResponseEntity<ErrorResponse> handleNotificationChannelDisabled(NotificationChannelDisabledException e) {
-        HttpStatus status = HttpStatus.CONFLICT;
-        return ResponseEntity.status(status).body(
+        ErrorCode ec = ErrorCode.NOTIFICATION_CHANNEL_DISABLED;
+
+        return ResponseEntity.status(ec.httpStatus()).body(
                 new ErrorResponse(
-                        "NOTIFICATION_CHANNEL_DISABLED",
-                        e.getMessage(),
-                        status.value(),
-                        new ErrorResponse.Details("channels", "이메일/카카오 중 최소 1개는 활성화되어야 합니다.")
+                        ec.code(),
+                        ec.message(),
+                        ec.status(),
+                        new ErrorResponse.Details(
+                                "channels",
+                                "이메일/카카오 중 최소 1개는 활성화되어야 합니다."
+                        )
                 )
         );
     }

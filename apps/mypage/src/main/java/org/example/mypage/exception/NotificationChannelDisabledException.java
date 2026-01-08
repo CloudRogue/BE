@@ -1,7 +1,15 @@
 package org.example.mypage.exception;
 
+import lombok.Getter;
+import org.example.mypage.exception.enums.ErrorCode;
+
+@Getter
 public class NotificationChannelDisabledException extends RuntimeException {
+
+    private final ErrorCode errorCode = ErrorCode.NOTIFICATION_CHANNEL_DISABLED;
+
     public NotificationChannelDisabledException() {
-        super("알림 채널(이메일/카카오)이 모두 비활성화되어 리마인더를 설정할 수 없습니다.");
+        super(ErrorCode.NOTIFICATION_CHANNEL_DISABLED.message());
     }
+
 }

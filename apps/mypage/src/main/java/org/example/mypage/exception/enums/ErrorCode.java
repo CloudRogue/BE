@@ -3,7 +3,9 @@ package org.example.mypage.exception.enums;
 import org.springframework.http.HttpStatus;
 
 public enum ErrorCode {
-    ONBOARDING_INCOMPLETE(HttpStatus.FORBIDDEN, "온보딩이 완료되지 않았습니다.");
+    ONBOARDING_INCOMPLETE(HttpStatus.FORBIDDEN, "온보딩이 완료되지 않았습니다."),
+    NOTIFICATION_CHANNEL_DISABLED(HttpStatus.CONFLICT,
+            "알림 채널(이메일/카카오)이 모두 비활성화되어 리마인더를 설정할 수 없습니다.");
 
     private final HttpStatus httpStatus;
     private final String message;
@@ -15,5 +17,6 @@ public enum ErrorCode {
 
     public String code() { return name(); }
     public int status() { return httpStatus.value(); }
+    public HttpStatus httpStatus() { return httpStatus; }
     public String message() { return message; }
 }
