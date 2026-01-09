@@ -29,10 +29,6 @@ public class CommentModeration {
     @Column(name = "result", nullable = false, length = 32)
     private ContentFilter result; // NONE/PROFANITY/...
 
-    @Column(name = "score")
-    private Integer score; // 선택: 0~100 같은 점수
-
-
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
