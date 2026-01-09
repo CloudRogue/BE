@@ -1,6 +1,7 @@
 package org.example.core.community.repository;
 
 import org.example.core.community.domain.CommentReport;
+import org.example.core.community.dto.CommentCountDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,5 +13,5 @@ public interface CommentReportRepository extends JpaRepository<CommentReport, Lo
     @Query("SELECT r.comment.id, COUNT(r) FROM CommentReport r " +
             "WHERE r.comment.id IN :commentIds " +
             "GROUP BY r.comment.id")
-    List<Object[]> countReportsByCommentIds(@Param("commentIds") List<Long> commentIds);
+    List<CommentCountDto> countReportsByCommentIds(@Param("commentIds") List<Long> commentIds);
 }

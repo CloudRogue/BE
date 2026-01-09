@@ -2,6 +2,7 @@ package org.example.core.community.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.core.community.domain.Comment;
+import org.example.core.community.dto.CommentCountDto;
 import org.example.core.community.dto.response.CommentListResponse;
 import org.example.core.community.dto.response.CommentSliceResponse;
 import org.example.core.community.repository.CommentLikeRepository;
@@ -42,14 +43,20 @@ public class CommentServiceImpl implements CommentService {
 
         List<Comment> resultComments = window.getContent();
 
-        // 3. 일괄 카운트 조회 (기존 로직 동일)
+        // 3. 일괄 카운트 및 조회
         List<Long> commentIds = resultComments.stream().map(Comment::getId).toList();
 
         Map<Long, Long> likeCountMap = commentLikeRepo.countLikesByCommentIds(commentIds).stream()
-                .collect(Collectors.toMap(row -> (Long) row[0], row -> (Long) row[1]));
+                .collect(Collectors.toMap(
+                    CommentCountDto::getCommentId,
+                    CommentCountDto::getCount
+                ));
 
         Map<Long, Long> reportCountMap = commentReportRepo.countReportsByCommentIds(commentIds).stream()
-                .collect(Collectors.toMap(row -> (Long) row[0], row -> (Long) row[1]));
+                .collect(Collectors.toMap(
+                    CommentCountDto::getCommentId,
+                    CommentCountDto::getCount
+                ));
 
         // 4. DTO 변환
         List<CommentListResponse> contents = resultComments.stream()

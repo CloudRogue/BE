@@ -25,7 +25,6 @@ public class Comment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // 공고 ID (예: ann_LH_20251229_000123)
     @Column(name = "announcement_id", nullable = false, length = 64)
     private String announcementId;
 

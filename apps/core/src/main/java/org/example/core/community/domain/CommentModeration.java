@@ -19,18 +19,15 @@ public class CommentModeration {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // FK를 진짜로 걸지/안 걸지는 선택인데,
-    // JPA 상으론 연관으로 두되(편의), 운영 DB 제약은 팀 정책대로
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "comment_id", nullable = false)
     private Comment comment;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "result", nullable = false, length = 32)
-    private ContentFilter result; // NONE/PROFANITY/...
+    private ContentFilter result;
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
-    // getters/setters ...
 }
