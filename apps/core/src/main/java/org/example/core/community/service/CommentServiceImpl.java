@@ -81,7 +81,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void createComment() {
+    public void createComment(String announcementId, String content) {
 
     }
 

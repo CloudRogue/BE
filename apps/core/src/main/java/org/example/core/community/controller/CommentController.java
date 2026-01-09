@@ -3,6 +3,7 @@ package org.example.core.community.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.core.community.dto.response.CommentSliceResponse;
 import org.example.core.community.service.CommentService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,9 +30,12 @@ public class CommentController {
 
     // 2. 댓글 작성
     @PostMapping("announcements/{announcementId}/comments")
-    public RequestEntity<Void> createComment(
-            @PathVariable String announcementId) {
-        return null;
+    public ResponseEntity<Void> createComment(
+            @PathVariable String announcementId,
+            @RequestBody String content
+    ) {
+        commentService.createComment(announcementId, content);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     // 3. 댓글 수정
