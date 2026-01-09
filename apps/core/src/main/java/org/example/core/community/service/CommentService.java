@@ -1,9 +1,12 @@
 package org.example.core.community.service;
 
+import org.example.core.community.dto.response.CommentSliceResponse;
+
+
 public interface CommentService {
 
     // 1. 댓글 목록 조회
-    void getComments();
+    CommentSliceResponse getComments(String announcementId, Long cursor, Integer limit);
     // 2. 댓글 작성
     void createComment();
     // 3. 댓글 수정

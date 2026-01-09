@@ -2,12 +2,14 @@ package org.example.core.community.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.core.community.domain.enums.ContentFilter;
 import java.time.OffsetDateTime;
 
 
 @Entity
+@Getter
 @Table(
         name = "community_comment",
         indexes = {
