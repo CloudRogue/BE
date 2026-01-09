@@ -5,6 +5,7 @@ import org.example.core.community.domain.Comment;
 import org.example.core.community.dto.response.CommentListResponse;
 import org.example.core.community.dto.response.CommentSliceResponse;
 import org.example.core.community.repository.CommentLikeRepository;
+import org.example.core.community.repository.CommentReportRepository;
 import org.example.core.community.repository.CommentRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,7 @@ public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepo;
     private final CommentLikeRepository commentLikeRepo;
+    private final CommentReportRepository commentReportRepo;
 
     @Override
     @Transactional(readOnly =true)
@@ -36,22 +38,23 @@ public class CommentServiceImpl implements CommentService {
         boolean hasNext = comments.size() > limit;
         List<Comment> resultComments = hasNext ? comments.subList(0, limit) : comments;
 
-        // 2. 좋아요 카운트 일괄 조회
+        // 2. 일괄 조회를 위한 ID 리스트 생성
         List<Long> commentIds = resultComments.stream().map(Comment::getId).toList();
 
-        // {댓글ID: 좋아요수} 형태의 Map으로 변환
+        // 3. 좋아요 Map 생성
         Map<Long, Long> likeCountMap = commentLikeRepo.countLikesByCommentIds(commentIds).stream()
-                .collect(Collectors.toMap(
-                        row -> (Long) row[0], // commentId
-                        row -> (Long) row[1]  // count
-                ));
+                .collect(Collectors.toMap(row -> (Long) row[0], row -> (Long) row[1]));
 
-        // 3. DTO 변환
+        // 4. 신고 Map 생성 (추가됨)
+        Map<Long, Long> reportCountMap = commentReportRepo.countReportsByCommentIds(commentIds).stream()
+                .collect(Collectors.toMap(row -> (Long) row[0], row -> (Long) row[1]));
+
+        // 5. DTO 변환
         List<CommentListResponse> contents = resultComments.stream()
                 .map(comment -> CommentListResponse.of(
                         comment,
-                        likeCountMap.getOrDefault(comment.getId(), 0L), // 좋아요수 매핑
-                        0L // 리포트 카운트는 아직 0
+                        likeCountMap.getOrDefault(comment.getId(), 0L),
+                        reportCountMap.getOrDefault(comment.getId(), 0L)
                 ))
                 .toList();
 
