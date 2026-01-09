@@ -1,6 +1,7 @@
 package org.example.core.community.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.core.community.dto.request.CommentCreateRequest;
 import org.example.core.community.dto.response.CommentSliceResponse;
 import org.example.core.community.service.CommentService;
 import org.springframework.http.HttpStatus;
@@ -32,9 +33,9 @@ public class CommentController {
     @PostMapping("announcements/{announcementId}/comments")
     public ResponseEntity<Void> createComment(
             @PathVariable String announcementId,
-            @RequestBody String content
-    ) {
-        commentService.createComment(announcementId, content);
+            @RequestBody CommentCreateRequest request
+            ) {
+        commentService.createComment(announcementId, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

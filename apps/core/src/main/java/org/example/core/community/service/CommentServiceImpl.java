@@ -3,6 +3,7 @@ package org.example.core.community.service;
 import lombok.RequiredArgsConstructor;
 import org.example.core.community.domain.Comment;
 import org.example.core.community.dto.CommentCountDto;
+import org.example.core.community.dto.request.CommentCreateRequest;
 import org.example.core.community.dto.response.CommentContentResponse;
 import org.example.core.community.dto.response.CommentSliceResponse;
 import org.example.core.community.repository.CommentLikeRepository;
@@ -81,7 +82,9 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void createComment(String announcementId, String content) {
+    public void createComment(String announcementId, CommentCreateRequest request) {
+
+
 
     }
 
