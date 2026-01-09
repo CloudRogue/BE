@@ -1,5 +1,6 @@
 package org.example.core.community.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.core.community.dto.request.CommentCreateRequest;
 import org.example.core.community.dto.response.CommentSliceResponse;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,12 +33,13 @@ public class CommentController {
 
     // 2. 댓글 작성
     @PostMapping("announcements/{announcementId}/comments")
-    public ResponseEntity<Void> createComment(
+    public ResponseEntity<Map<String, Long>> createComment(
             @PathVariable String announcementId,
-            @RequestBody CommentCreateRequest request
+            @RequestBody @Valid CommentCreateRequest request
             ) {
-        commentService.createComment(announcementId, request);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        Long commentId = commentService.createComment(announcementId, request);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Map.of("commentId", commentId));
     }
 
     // 3. 댓글 수정

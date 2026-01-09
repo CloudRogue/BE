@@ -1,5 +1,6 @@
 package org.example.core.community.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.core.community.domain.Comment;
 import org.example.core.community.dto.CommentCountDto;
@@ -82,10 +83,37 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void createComment(String announcementId, CommentCreateRequest request) {
+    @Transactional
+    public Long createComment(String announcementId, CommentCreateRequest request) {
+        Comment comment;
 
+        // userID 향후에 추가?
+        if (request.parentId() == null) {
+            // 1. 원 댓글 생성
+            comment = Comment.newParentComment(
+                    announcementId,
+                    request.authorUserId(),
+                    request.content()
+            );
+        } else {
+            // 2. 대댓글 생성
+            Comment parent = commentRepo.findById(request.parentId())
+                    .orElseThrow(() -> new EntityNotFoundException("부모 댓글을 찾을 수 없습니다."));
 
+            // 부모 댓글이 해당 공고의 것이 맞는지 확인
+            if (!parent.getAnnouncementId().equals(announcementId)) {
+                throw new IllegalArgumentException("공고 ID가 일치하지 않는 부모 댓글입니다.");
+            }
 
+            comment = Comment.newKindAnswer(
+                    announcementId,
+                    parent,
+                    request.authorUserId(),
+                    request.content()
+            );
+        }
+
+        return commentRepo.save(comment).getId();
     }
 
     @Override
