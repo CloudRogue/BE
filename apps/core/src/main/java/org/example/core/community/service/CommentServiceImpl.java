@@ -57,7 +57,7 @@ public class CommentServiceImpl implements CommentService {
 
         // 다음 커서 계산
         Long nextCursor = resultComments.isEmpty() ? null
-                : resultComments.get(resultComments.size() - 1).getId();
+                : resultComments.getLast().getId();
 
         return new CommentSliceResponse(contents, nextCursor, hasNext);
     }
