@@ -3,7 +3,7 @@ package org.example.core.community.service;
 import lombok.RequiredArgsConstructor;
 import org.example.core.community.domain.Comment;
 import org.example.core.community.dto.CommentCountDto;
-import org.example.core.community.dto.response.CommentListResponse;
+import org.example.core.community.dto.response.CommentContentResponse;
 import org.example.core.community.dto.response.CommentSliceResponse;
 import org.example.core.community.repository.CommentLikeRepository;
 import org.example.core.community.repository.CommentReportRepository;
@@ -59,8 +59,8 @@ public class CommentServiceImpl implements CommentService {
                 ));
 
         // 4. DTO 변환
-        List<CommentListResponse> contents = resultComments.stream()
-                .map(comment -> CommentListResponse.of(
+        List<CommentContentResponse> contents = resultComments.stream()
+                .map(comment -> CommentContentResponse.of(
                         comment,
                         likeCountMap.getOrDefault(comment.getId(), 0L),
                         reportCountMap.getOrDefault(comment.getId(), 0L)
