@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum ErrorCode {
 
+
     // 공고
     ANNOUNCEMENT_NOT_FOUND("ANNOUNCEMENT_NOT_FOUND", HttpStatus.NOT_FOUND, "공고를 찾을 수 없습니다."),
 
