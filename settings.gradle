@@ -18,6 +18,3 @@ include(
 )
 
 
-include(
-        ':libs:announcements-contract'
-)
