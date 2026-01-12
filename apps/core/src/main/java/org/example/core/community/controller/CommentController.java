@@ -1,5 +1,6 @@
 package org.example.core.community.controller;
 
+import com.sun.security.auth.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.core.community.dto.request.CommentCreateRequest;
@@ -8,6 +9,7 @@ import org.example.core.community.service.CommentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -44,8 +46,15 @@ public class CommentController {
 
     // 3. 댓글 수정
     @PatchMapping("comments/{commentPk}")
-    public RequestEntity<Void> updateComment(@PathVariable Long commentPk) {
-        return null;
+    public ResponseEntity<Map<String, Long>> updateComment(
+            @PathVariable Long commentPk,
+            @RequestBody String content,
+            String user // 향후 @AuthenticationPrincipal 주입
+    ) {
+        commentService.updateComment(commentPk, content, user);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Map.of("commentId", commentPk));
     }
 
     // 4. 댓글 삭제
