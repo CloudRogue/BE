@@ -7,6 +7,7 @@ import org.example.core.community.dto.CommentCountDto;
 import org.example.core.community.dto.request.CommentCreateRequest;
 import org.example.core.community.dto.response.CommentContentResponse;
 import org.example.core.community.dto.response.CommentSliceResponse;
+import org.example.core.community.exception.UnAuthorizedCommentException;
 import org.example.core.community.repository.CommentLikeRepository;
 import org.example.core.community.repository.CommentReportRepository;
 import org.example.core.community.repository.CommentRepository;
@@ -117,8 +118,17 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void updateComment() {
+    @Transactional
+    public void updateComment(Long commentPk, String content, String user) {
 
+        Comment comment = commentRepo.findById(commentPk)
+                .orElseThrow(() -> new EntityNotFoundException("댓글을 찾을 수 없습니다."));
+        if(!comment.getAuthorUserId().equals(user)) {
+            throw new UnAuthorizedCommentException("댓글 작성자만 수정할 수 있습니다.");
+        }
+
+        comment.updateContent(content);
+        comment.touchUpdatedAt();
     }
 
     @Override
