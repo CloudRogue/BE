@@ -1,8 +1,8 @@
 package org.example.core.community.controller;
 
-import com.sun.security.auth.UserPrincipal;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.example.auth.dto.UsersPrincipal;
 import org.example.core.community.dto.request.CommentCreateRequest;
 import org.example.core.community.dto.response.CommentSliceResponse;
 import org.example.core.community.service.CommentService;
@@ -49,9 +49,9 @@ public class CommentController {
     public ResponseEntity<Map<String, Long>> updateComment(
             @PathVariable Long commentPk,
             @RequestBody String content,
-            String user // 향후 @AuthenticationPrincipal 주입
+            @AuthenticationPrincipal UsersPrincipal user // 향후 @AuthenticationPrincipal 주입
     ) {
-        commentService.updateComment(commentPk, content, user);
+        commentService.updateComment(commentPk, content, user.getUserId());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(Map.of("commentId", commentPk));
@@ -59,8 +59,14 @@ public class CommentController {
 
     // 4. 댓글 삭제
     @DeleteMapping("comments/{commentPk}")
-    public RequestEntity<Void> deleteComment(@PathVariable Long commentPk) {
-        return null;
+    public ResponseEntity<Map<String, Long>> deleteComment(
+            @PathVariable Long commentPk,
+            @AuthenticationPrincipal UsersPrincipal user
+    ) {
+        Long deletedId =  commentService.deleteComment(commentPk, user.getUserId());
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .body(Map.of("commentId", deletedId));
     }
 
     // 5. 댓글 좋아요

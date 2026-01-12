@@ -132,8 +132,16 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void deleteComment() {
+    @Transactional
+    public Long deleteComment(Long commentPk, String user) {
+        Comment comment = commentRepo.findById(commentPk)
+                .orElseThrow(() -> new EntityNotFoundException("댓글을 찾을 수 없습니다."));
+        if(!comment.getAuthorUserId().equals(user)) {
+            throw new UnAuthorizedCommentException("댓글 작성자만 삭제할 수 있습니다.");
+        }
+        comment.markSoftDeleted();
 
+        return comment.getId();
     }
 
     @Override

@@ -12,7 +12,7 @@ public interface CommentService {
     // 3. 댓글 수정
     void updateComment(Long commentPk, String content, String user);
     // 4. 댓글 삭제
-    void deleteComment();
+    Long deleteComment(Long commentPk, String userId);
     // 5. 댓글 좋아요
     void likeComment();
     // 6. 댓글 좋아요 취소
