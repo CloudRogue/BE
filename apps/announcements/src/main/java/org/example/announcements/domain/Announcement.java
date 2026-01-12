@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 @Getter
 public class Announcement {
 
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id; //pk
