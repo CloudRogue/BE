@@ -5,8 +5,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -23,6 +28,29 @@ public class GlobalExceptionHandler {
                 .message(e.getMessage())
                 .status(ec.getHttpStatus().value())
                 .details(e.getDetails())
+                .build();
+
+        return ResponseEntity.status(ec.getHttpStatus()).body(body);
+    }
+
+    // @Valid 바디 검증 실패
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException e) {
+        Map<String, String> fieldErrors = new LinkedHashMap<>();
+        for (FieldError fe : e.getBindingResult().getFieldErrors()) {
+            fieldErrors.put(fe.getField(), fe.getDefaultMessage());
+        }
+
+        Map<String, Object> details = new LinkedHashMap<>();
+        details.put("fields", fieldErrors);
+
+        ErrorCode ec = ErrorCode.VALIDATION_ERROR;
+
+        ErrorResponse body = ErrorResponse.builder()
+                .code(ec.getCode())
+                .message(ec.getDefaultMessage())
+                .status(ec.getHttpStatus().value())
+                .details(details)
                 .build();
 
         return ResponseEntity.status(ec.getHttpStatus()).body(body);
