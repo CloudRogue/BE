@@ -58,25 +58,17 @@ public class Announcement {
     private LocalDate endDate; // 모집 종료일
 
     @Column(name = "document_published_at")
-    private LocalDate documentPublishedAt;// 게시일(모집공고일자)
+    private LocalDate documentPublishedAt;// 서류발표날짜
 
     @Column(name = "final_published_at")
-    private LocalDate finalPublishedAt; // 당첨자 발표일자
+    private LocalDate finalPublishedAt; // 당첨자 발표날짜
 
-    @Enumerated(EnumType.STRING)
-    @Column
-    private AnnouncementStatus status; // 모집중인지,마감인지,마감까지 얼마 안남았는지
 
     //----------URL-------------
 
     @Column(name = "apply_url", length = 1000)
-    private String applyUrl; // 신청접수링크
+    private String applyUrl; // 공고url
 
-    @Column(name = "detail_url_pc", length = 1000)
-    private String detailUrlPc;// 마이홈 포털 PC 상세 링크
-
-    @Column(name = "detail_url_mobile", length = 1000)
-    private String detailUrlMobile;// 마이홈 포털 모바일 상세 링크
 
     //-------- 금액 관련 정보들------------
     @Column(name = "rent_gtn")
@@ -98,11 +90,6 @@ public class Announcement {
     @Column(name = "full_address", length = 255)
     private String fullAddress;// 전체주소
 
-    @Column(name = "road_name", length = 100)
-    private String roadName;// 도로명
-
-    @Column(name = "legal_dong_name", length = 100)
-    private String legalDongName;// 법정동
 
     //-----------생성 수정 시간---------
     @CreationTimestamp
