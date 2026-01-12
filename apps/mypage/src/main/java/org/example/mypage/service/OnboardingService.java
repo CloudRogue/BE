@@ -1,5 +1,7 @@
 package org.example.mypage.service;
 
+import jakarta.validation.Valid;
+import org.example.mypage.dto.request.AdditionalOnboardingAnswerRequest;
 import org.example.mypage.dto.request.ProfilePatchRequest;
 import org.example.mypage.dto.request.ProfileUpsertRequest;
 
@@ -41,4 +43,7 @@ public interface OnboardingService {
      * @param patchRequest 프로필 부분 수정 요청 DTO
      */
     void updateProfile(String userId, ProfilePatchRequest patchRequest);
+
+
+    void addOnboarding(String userId, AdditionalOnboardingAnswerRequest request);
 }

@@ -30,8 +30,6 @@ import java.time.Instant;
  *   <li>{@code value}는 jsonb로 저장하며, type에 따라 허용되는 JSON 타입이 다르다.</li>
  * </ul>
  *
- * exampleText 는 ai 성능을 위한 주석입니다
- *
  * <h2>값 규칙</h2>
  * <ul>
  *   <li>BOOLEAN: value는 JSON boolean(true/false)</li>
@@ -85,31 +83,27 @@ public class EligibilityProfileAnswer {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
-    @Column(name = "example_text")
-    private String exampleText;
-
-    public EligibilityProfileAnswer(String userId, EligibilityProfile profile, UiBlockType expectedType, JsonNode value, String exampleText) {
+    public EligibilityProfileAnswer(String userId, EligibilityProfile profile, UiBlockType expectedType, JsonNode value) {
         this.userId = userId;
         this.profile = profile;
         this.expectedType = expectedType;
         this.value = value;
-        this.exampleText = exampleText;
     }
 
-    public static EligibilityProfileAnswer empty(String userId, EligibilityProfile profile, String exampleText) {
-        return new EligibilityProfileAnswer(userId, profile, profile.getType(), null, exampleText);
+    public static EligibilityProfileAnswer empty(String userId, EligibilityProfile profile) {
+        return new EligibilityProfileAnswer(userId, profile, profile.getType(), null);
     }
 
-    public static EligibilityProfileAnswer ofBoolean(String userId, EligibilityProfile profile, boolean v, String exampleText) {
-        return new EligibilityProfileAnswer(userId, profile, profile.getType(), BooleanNode.valueOf(v), exampleText);
+    public static EligibilityProfileAnswer ofBoolean(String userId, EligibilityProfile profile, boolean v) {
+        return new EligibilityProfileAnswer(userId, profile, profile.getType(), BooleanNode.valueOf(v));
     }
 
-    public static EligibilityProfileAnswer ofInput(String userId, EligibilityProfile profile, String v, String exampleText) {
-        return new EligibilityProfileAnswer(userId, profile, profile.getType(), TextNode.valueOf(v), exampleText);
+    public static EligibilityProfileAnswer ofInput(String userId, EligibilityProfile profile, String v) {
+        return new EligibilityProfileAnswer(userId, profile, profile.getType(), TextNode.valueOf(v));
     }
 
-    public static EligibilityProfileAnswer ofSelect(String userId, EligibilityProfile profile, String selectedValue, String exampleText) {
-        return new EligibilityProfileAnswer(userId, profile, profile.getType(), TextNode.valueOf(selectedValue), exampleText);
+    public static EligibilityProfileAnswer ofSelect(String userId, EligibilityProfile profile, String selectedValue) {
+        return new EligibilityProfileAnswer(userId, profile, profile.getType(), TextNode.valueOf(selectedValue));
     }
 
     @PrePersist

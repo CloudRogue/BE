@@ -48,6 +48,7 @@ public class EligibilityProfile {
         this.title = title;
         this.onboardingDescription = onboardingDescription;
         this.question = question;
+        this.exampleQuestion = exampleQuestion;
         this.type = type;
     }
 
