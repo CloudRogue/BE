@@ -17,6 +17,9 @@ public enum ErrorCode {
     VALIDATION_ERROR("VALIDATION_ERROR", HttpStatus.BAD_REQUEST, "요청 값이 올바르지 않습니다."),
     INVALID_REQUEST("INVALID_REQUEST", HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
 
+    // 커서 에러
+    INVALID_CURSOR("INVALID_CURSOR", HttpStatus.BAD_REQUEST, "커서 값이 올바르지 않습니다."),
+
 
     // 서버 애러
     INTERNAL_ERROR("INTERNAL_ERROR", HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다.");
