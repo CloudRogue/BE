@@ -2,3 +2,6 @@ announcements:
   paging:
     default-limit: ${ANNOUNCEMENTS_PAGING_DEFAULT_LIMIT}  # 디폴트값
     max-limit: ${ANNOUNCEMENTS_PAGING_MAX_LIMIT}          # 최대
+  apply:
+    lh: ${ANNOUNCEMENTS_APPLY_LH_URL} #LH
+    sh: ${ANNOUNCEMENTS_APPLY_SH_URL} #SH

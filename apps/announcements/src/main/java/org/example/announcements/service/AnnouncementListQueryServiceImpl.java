@@ -22,7 +22,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AnnouncementQueryServiceImpl implements AnnouncementQueryService {
+public class AnnouncementListQueryServiceImpl implements AnnouncementListQueryService {
 
 
     private final AnnouncementRepository announcementRepository;
