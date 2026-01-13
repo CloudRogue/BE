@@ -88,6 +88,8 @@ public class Announcement {
     @Column(name = "full_address", length = 255)
     private String fullAddress;// 전체주소
 
+    @Column(name = "refrn_legaldong_nm")
+    private String refrnLegaldongNm; // 법정동명
 
     //-----------생성 수정 시간---------
     @CreationTimestamp
