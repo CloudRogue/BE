@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "announcemnets",
+@Table(name = "announcements",
         uniqueConstraints = { // 중복 방지 유니크
                 @UniqueConstraint( // MYHOME 같은 경우 pblancId+houseSn이 실질 식별자 SH는 seq가 식별자
                         name = "uq_ann_source_external_key", // 제약 이름
@@ -45,9 +45,6 @@ public class Announcement {
 
     @Column(name = "supply_type")
     private String supplyType; // 공급유형
-
-    @Column(name = "region_code")
-    private String regionCode; // 지역 코드
 
     @Column(name = "region_name")
     private String regionName; // 시군구명
