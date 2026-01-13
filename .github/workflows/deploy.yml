@@ -1,4 +1,4 @@
-name: Deploy to Amazon ECS
+name: Build & Push to Amazon ECR
 
 on:
   push:
@@ -6,20 +6,11 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: Build with Gradle
-        run: chmod +x gradlew && ./gradlew bootJar
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -34,27 +25,10 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build, tag, and push image to Amazon ECR
-        id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build -t $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG .
           docker push $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
-          echo "image=$ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG" >> $GITHUB_OUTPUT
-
-      - name: Fill in the new image ID in the Amazon ECS task definition
-        id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: .aws/task-definition.json
-          container-name: auth-container
-          image: ${{ steps.build-image.outputs.image }}
-
-      - name: Deploy Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ secrets.ECS_SERVICE }}
-          cluster: ${{ secrets.ECS_CLUSTER }}
-          wait-for-service-stability: true
+          echo "Pushed: $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG"
