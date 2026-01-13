@@ -1,6 +1,8 @@
 package org.example.announcements.domain;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 
 import lombok.Getter;
@@ -27,16 +29,19 @@ public class Announcement {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id; //pk
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private AnnouncementSource source; // 출처(MYHOME/SH_RSS)
 
+    @NotBlank
     @Column(name = "external_key", nullable = false) // 유니크 키로 사용
     private String externalKey; // 외부식별자 (예: MYHOME= pblancId:houseSn, SH=seq)
 
     @Column
     private String title; // 공고명
 
+    @NotBlank
     @Column(name = "publisher", nullable = false)
     private String publisher; // 발행처
 
@@ -100,5 +105,49 @@ public class Announcement {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt; // 수정 시각
 
+    //정적 메서드
+    public static Announcement create(
+            AnnouncementSource source,
+            String externalKey,
+            String title,
+            String publisher,
+            String housingType,
+            String supplyType,
+            String regionName,
+            LocalDate startDate,
+            LocalDate endDate,
+            LocalDate documentPublishedAt,
+            LocalDate finalPublishedAt,
+            String applyUrl,
+            Long rentGtn,
+            Long enty,
+            Long prtpay,
+            Long surlus,
+            Long mtRntchrg,
+            String fullAddress,
+            String refrnLegaldongNm
+    ) {
+        Announcement a = new Announcement();
+        a.source = source;
+        a.externalKey = externalKey;
+        a.title = title;
+        a.publisher = publisher;
+        a.housingType = housingType;
+        a.supplyType = supplyType;
+        a.regionName = regionName;
+        a.startDate = startDate;
+        a.endDate = endDate;
+        a.documentPublishedAt = documentPublishedAt;
+        a.finalPublishedAt = finalPublishedAt;
+        a.applyUrl = applyUrl;
+        a.rentGtn = rentGtn;
+        a.enty = enty;
+        a.prtpay = prtpay;
+        a.surlus = surlus;
+        a.mtRntchrg = mtRntchrg;
+        a.fullAddress = fullAddress;
+        a.refrnLegaldongNm = refrnLegaldongNm;
+        return a;
+    }
 
 }
