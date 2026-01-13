@@ -2,12 +2,12 @@ package org.example.announcements.service;
 
 import org.example.announcements.api.AnnouncementSort;
 import org.example.announcements.api.ApiListResponse;
-import org.example.announcements.dto.AnnouncementOpenItem;
+import org.example.announcements.dto.AnnouncementOpenItemResponse;
 
 public interface AnnouncementQueryService {
 
     //접수중인 공고 목록 조회
-    ApiListResponse<AnnouncementOpenItem> getOpen(
+    ApiListResponse<AnnouncementOpenItemResponse> getOpen(
             AnnouncementSort sort,
             String cursor,
             int limit

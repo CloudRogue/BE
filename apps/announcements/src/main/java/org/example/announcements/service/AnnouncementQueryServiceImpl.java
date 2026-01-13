@@ -5,7 +5,7 @@ import org.example.announcements.api.AnnouncementSort;
 import org.example.announcements.api.ApiListResponse;
 import org.example.announcements.api.CursorMeta;
 import org.example.announcements.domain.Announcement;
-import org.example.announcements.dto.AnnouncementOpenItem;
+import org.example.announcements.dto.AnnouncementOpenItemResponse;
 import org.example.announcements.repository.AnnouncementRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Limit;
@@ -32,7 +32,7 @@ public class AnnouncementQueryServiceImpl implements AnnouncementQueryService {
 
     // 접수중 공고 목록 조회 구현
     @Override
-    public ApiListResponse<AnnouncementOpenItem> getOpen(AnnouncementSort sort, String cursor, int limit) {
+    public ApiListResponse<AnnouncementOpenItemResponse> getOpen(AnnouncementSort sort, String cursor, int limit) {
         // 요청 limit 0 이하일경우 잡기
         int requested = (limit <= 0) ? defaultLimit : limit;
         int safeLimit = clamp(requested, 1, Math.max(maxLimit, 1));
@@ -50,8 +50,8 @@ public class AnnouncementQueryServiceImpl implements AnnouncementQueryService {
         );
 
         // 디티오로 변환
-        List<AnnouncementOpenItem> data = window.getContent().stream()
-                .map(AnnouncementOpenItem::from)
+        List<AnnouncementOpenItemResponse> data = window.getContent().stream()
+                .map(AnnouncementOpenItemResponse::from)
                 .toList();
 
         // 다음페이지 있는 지확인하고 계산

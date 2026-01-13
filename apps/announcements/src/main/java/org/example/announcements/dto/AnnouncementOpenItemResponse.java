@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Getter
 @RequiredArgsConstructor
-public class AnnouncementOpenItem {
+public class AnnouncementOpenItemResponse {
 
     private final Long announcementId;  // 공고 아이디
     private final String title;         // 공고명
@@ -17,8 +17,8 @@ public class AnnouncementOpenItem {
     private final LocalDate startDate;  // 모집 시작일
     private final LocalDate endDate;    // 모집 마감일
 
-    public static AnnouncementOpenItem from(Announcement a) {
-        return new AnnouncementOpenItem(
+    public static AnnouncementOpenItemResponse from(Announcement a) {
+        return new AnnouncementOpenItemResponse(
                 a.getId(),
                 a.getTitle(),
                 a.getPublisher(),
