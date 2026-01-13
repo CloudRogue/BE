@@ -4,7 +4,6 @@ import org.example.announcements.exception.BusinessException;
 import org.example.announcements.exception.ErrorCode;
 import org.springframework.data.domain.KeysetScrollPosition;
 import org.springframework.data.domain.ScrollPosition;
-import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
 
 import java.nio.charset.StandardCharsets;
@@ -32,13 +31,15 @@ public final class ScrollCursorCodec {
         try{
             //base64 -> json
             String json = new String(Base64.getUrlDecoder().decode(cursor), StandardCharsets.UTF_8);
-            Map<String, Object> payload = OM.readValue(json, new TypeReference<>() {});
 
-            //페이로드에서 key와 direction추출
-            Map<String, Object> keys = (Map<String, Object>) payload.get("keys");
+            //VO로 매핑하기
+            CursorPayload payload = OM.readValue(json, CursorPayload.class);
 
-            String dir = (String) payload.get("direction");
-            ScrollPosition.Direction direction = ScrollPosition.Direction.valueOf(dir);
+            ScrollPosition.Direction direction =
+                    ScrollPosition.Direction.valueOf(payload.direction());
+
+
+            Map<String, Object> keys = payload.keys();
 
             return ScrollPosition.of(keys, direction);
 
@@ -51,9 +52,11 @@ public final class ScrollCursorCodec {
     public static String encode(KeysetScrollPosition position) {
         if (position == null || position.isInitial()) return null;
 
-        Map<String, Object> payload = new LinkedHashMap<>();
-        payload.put("direction", position.getDirection().name());
-        payload.put("keys", position.getKeys());
+        // VO로 구성
+        CursorPayload payload = new CursorPayload(
+                position.getDirection().name(),
+                new LinkedHashMap<>(position.getKeys())
+        );
 
         try {
             String json = OM.writeValueAsString(payload);
