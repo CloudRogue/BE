@@ -43,7 +43,7 @@ public final class ScrollCursorCodec {
             return ScrollPosition.of(keys, direction);
 
         }catch (Exception e){
-            throw new BusinessException(ErrorCode.INVALID_REQUEST, "cursor 값이 올바르지 않습니다.");
+            throw new BusinessException(ErrorCode.INVALID_CURSOR, "cursor 값이 올바르지 않습니다.");
         }
     }
 
