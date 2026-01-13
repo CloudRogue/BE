@@ -1,0 +1,48 @@
+package org.example.auth.config;
+
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.interfaces.RSAPublicKey;
+import java.util.UUID;
+
+@Configuration
+public class AuthJwtConfig {
+
+
+    // 추후 pem 마이그레이션
+    @Bean
+    public RSAKey rsaKey() {
+        try {
+            KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+            keyPairGenerator.initialize(2048);
+            KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+            return new RSAKey.Builder((RSAPublicKey) keyPair.getPublic())
+                    .privateKey(keyPair.getPrivate())
+                    .keyID(UUID.randomUUID().toString())
+                    .build();
+        } catch (Exception ex) {
+            throw new IllegalStateException("RSA key 생성 실패", ex);
+        }
+    }
+
+    @Bean
+    public JWKSource<SecurityContext> jwkSource(RSAKey rsaKey) {
+        JWKSet jwkSet = new JWKSet(rsaKey);
+        return (selector, ctx) -> selector.select(jwkSet);
+    }
+
+    @Bean
+    public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
+        return new NimbusJwtEncoder(jwkSource);
+    }
+}
