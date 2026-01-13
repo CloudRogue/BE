@@ -24,6 +24,7 @@ import java.util.List;
 @Transactional(readOnly = true)
 public class AnnouncementQueryServiceImpl implements AnnouncementQueryService {
 
+
     private final AnnouncementRepository announcementRepository;
 
     @Value("${announcements.paging.default-limit}")
