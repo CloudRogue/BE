@@ -1,8 +1,10 @@
 package org.example.announcements.util;
 
+import org.springframework.data.domain.ScrollPosition.Direction;
+
 import java.util.Map;
 
 public record CursorPayload(
-        String direction,
+        Direction direction,
         Map<String, Object> keys
 ) { }

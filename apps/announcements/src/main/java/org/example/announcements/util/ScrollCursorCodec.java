@@ -5,11 +5,9 @@ import org.example.announcements.exception.ErrorCode;
 import org.springframework.data.domain.KeysetScrollPosition;
 import org.springframework.data.domain.ScrollPosition;
 import tools.jackson.databind.ObjectMapper;
-
-import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.LinkedHashMap;
-import java.util.Map;
+
 
 //스크롤 포지션 <-> 커서 변환 유틸
 public final class ScrollCursorCodec {
@@ -29,19 +27,15 @@ public final class ScrollCursorCodec {
         if (cursor == null || cursor.isBlank()) return initial();
 
         try{
-            //base64 -> json
-            String json = new String(Base64.getUrlDecoder().decode(cursor), StandardCharsets.UTF_8);
+            // base64를 디코딩을 함
+            byte[] decoded = Base64.getUrlDecoder().decode(cursor);
 
-            //VO로 매핑하기
-            CursorPayload payload = OM.readValue(json, CursorPayload.class);
+            // VO로 바로 자동매핑하기
+            CursorPayload payload = OM.readValue(decoded, CursorPayload.class);
 
-            ScrollPosition.Direction direction =
-                    ScrollPosition.Direction.valueOf(payload.direction());
+            // 스크롤포지션 생성
+            return ScrollPosition.of(payload.keys(), payload.direction());
 
-
-            Map<String, Object> keys = payload.keys();
-
-            return ScrollPosition.of(keys, direction);
 
         }catch (Exception e){
             throw new BusinessException(ErrorCode.INVALID_CURSOR, "cursor 값이 올바르지 않습니다.");
@@ -52,16 +46,20 @@ public final class ScrollCursorCodec {
     public static String encode(KeysetScrollPosition position) {
         if (position == null || position.isInitial()) return null;
 
-        // VO로 구성
+        // VO로구성
         CursorPayload payload = new CursorPayload(
-                position.getDirection().name(),
+                position.getDirection(),
                 new LinkedHashMap<>(position.getKeys())
         );
 
         try {
-            String json = OM.writeValueAsString(payload);
-            return Base64.getUrlEncoder().withoutPadding()
-                    .encodeToString(json.getBytes(StandardCharsets.UTF_8));
+            // VO를 바이트화하기
+            byte[] jsonBytes = OM.writeValueAsBytes(payload);
+
+            // 바이트를 base64로 변경
+            return Base64.getUrlEncoder()
+                    .withoutPadding()
+                    .encodeToString(jsonBytes);
         } catch (Exception e) {
             throw new BusinessException(ErrorCode.INTERNAL_ERROR, "커서 생성 중 서버 오류가 발생했습니다.");
         }
