@@ -3,6 +3,7 @@ package org.example.announcements.domain;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -100,5 +101,46 @@ public class Announcement {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt; // 수정 시각
 
-
+    @Builder
+    private Announcement(
+            AnnouncementSource source,
+            String externalKey,
+            String title,
+            String publisher,
+            String housingType,
+            String supplyType,
+            String regionName,
+            LocalDate startDate,
+            LocalDate endDate,
+            LocalDate documentPublishedAt,
+            LocalDate finalPublishedAt,
+            String applyUrl,
+            Long rentGtn,
+            Long enty,
+            Long prtpay,
+            Long surlus,
+            Long mtRntchrg,
+            String fullAddress,
+            String refrnLegaldongNm
+    ) {
+        this.source = source;
+        this.externalKey = externalKey;
+        this.title = title;
+        this.publisher = publisher;
+        this.housingType = housingType;
+        this.supplyType = supplyType;
+        this.regionName = regionName;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.documentPublishedAt = documentPublishedAt;
+        this.finalPublishedAt = finalPublishedAt;
+        this.applyUrl = applyUrl;
+        this.rentGtn = rentGtn;
+        this.enty = enty;
+        this.prtpay = prtpay;
+        this.surlus = surlus;
+        this.mtRntchrg = mtRntchrg;
+        this.fullAddress = fullAddress;
+        this.refrnLegaldongNm = refrnLegaldongNm;
+    }
 }
