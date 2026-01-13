@@ -10,27 +10,27 @@ public final class AnnouncementIngestMapper {
     public static Announcement toEntity(AnnouncementIngestItem item) {
         if (item == null) return null;
 
-        return Announcement.builder()
-                .source(item.source())
-                .externalKey(trimToNull(item.externalKey()))
-                .publisher(trimToNull(item.publisher()))
-                .title(trimToNull(item.title()))
-                .housingType(trimToNull(item.housingType()))
-                .supplyType(trimToNull(item.supplyType()))
-                .regionName(trimToNull(item.regionName()))
-                .startDate(item.startDate())
-                .endDate(item.endDate())
-                .documentPublishedAt(item.documentPublishedAt())
-                .finalPublishedAt(item.finalPublishedAt())
-                .applyUrl(trimToNull(item.applyUrl()))
-                .rentGtn(item.rentGtn())
-                .enty(item.enty())
-                .prtpay(item.prtpay())
-                .surlus(item.surlus())
-                .mtRntchrg(item.mtRntchrg())
-                .fullAddress(trimToNull(item.fullAddress()))
-                .refrnLegaldongNm(trimToNull(item.refrnLegaldongNm()))
-                .build();
+        return Announcement.create(
+                item.source(),
+                trimToNull(item.externalKey()),
+                trimToNull(item.title()),
+                trimToNull(item.publisher()),
+                trimToNull(item.housingType()),
+                trimToNull(item.supplyType()),
+                trimToNull(item.regionName()),
+                item.startDate(),
+                item.endDate(),
+                item.documentPublishedAt(),
+                item.finalPublishedAt(),
+                trimToNull(item.applyUrl()),
+                item.rentGtn(),
+                item.enty(),
+                item.prtpay(),
+                item.surlus(),
+                item.mtRntchrg(),
+                trimToNull(item.fullAddress()),
+                trimToNull(item.refrnLegaldongNm())
+        );
     }
 
     private static String trimToNull(String v) {

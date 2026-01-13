@@ -1,6 +1,7 @@
 package org.example.announcements.service.ingest;
 
 import lombok.RequiredArgsConstructor;
+import org.example.announcements.domain.Announcement;
 import org.example.announcements.dto.ingest.AnnouncementIngestItem;
 import org.example.announcements.repository.AnnouncementRepository;
 import org.springframework.stereotype.Service;
@@ -22,37 +23,28 @@ public class AnnouncementIngestServiceImpl implements AnnouncementIngestService 
             return IngestResult.empty();
         }
 
-        int created = 0; // 신규 insert 건수
+
         int skipped = 0; // 중복 및 비정상으로 스킵건수
+
+        List<Announcement> toSave = new java.util.ArrayList<>();
 
         // 파싱서버가 보내준 공고 목록을 한 건씩 처리
         for (AnnouncementIngestItem item : items) {
-            if (item == null) {
-                skipped++;
-                continue;
-            }
+            if (item == null) { skipped++; continue; }
 
-            //    같은 공고를 파싱서버가 다시 보내도 유니크 키 존재시 인서트하지 않음
             boolean exists = announcementRepository
-                    .findBySourceAndExternalKey(item.source(), item.externalKey())
+                    .findBySourceAndExternalKey(item.source(), item.externalKey().trim())
                     .isPresent();
 
-            if (exists) {
-                // 이미 있으면 중복이므로 저장 생략
-                skipped++;
-                continue;
-            }
+            if (exists) { skipped++; continue; }
 
-            // 신규 insert
-            announcementRepository.save(AnnouncementIngestMapper.toEntity(item));
-            created++;
+            toSave.add(AnnouncementIngestMapper.toEntity(item));
+
         }
-            return new IngestResult(
-                    items.size(),
-                    created,
-                    0,// MVP 단에서는 업데이트가 없으므로 일단 0으로 대체
-                    skipped
-            );
+        if (!toSave.isEmpty()) announcementRepository.saveAll(toSave);
+
+        int created = toSave.size();
+        return new IngestResult(items.size(), created, 0, skipped);
     }
 
 
