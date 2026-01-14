@@ -52,10 +52,18 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
         KeysetScrollPosition position = ScrollCursorCodec.decodeOrThrow(cursor);
 
 
+        LocalDate today = LocalDate.now();
+
         Window<Announcement> window =
                 (sort == AnnouncementSort.LATEST)
-                        ? announcementRepository.scrollOpenLatest(LocalDate.now(), position, Limit.of(safeLimit))
-                        : announcementRepository.scrollOpenDeadline(LocalDate.now(), position, Limit.of(safeLimit));
+                        ? announcementRepository
+                        .findByStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByCreatedAtDescIdDesc(
+                                today, today, position, Limit.of(safeLimit)
+                        )
+                        : announcementRepository
+                        .findByStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByEndDateAscIdDesc(
+                                today, today, position, Limit.of(safeLimit)
+                        );
 
         // 엔티티 디티오로 변환
         List<AnnouncementOpenItemResponse> data = window.getContent().stream()
