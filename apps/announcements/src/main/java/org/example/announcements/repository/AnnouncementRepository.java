@@ -6,10 +6,12 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.util.Optional;
 
+@Repository
 public interface AnnouncementRepository extends JpaRepository<Announcement, Long> {
 
     //파싱서버에서 넘어온 공고를 db에 저장하기 위해 사용
