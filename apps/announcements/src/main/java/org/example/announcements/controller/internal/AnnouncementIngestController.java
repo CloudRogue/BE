@@ -35,6 +35,8 @@ public class AnnouncementIngestController {
                 
                 - 내부 서버간 통신 용도이며 외부 공개 API가 아닙니다.
                 - 요청 body의 items에는 공고 목록이 포함됩니다.
+                - 스코프는 메인서버에서 env값을 사용할예정입니다
+                - sh는 카테고리를 고정값으로 사용합니다
             """
     )
     @ApiResponses({
@@ -48,7 +50,7 @@ public class AnnouncementIngestController {
     //파싱서버에서 메인서버 공고 적재
     @PostMapping("/ingest")
     public ResponseEntity<IngestResult> ingest(@RequestBody @Valid AnnouncementIngestRequest request) {
-        IngestResult result = ingestService.ingest(request.items());
+        IngestResult result = ingestService.ingest(request.category(), request.items());
         return ResponseEntity.ok(result);
     }
 
