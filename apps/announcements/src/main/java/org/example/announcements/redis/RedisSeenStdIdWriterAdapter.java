@@ -19,7 +19,7 @@ public class RedisSeenStdIdWriterAdapter implements SeenStdIdWriterPort {
 
     private final StringRedisTemplate stringRedisTemplate;
 
-    @Value("${annoucements.ingest.env}")
+    @Value("${announcements.ingest.env}")
     private String ingestEnv;
 
     @Override
