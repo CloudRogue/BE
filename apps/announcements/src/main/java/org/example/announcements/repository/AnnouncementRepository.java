@@ -33,5 +33,27 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
             Limit limit
     );
 
+    // 접수전 공고 최신순
+    Window<Announcement> findByStartDateGreaterThanOrderByCreatedAtDescIdDesc(
+            LocalDate today,
+            KeysetScrollPosition position,
+            Limit limit
+    );
+
+    //접수전 마감임박순
+    Window<Announcement> findByStartDateGreaterThanOrderByEndDateAscIdDesc(
+            LocalDate today,
+            KeysetScrollPosition position,
+            Limit limit
+    );
+
+    // 마감 마감일 내림차순으로 정리
+    Window<Announcement> findByEndDateLessThanOrderByEndDateDescIdDesc(
+            LocalDate today,
+            KeysetScrollPosition position,
+            Limit limit
+    );
+
+
 
 }
