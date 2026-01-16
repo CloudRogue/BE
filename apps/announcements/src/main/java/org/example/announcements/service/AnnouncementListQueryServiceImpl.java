@@ -41,17 +41,10 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
             String cursor,
             int limit
     ) {
-
         if (sort == null) sort = AnnouncementSort.DEADLINE;
 
-        // limit 보정
-        int requested = (limit <= 0) ? defaultLimit : limit;
-        int safeLimit = clamp(requested, 1, Math.max(maxLimit, 1));
-
-        // 커서에서 키셋으로 변경
-        KeysetScrollPosition position = ScrollCursorCodec.decodeOrThrow(cursor);
-
-
+        int safeLimit = safeLimit(limit);
+        KeysetScrollPosition position = decode(cursor);
         LocalDate today = LocalDate.now();
 
         Window<Announcement> window =
@@ -65,12 +58,68 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
                                 today, today, position, Limit.of(safeLimit)
                         );
 
-        // 엔티티 디티오로 변환
+        return toResponse(window, safeLimit);
+    }
+
+    //접수전 공고 목록 조회
+    @Override
+    public ApiListResponse<AnnouncementOpenItemResponse> getUpcoming(AnnouncementSort sort, String cursor, int limit) {
+        if (sort == null) sort = AnnouncementSort.DEADLINE;
+
+        int safeLimit = safeLimit(limit);
+        KeysetScrollPosition position = decode(cursor);
+        LocalDate today = LocalDate.now();
+
+        Window<Announcement> window =
+                (sort == AnnouncementSort.LATEST)
+                        ? announcementRepository
+                        .findByStartDateGreaterThanOrderByCreatedAtDescIdDesc(
+                                today, position, Limit.of(safeLimit)
+                        )
+                        : announcementRepository
+                        .findByStartDateGreaterThanOrderByEndDateAscIdDesc(
+                                today, position, Limit.of(safeLimit)
+                        );
+
+        return toResponse(window, safeLimit);
+    }
+
+    //마감  공고 조회
+    @Override
+    public ApiListResponse<AnnouncementOpenItemResponse> getClosed(String cursor, int limit) {
+        int safeLimit = safeLimit(limit);
+        KeysetScrollPosition position = decode(cursor);
+        LocalDate today = LocalDate.now();
+
+        Window<Announcement> window =
+                announcementRepository.findByEndDateLessThanOrderByEndDateDescIdDesc(
+                        today, position, Limit.of(safeLimit)
+                );
+
+        return toResponse(window, safeLimit);
+    }
+
+    // =====중복제거용 고통 메서드 생성하기==========
+    // limit 보정
+    private int safeLimit(int limit) {
+        int requested = (limit <= 0) ? defaultLimit : limit;
+        return clamp(requested, 1, Math.max(maxLimit, 1));
+    }
+
+    // cursor -> KeysetScrollPosition
+    private KeysetScrollPosition decode(String cursor) {
+        return ScrollCursorCodec.decodeOrThrow(cursor);
+    }
+
+    // Window -> ApiListResponse 변환
+    private ApiListResponse<AnnouncementOpenItemResponse> toResponse(
+            Window<Announcement> window,
+            int safeLimit
+    ) {
         List<AnnouncementOpenItemResponse> data = window.getContent().stream()
                 .map(AnnouncementOpenItemResponse::from)
                 .toList();
 
-        // 다음 페이지 여부
         boolean hasNext = window.hasNext();
         String nextCursor = buildNextCursor(window);
 

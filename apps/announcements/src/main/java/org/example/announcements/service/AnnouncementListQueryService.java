@@ -13,4 +13,16 @@ public interface AnnouncementListQueryService {
             int limit
     );
 
+    //접수전인 공고 목록 조회
+    ApiListResponse<AnnouncementOpenItemResponse> getUpcoming(
+            AnnouncementSort sort,
+            String cursor,
+            int limit
+    );
+
+    //마감 공고 목록 조회
+    ApiListResponse<AnnouncementOpenItemResponse> getClosed(
+            String cursor,
+            int limit
+    );
 }
