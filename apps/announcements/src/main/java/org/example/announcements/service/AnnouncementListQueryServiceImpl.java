@@ -8,7 +8,6 @@ import org.example.announcements.domain.Announcement;
 import org.example.announcements.dto.AnnouncementOpenItemResponse;
 import org.example.announcements.repository.AnnouncementRepository;
 import org.example.announcements.util.ScrollCursorCodec;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.KeysetScrollPosition;
 import org.springframework.data.domain.Limit;
 import org.springframework.data.domain.ScrollPosition;
@@ -27,12 +26,6 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
 
     private final AnnouncementRepository announcementRepository;
 
-    @Value("${announcements.paging.default-limit}")
-    private int defaultLimit; // 디폴트값
-
-    @Value("${announcements.paging.max-limit:50}")
-    private int maxLimit; // 최대값
-
 
     // 접수중 공고 목록 조회 구현
     @Override
@@ -43,7 +36,6 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
     ) {
         if (sort == null) sort = AnnouncementSort.DEADLINE;
 
-        int safeLimit = safeLimit(limit);
         KeysetScrollPosition position = decode(cursor);
         LocalDate today = LocalDate.now();
 
@@ -51,14 +43,14 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
                 (sort == AnnouncementSort.LATEST)
                         ? announcementRepository
                         .findByStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByCreatedAtDescIdDesc(
-                                today, today, position, Limit.of(safeLimit)
+                                today, today, position, Limit.of(limit)
                         )
                         : announcementRepository
                         .findByStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByEndDateAscIdDesc(
-                                today, today, position, Limit.of(safeLimit)
+                                today, today, position, Limit.of(limit)
                         );
 
-        return toResponse(window, safeLimit);
+        return toResponse(window, limit);
     }
 
     //접수전 공고 목록 조회
@@ -66,7 +58,7 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
     public ApiListResponse<AnnouncementOpenItemResponse> getUpcoming(AnnouncementSort sort, String cursor, int limit) {
         if (sort == null) sort = AnnouncementSort.DEADLINE;
 
-        int safeLimit = safeLimit(limit);
+
         KeysetScrollPosition position = decode(cursor);
         LocalDate today = LocalDate.now();
 
@@ -74,37 +66,33 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
                 (sort == AnnouncementSort.LATEST)
                         ? announcementRepository
                         .findByStartDateGreaterThanOrderByCreatedAtDescIdDesc(
-                                today, position, Limit.of(safeLimit)
+                                today, position, Limit.of(limit)
                         )
                         : announcementRepository
                         .findByStartDateGreaterThanOrderByEndDateAscIdDesc(
-                                today, position, Limit.of(safeLimit)
+                                today, position, Limit.of(limit)
                         );
 
-        return toResponse(window, safeLimit);
+        return toResponse(window, limit);
     }
 
     //마감  공고 조회
     @Override
     public ApiListResponse<AnnouncementOpenItemResponse> getClosed(String cursor, int limit) {
-        int safeLimit = safeLimit(limit);
+
         KeysetScrollPosition position = decode(cursor);
         LocalDate today = LocalDate.now();
 
         Window<Announcement> window =
                 announcementRepository.findByEndDateLessThanOrderByEndDateDescIdDesc(
-                        today, position, Limit.of(safeLimit)
+                        today, position, Limit.of(limit)
                 );
 
-        return toResponse(window, safeLimit);
+        return toResponse(window, limit);
     }
 
     // =====중복제거용 고통 메서드 생성하기==========
-    // limit 보정
-    private int safeLimit(int limit) {
-        int requested = (limit <= 0) ? defaultLimit : limit;
-        return clamp(requested, 1, Math.max(maxLimit, 1));
-    }
+
 
     // cursor -> KeysetScrollPosition
     private KeysetScrollPosition decode(String cursor) {
@@ -114,7 +102,7 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
     // Window -> ApiListResponse 변환
     private ApiListResponse<AnnouncementOpenItemResponse> toResponse(
             Window<Announcement> window,
-            int safeLimit
+            int limit
     ) {
         List<AnnouncementOpenItemResponse> data = window.getContent().stream()
                 .map(AnnouncementOpenItemResponse::from)
@@ -125,7 +113,7 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
 
         return new ApiListResponse<>(
                 data,
-                new CursorMeta(safeLimit, hasNext, nextCursor)
+                new CursorMeta(limit, hasNext, nextCursor)
         );
     }
 
@@ -141,8 +129,4 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
         return ScrollCursorCodec.encode(nextPos);
     }
 
-    // 값 보정
-    private int clamp(int v, int min, int max) {
-        return Math.min(Math.max(v, min), max);
-    }
 }
