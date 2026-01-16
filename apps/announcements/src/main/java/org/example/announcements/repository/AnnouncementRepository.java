@@ -54,6 +54,24 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
             Limit limit
     );
 
+    // 접수중인데 발행처부분일치하고 최신순으로
+    Window<Announcement> findByStartDateLessThanEqualAndEndDateGreaterThanEqualAndPublisherContainingIgnoreCaseOrderByCreatedAtDescIdDesc(
+            LocalDate today1,
+            LocalDate today2,
+            String publisher,
+            KeysetScrollPosition position,
+            Limit limit
+    );
+
+
+    // 접수중인데 발행처부분일치하고 마감임박순으로
+    Window<Announcement> findByStartDateLessThanEqualAndEndDateGreaterThanEqualAndPublisherContainingIgnoreCaseOrderByEndDateAscIdDesc(
+            LocalDate today1,
+            LocalDate today2,
+            String publisher,
+            KeysetScrollPosition position,
+            Limit limit
+    );
 
 
 }

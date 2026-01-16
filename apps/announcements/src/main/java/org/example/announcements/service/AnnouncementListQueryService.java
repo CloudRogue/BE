@@ -3,6 +3,7 @@ package org.example.announcements.service;
 import org.example.announcements.api.AnnouncementSort;
 import org.example.announcements.api.ApiListResponse;
 import org.example.announcements.dto.AnnouncementOpenItemResponse;
+import org.example.announcements.dto.AnnouncementSearchItemResponse;
 
 public interface AnnouncementListQueryService {
 
@@ -25,4 +26,13 @@ public interface AnnouncementListQueryService {
             String cursor,
             int limit
     );
+
+    //공고 발행처로 검색하기
+    ApiListResponse<AnnouncementSearchItemResponse> getOpenByPublisher(
+            AnnouncementSort sort,
+            String publisher,
+            String cursor,
+            int limit
+    );
+
 }

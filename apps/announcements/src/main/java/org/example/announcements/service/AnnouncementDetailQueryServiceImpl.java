@@ -13,7 +13,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
+
+
+import static org.example.announcements.util.AnnouncementStatusUtil.calcDDay;
+import static org.example.announcements.util.AnnouncementStatusUtil.calcStatus;
 
 @Service
 @RequiredArgsConstructor
@@ -56,23 +59,5 @@ public class AnnouncementDetailQueryServiceImpl implements AnnouncementDetailQue
         return (source == AnnouncementSource.MYHOME) ? lhApplyUrl : shApplyUrl; // MYHOME(LH)면 LH 링크, 아니면 SH 링크
     }
 
-    // status 계산하기
-    private String calcStatus(LocalDate startDate, LocalDate endDate, LocalDate today) { // 공고 상태 계산
-        if (startDate == null || endDate == null) return "CLOSED"; // 날짜 정보가 없으면 닫힘 처리(방어)
 
-        if (today.isBefore(startDate)) return "UPCOMING"; // 오늘 < 시작일이면 접수 전
-        if (today.isAfter(endDate)) return "CLOSED"; // 오늘 > 마감일이면 마감
-
-        long d = ChronoUnit.DAYS.between(today, endDate); // 오늘~마감일까지 남은 일수
-
-        if (d <= 3) return "DUE_SOON"; // 마감 3일 이내면 마감임박
-        return "OPEN"; // 그 외는 접수중
-    }
-
-    // 남은 날짜계산하기
-    private Integer calcDDay(String status, LocalDate endDate, LocalDate today) { // dDay 계산
-        if (endDate == null) return null;
-        if (!"OPEN".equals(status) && !"DUE_SOON".equals(status)) return null;
-        return (int) ChronoUnit.DAYS.between(today, endDate);
-    }
 }

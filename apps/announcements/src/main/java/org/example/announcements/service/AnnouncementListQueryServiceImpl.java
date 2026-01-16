@@ -6,6 +6,7 @@ import org.example.announcements.api.ApiListResponse;
 import org.example.announcements.api.CursorMeta;
 import org.example.announcements.domain.Announcement;
 import org.example.announcements.dto.AnnouncementOpenItemResponse;
+import org.example.announcements.dto.AnnouncementSearchItemResponse;
 import org.example.announcements.repository.AnnouncementRepository;
 import org.example.announcements.util.ScrollCursorCodec;
 import org.springframework.data.domain.KeysetScrollPosition;
@@ -17,6 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.function.Function;
+
+import static org.example.announcements.util.AnnouncementStatusUtil.calcStatus;
+
 
 @Service
 @RequiredArgsConstructor
@@ -91,6 +96,45 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
         return toResponse(window, limit);
     }
 
+    // 접수중인 공고 목록을 발행처로 검색
+    @Override
+    public ApiListResponse<AnnouncementSearchItemResponse> getOpenByPublisher(
+            AnnouncementSort sort,
+            String publisher,
+            String cursor,
+            int limit
+    ) {
+        if (sort == null) sort = AnnouncementSort.DEADLINE;
+
+        KeysetScrollPosition position = decode(cursor);
+        LocalDate today = LocalDate.now();
+
+        Window<Announcement> window =
+                (sort == AnnouncementSort.LATEST)
+                        ? announcementRepository
+                        .findByStartDateLessThanEqualAndEndDateGreaterThanEqualAndPublisherContainingIgnoreCaseOrderByCreatedAtDescIdDesc(
+                                today,
+                                today,
+                                publisher,
+                                position,
+                                Limit.of(limit)
+                        )
+                        : announcementRepository
+                        .findByStartDateLessThanEqualAndEndDateGreaterThanEqualAndPublisherContainingIgnoreCaseOrderByEndDateAscIdDesc(
+                                today,
+                                today,
+                                publisher,
+                                position,
+                                Limit.of(limit)
+                        );
+
+        //  제네릭 toResponse 사용
+        return toResponse(window, limit, a -> {
+            String status = calcStatus(a.getStartDate(), a.getEndDate(), today);
+            return AnnouncementSearchItemResponse.of(a, status);
+        });
+    }
+
     // =====중복제거용 고통 메서드 생성하기==========
 
 
@@ -104,8 +148,17 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
             Window<Announcement> window,
             int limit
     ) {
-        List<AnnouncementOpenItemResponse> data = window.getContent().stream()
-                .map(AnnouncementOpenItemResponse::from)
+        return toResponse(window, limit, AnnouncementOpenItemResponse::from);
+    }
+
+    // publisher,housing,region전용
+    private <T> ApiListResponse<T> toResponse(
+            Window<Announcement> window,
+            int limit,
+            Function<Announcement, T> mapper
+    ) {
+        List<T> data = window.getContent().stream()
+                .map(mapper)
                 .toList();
 
         boolean hasNext = window.hasNext();

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.example.announcements.api.AnnouncementSort;
 import org.example.announcements.api.ApiListResponse;
 import org.example.announcements.dto.AnnouncementOpenItemResponse;
+import org.example.announcements.dto.AnnouncementSearchItemResponse;
 import org.example.announcements.exception.BusinessException;
 import org.example.announcements.exception.ErrorCode;
 import org.example.announcements.service.AnnouncementListQueryService;
@@ -54,6 +55,27 @@ public class AnnouncementSearchController {
     ) {
         int validatedLimit = requireValidLimit(limit);
         return ResponseEntity.ok(listQueryService.getClosed(cursor, validatedLimit));
+    }
+
+    // 공고 발행처 검색 (접수중 전용)
+    @GetMapping("/publisher")
+    public ResponseEntity<ApiListResponse<AnnouncementSearchItemResponse>> getOpenByPublisher(
+            @RequestParam(required = false) String publisher,
+            @RequestParam(required = false) String cursor,
+            @RequestParam(required = false) Integer limit,
+            @RequestParam(required = false) AnnouncementSort sort
+    ) {
+        // publisher 검증
+        if (publisher == null || publisher.isBlank()) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST, "publisher 파라미터는 필수입니다.");
+        }
+        String validatedPublisher = publisher.trim();
+
+        int validatedLimit = requireValidLimit(limit);
+
+        return ResponseEntity.ok(
+                listQueryService.getOpenByPublisher(sort, validatedPublisher, cursor, validatedLimit)
+        );
     }
 
 
