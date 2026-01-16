@@ -42,23 +42,16 @@ public class AnnouncementSummary {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    // 요약 수정 메서드
+
     public static AnnouncementSummary create(Long announcementId, String summary) {
         AnnouncementSummary announcementSummary = new AnnouncementSummary();
         announcementSummary.announcementId = announcementId;
-        announcementSummary.summary = trimToNull(summary);
+        announcementSummary.summary = summary;
         return announcementSummary;
     }
 
-    public void updateSummary(String summary) {
-        this.summary = trimToNull(summary);
-    }
 
-    //문자열 정리 메서드
-    private static String trimToNull(String v){
-        if(v == null) return null;
-        String t = v.trim();
-        return t.isEmpty() ? null : t;
-    }
+
+
 
 }

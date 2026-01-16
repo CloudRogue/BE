@@ -64,10 +64,5 @@ public class AnnouncementOverview {
         return overview;
     }
 
-    // 어드민이 수정할수 있도록 설정
-    public void update(String content, String target, String applyMethod) {
-        this.content = content;
-        this.target = target;
-        this.applyMethod = applyMethod;
-    }
+
 }
