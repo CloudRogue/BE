@@ -135,6 +135,40 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
         });
     }
 
+    @Override
+    public ApiListResponse<AnnouncementSearchItemResponse> getOpenByHousingType(AnnouncementSort sort, String housingType, String cursor, int limit) {
+        if (sort == null) sort = AnnouncementSort.DEADLINE;
+
+        KeysetScrollPosition position = decode(cursor);
+        LocalDate today = LocalDate.now();
+
+        // 정렬 기준에 따라 쿼리 분기
+        Window<Announcement> window =
+                (sort == AnnouncementSort.LATEST)
+                        ? announcementRepository
+                        .findByStartDateLessThanEqualAndEndDateGreaterThanEqualAndHousingTypeContainingIgnoreCaseOrderByCreatedAtDescIdDesc(
+                                today,
+                                today,
+                                housingType,
+                                position,
+                                Limit.of(limit)
+                        )
+                        : announcementRepository
+                        .findByStartDateLessThanEqualAndEndDateGreaterThanEqualAndHousingTypeContainingIgnoreCaseOrderByEndDateAscIdDesc(
+                                today,
+                                today,
+                                housingType,
+                                position,
+                                Limit.of(limit)
+                        );
+
+        // Window<Announcement> -> ApiListResponse<AnnouncementSearchItemResponse>
+        return toResponse(window, limit, a -> {
+            String status = calcStatus(a.getStartDate(), a.getEndDate(), today);
+            return AnnouncementSearchItemResponse.of(a, status);
+        });
+    }
+
     // =====중복제거용 고통 메서드 생성하기==========
 
 

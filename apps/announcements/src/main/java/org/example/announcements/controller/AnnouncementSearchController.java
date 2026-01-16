@@ -78,6 +78,28 @@ public class AnnouncementSearchController {
         );
     }
 
+    // 공고 주택 유형 검색 (접수중 전용)
+    @GetMapping("/housing-type")
+    public ResponseEntity<ApiListResponse<AnnouncementSearchItemResponse>> getOpenByHousingType(
+            @RequestParam(required = false) String housingType,
+            @RequestParam(required = false) String cursor,
+            @RequestParam(required = false) Integer limit,
+            @RequestParam(required = false) AnnouncementSort sort
+    ) {
+        // housingType 검증
+        if (housingType == null ||housingType.isBlank()) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST, "housingType 파라미터는 필수입니다.");
+        }
+
+        String validatedHousingType = housingType.trim();
+
+        int validatedLimit = requireValidLimit(limit);
+
+        return ResponseEntity.ok(
+                listQueryService.getOpenByHousingType(sort, validatedHousingType, cursor, validatedLimit)
+        );
+    }
+
 
     private int requireValidLimit(Integer limit) {
         if (limit == null) {
