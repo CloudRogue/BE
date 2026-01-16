@@ -33,3 +33,11 @@ jobs:
           docker build -t $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG .
           docker push $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG
           echo "Pushed: $ECR_REGISTRY/${{ secrets.ECR_REPOSITORY }}:$IMAGE_TAG"
+      - name: Update ECS service
+        run: |
+          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
+                                 --service ${{ secrets.ECS_SERVICE_NAME }} \
+                                 --force-new-deployment \
+                                 --region ${{ secrets.AWS_OIDC_REGION }}
+
+          
