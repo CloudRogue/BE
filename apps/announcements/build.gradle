@@ -33,6 +33,11 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
+    implementation "io.github.openfeign.querydsl:querydsl-jpa:7.1"
+    annotationProcessor "io.github.openfeign.querydsl:querydsl-apt:7.1:jakarta"
+    compileOnly "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+
 }
 
 tasks.named('test') {

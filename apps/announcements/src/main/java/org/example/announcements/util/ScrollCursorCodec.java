@@ -4,7 +4,7 @@ import org.example.announcements.exception.BusinessException;
 import org.example.announcements.exception.ErrorCode;
 import org.springframework.data.domain.KeysetScrollPosition;
 import org.springframework.data.domain.ScrollPosition;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 

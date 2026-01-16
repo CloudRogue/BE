@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @Repository
-public interface AnnouncementRepository extends JpaRepository<Announcement, Long> {
+public interface AnnouncementRepository extends JpaRepository<Announcement, Long>,AnnouncementRegionQueryRepository {
 
     //파싱서버에서 넘어온 공고를 db에 저장하기 위해 사용
     Optional<Announcement> findBySourceAndExternalKey(AnnouncementSource source, String externalKey);

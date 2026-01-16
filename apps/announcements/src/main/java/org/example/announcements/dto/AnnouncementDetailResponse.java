@@ -30,7 +30,7 @@ public class AnnouncementDetailResponse {
     private final Long surlus;
     private final Long mtRntchrg;
 
-    private final String fullAdres;
+    private final String fullAddres;
     private final String refrnLegaldongNm;
 
     private final String url;
