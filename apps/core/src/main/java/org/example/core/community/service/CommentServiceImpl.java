@@ -1,8 +1,8 @@
 package org.example.core.community.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.core.community.domain.Comment;
-import org.example.core.community.dto.CommentCountDto;
 import org.example.core.community.dto.response.CommentContentResponse;
 import org.example.core.community.dto.response.CommentSliceResponse;
 import org.example.core.community.repository.CommentLikeRepository;
@@ -14,15 +14,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepo;
-    private final CommentLikeRepository commentLikeRepo;
-    private final CommentReportRepository commentReportRepo;
 
     @Override
     @Transactional(readOnly = true)
@@ -69,35 +66,35 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public Long createComment(String announcementId, CommentCreateRequest request, String authorId) {
+    public Long createComment(String announcementId, String content, String authorId, Long parentId) {
         Comment comment;
 
-        // userID 향후에 추가?
-        if (request.parentId() == null) {
-            // 1. 원 댓글 생성
+        // 1. parentId가 없으면 -> '원 댓글' 생성
+        if (parentId == null) {
             comment = Comment.newParentComment(
                     announcementId,
                     authorId,
-                    request.content()
+                    content
             );
-        } else {
-            // 2. 대댓글 생성
-            Comment parent = commentRepo.findById(request.parentId())
+        }
+        // 2. parentId가 있으면 -> '대댓글' 생성
+        else {
+            Comment parent = commentRepo.findById(parentId)
                     .orElseThrow(() -> new EntityNotFoundException("부모 댓글을 찾을 수 없습니다."));
-
-            // 부모 댓글이 해당 공고의 것이 맞는지 확인
+            
             if (!parent.getAnnouncementId().equals(announcementId)) {
                 throw new IllegalArgumentException("공고 ID가 일치하지 않는 부모 댓글입니다.");
             }
-
+            if (parent.getDeletedAt() != null) {
+                throw new IllegalStateException("삭제된 댓글에는 답글을 달 수 없습니다.");
+            }
             comment = Comment.newKindAnswer(
                     announcementId,
                     parent,
                     authorId,
-                    request.content()
+                    content
             );
         }
-
         return commentRepo.save(comment).getId();
     }
 

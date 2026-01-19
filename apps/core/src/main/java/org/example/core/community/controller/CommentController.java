@@ -39,7 +39,7 @@ public class CommentController {
             @RequestBody @Valid CommentCreateRequest request,
             @AuthenticationPrincipal UsersPrincipal user
             ) {
-        Long commentId = commentService.createComment(announcementId, request, user.getUserId());
+        Long commentId = commentService.createComment(announcementId, request.content(), user.getUserId(), request.parentId());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of("commentId", commentId));
     }
