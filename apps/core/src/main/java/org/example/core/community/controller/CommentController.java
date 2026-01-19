@@ -48,15 +48,14 @@ public class CommentController {
 
     // 3. 댓글 수정
     @PatchMapping("/comments/{commentPk}")
-    public ResponseEntity<Map<String, Long>> updateComment(
+    public ResponseEntity<CommentUpdateResponse> updateComment(
             @PathVariable Long commentPk,
             @RequestBody CommentUpdateRequest request,
             @AuthenticationPrincipal UsersPrincipal user
     ) {
         CommentUpdateResponse response = commentService.updateComment(commentPk, request.content(), user.getUserId());
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(Map.of("commentId", commentPk));
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     } 
 
     // 4. 댓글 삭제
