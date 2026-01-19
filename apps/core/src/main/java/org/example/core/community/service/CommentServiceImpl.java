@@ -85,7 +85,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public Long createComment(String announcementId, CommentCreateRequest request) {
+    public Long createComment(String announcementId, CommentCreateRequest request, String authorId) {
         Comment comment;
 
         // userID 향후에 추가?
@@ -93,7 +93,7 @@ public class CommentServiceImpl implements CommentService {
             // 1. 원 댓글 생성
             comment = Comment.newParentComment(
                     announcementId,
-                    request.authorUserId(),
+                    authorId,
                     request.content()
             );
         } else {
@@ -109,7 +109,7 @@ public class CommentServiceImpl implements CommentService {
             comment = Comment.newKindAnswer(
                     announcementId,
                     parent,
-                    request.authorUserId(),
+                    authorId,
                     request.content()
             );
         }
@@ -119,7 +119,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public void updateComment(Long commentPk, String content, String user) {
+    public Long updateComment(Long commentPk, String content, String user) {
 
         Comment comment = commentRepo.findById(commentPk)
                 .orElseThrow(() -> new EntityNotFoundException("댓글을 찾을 수 없습니다."));
@@ -129,7 +129,9 @@ public class CommentServiceImpl implements CommentService {
 
         comment.updateContent(content);
         comment.touchUpdatedAt();
-    }
+        
+        return commentPk;
+    } 
 
     @Override
     @Transactional
@@ -142,20 +144,5 @@ public class CommentServiceImpl implements CommentService {
         comment.markSoftDeleted();
 
         return comment.getId();
-    }
-
-    @Override
-    public void likeComment() {
-
-    }
-
-    @Override
-    public void unlikeComment() {
-
-    }
-
-    @Override
-    public void reportComment() {
-
     }
 }
