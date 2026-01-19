@@ -73,5 +73,24 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
             Limit limit
     );
 
+    //접수중인데 주택유형검색으로 최신순으로
+    Window<Announcement> findByStartDateLessThanEqualAndEndDateGreaterThanEqualAndHousingTypeContainingIgnoreCaseOrderByCreatedAtDescIdDesc(
+            LocalDate today1,
+            LocalDate today2,
+            String housingType,
+            KeysetScrollPosition position,
+            Limit limit
+    );
+
+
+    //접수중인데 주택유형검색으로 마감임박순으로
+    Window<Announcement> findByStartDateLessThanEqualAndEndDateGreaterThanEqualAndHousingTypeContainingIgnoreCaseOrderByEndDateAscIdDesc(
+            LocalDate today1,
+            LocalDate today2,
+            String housingType,
+            KeysetScrollPosition position,
+            Limit limit
+    );
+
 
 }

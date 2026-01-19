@@ -35,4 +35,12 @@ public interface AnnouncementListQueryService {
             int limit
     );
 
+    //주택 유형으로 검색하기
+    ApiListResponse<AnnouncementSearchItemResponse> getOpenByHousingType(
+            AnnouncementSort sort,
+            String housingType,
+            String cursor,
+            int limit
+    );
+
 }
