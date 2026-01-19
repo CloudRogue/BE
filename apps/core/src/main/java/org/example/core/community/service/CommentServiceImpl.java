@@ -36,7 +36,7 @@ public class CommentServiceImpl implements CommentService {
                 : ScrollPosition.of(Map.of("id", cursor), ScrollPosition.Direction.FORWARD);
 
         // 3. 데이터 조회
-        Window<Comment> window = commentRepo.findFirstByAnnouncementIdOrderByIdDesc(
+        Window<Comment> window = commentRepo.findByAnnouncementIdOrderByIdDesc(
                 announcementId,
                 position,
                 Limit.of(limit)
