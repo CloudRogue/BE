@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.auth.dto.UsersPrincipal;
 import org.example.core.community.dto.request.CommentCreateRequest;
+import org.example.core.community.dto.request.CommentUpdateRequest;
 import org.example.core.community.dto.response.CommentSliceResponse;
 import org.example.core.community.service.CommentService;
 import org.springframework.http.HttpStatus;
@@ -48,10 +49,10 @@ public class CommentController {
     @PatchMapping("/comments/{commentPk}")
     public ResponseEntity<Map<String, Long>> updateComment(
             @PathVariable Long commentPk,
-            @RequestBody String content,
+            @RequestBody CommentUpdateRequest request,
             @AuthenticationPrincipal UsersPrincipal user
     ) {
-        commentService.updateComment(commentPk, content, user.getUserId());
+        commentService.updateComment(commentPk, request.content(), user.getUserId());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(Map.of("commentId", commentPk));
