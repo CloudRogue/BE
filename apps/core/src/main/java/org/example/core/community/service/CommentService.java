@@ -2,6 +2,7 @@ package org.example.core.community.service;
 
 import org.example.core.community.dto.request.CommentCreateRequest;
 import org.example.core.community.dto.response.CommentSliceResponse;
+import org.example.core.community.dto.response.CommentUpdateResponse;
 
 public interface CommentService {
 
@@ -10,7 +11,7 @@ public interface CommentService {
     // 2. 댓글 작성
     Long createComment(String announcementId, CommentCreateRequest request, String authorId);
     // 3. 댓글 수정
-    Long updateComment(Long commentPk, String content, String user); 
+    CommentUpdateResponse updateComment(Long commentPk, String content, String user); 
     // 4. 댓글 삭제
     void deleteComment();
 }
