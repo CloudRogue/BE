@@ -6,6 +6,7 @@ import org.example.auth.dto.UsersPrincipal;
 import org.example.core.community.dto.request.CommentCreateRequest;
 import org.example.core.community.dto.request.CommentUpdateRequest;
 import org.example.core.community.dto.response.CommentSliceResponse;
+import org.example.core.community.dto.response.CommentUpdateResponse;
 import org.example.core.community.service.CommentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,7 @@ public class CommentController {
             @RequestBody @Valid CommentCreateRequest request,
             @AuthenticationPrincipal UsersPrincipal user
             ) {
-        Long commentId = commentService.createComment(announcementId, request, user.getUserId());
+        Long commentId = commentService.createComment(announcementId, request.content(), user.getUserId(), request.parentId());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of("commentId", commentId));
     }
@@ -51,7 +52,7 @@ public class CommentController {
             @RequestBody CommentUpdateRequest request,
             @AuthenticationPrincipal UsersPrincipal user
     ) {
-        commentService.updateComment(commentPk, request.content(), user.getUserId());
+        CommentUpdateResponse response = commentService.updateComment(commentPk, request.content(), user.getUserId());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(Map.of("commentId", commentPk));
