@@ -15,4 +15,6 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             ScrollPosition position,
             Limit limit
     );
+
+    long countByAnnouncementId(String announcementId);
 }
