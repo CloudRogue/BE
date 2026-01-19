@@ -40,8 +40,7 @@ public class CommentController {
             @RequestBody @Valid CommentCreateRequest request,
             @AuthenticationPrincipal UsersPrincipal user
             ) {
-        String tempUserName = "tempUserName";
-        Long commentId = commentService.createComment(announcementId, request.content(), tempUserName, request.parentId());
+        Long commentId = commentService.createComment(announcementId, request.content(), user.getUserId(), request.parentId());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of("commentId", commentId));
     }
@@ -53,8 +52,7 @@ public class CommentController {
             @RequestBody CommentUpdateRequest request,
             @AuthenticationPrincipal UsersPrincipal user
     ) {
-        String tempUserName = "tempUserName";
-        CommentUpdateResponse response = commentService.updateComment(commentPk, request.content(), tempUserName);
+        CommentUpdateResponse response = commentService.updateComment(commentPk, request.content(), user.getUserId());
 
         return ResponseEntity.status(HttpStatus.OK).body(response);
     } 
@@ -65,8 +63,7 @@ public class CommentController {
             @PathVariable Long commentPk,
             @AuthenticationPrincipal UsersPrincipal user
     ) {
-        String tempUserName = "tempUserName";
-        commentService.deleteComment(commentPk, tempUserName);
+        commentService.deleteComment(commentPk, user.getUserId());
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
