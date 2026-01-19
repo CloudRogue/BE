@@ -12,7 +12,7 @@ public record CommentContentResponse(
         String content,
         Long likeCount,
         Long reportCount,
-        boolean isDeleted,
+        OffsetDateTime deletedAt,
         OffsetDateTime createdAt,
         OffsetDateTime updatedAt
 ) {
@@ -25,7 +25,7 @@ public record CommentContentResponse(
                 c.getDeletedAt() != null ? "삭제된 댓글입니다." : c.getContent(),
                 likeCount,
                 reportCount,
-                c.getDeletedAt() != null,
+                c.getDeletedAt(),
                 c.getCreatedAt(),
                 c.getUpdatedAt()
         );

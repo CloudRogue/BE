@@ -80,7 +80,7 @@ public class Comment {
     }
 
     public void markSoftDeleted() {
-        if (this.deletedAt != null) {
+        if (this.deletedAt == null) {
             this.deletedAt = OffsetDateTime.now();
         }
     }

@@ -13,10 +13,4 @@ public interface CommentService {
     Long updateComment(Long commentPk, String content, String user); 
     // 4. 댓글 삭제
     Long deleteComment(Long commentPk, String userId);
-    // 5. 댓글 좋아요
-    void likeComment();
-    // 6. 댓글 좋아요 취소
-    void unlikeComment();
-    // 7. 댓글 신고
-    void reportComment();
 }
