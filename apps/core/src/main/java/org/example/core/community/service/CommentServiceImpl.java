@@ -119,7 +119,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public void updateComment(Long commentPk, String content, String user) {
+    public Long updateComment(Long commentPk, String content, String user) {
 
         Comment comment = commentRepo.findById(commentPk)
                 .orElseThrow(() -> new EntityNotFoundException("댓글을 찾을 수 없습니다."));
@@ -129,7 +129,9 @@ public class CommentServiceImpl implements CommentService {
 
         comment.updateContent(content);
         comment.touchUpdatedAt();
-    }
+        
+        return commentPk;
+    } 
 
     @Override
     public void deleteComment() {

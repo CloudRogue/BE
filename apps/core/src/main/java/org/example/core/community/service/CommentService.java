@@ -10,7 +10,7 @@ public interface CommentService {
     // 2. 댓글 작성
     Long createComment(String announcementId, CommentCreateRequest request, String authorId);
     // 3. 댓글 수정
-    void updateComment(Long commentPk, String content, String user);
+    Long updateComment(Long commentPk, String content, String user); 
     // 4. 댓글 삭제
     void deleteComment();
 }

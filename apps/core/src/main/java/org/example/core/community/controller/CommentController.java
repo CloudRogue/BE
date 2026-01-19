@@ -45,7 +45,7 @@ public class CommentController {
     }
 
     // 3. 댓글 수정
-    @PatchMapping("comments/{commentPk}")
+    @PatchMapping("/comments/{commentPk}")
     public ResponseEntity<Map<String, Long>> updateComment(
             @PathVariable Long commentPk,
             @RequestBody String content,
@@ -55,7 +55,7 @@ public class CommentController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(Map.of("commentId", commentPk));
-    }
+    } 
 
     // 4. 댓글 삭제
     @DeleteMapping("/comments/{commentPk}")
