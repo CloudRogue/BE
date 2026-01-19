@@ -2,8 +2,7 @@ package org.example.core.community.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record CommentCreateRequest(
+public record CommentUpdateRequest(
         @NotBlank
-        String content,
-        Long parentId
+        String content
 ) { }
