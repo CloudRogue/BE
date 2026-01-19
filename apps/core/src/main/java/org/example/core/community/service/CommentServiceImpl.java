@@ -1,10 +1,8 @@
 package org.example.core.community.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.core.community.domain.Comment;
 import org.example.core.community.dto.CommentCountDto;
-import org.example.core.community.dto.request.CommentCreateRequest;
 import org.example.core.community.dto.response.CommentContentResponse;
 import org.example.core.community.dto.response.CommentSliceResponse;
 import org.example.core.community.repository.CommentLikeRepository;
@@ -30,13 +28,15 @@ public class CommentServiceImpl implements CommentService {
     @Transactional(readOnly = true)
     public CommentSliceResponse getComments(String announcementId, Long cursor, Integer limit) {
 
-        // 1. ScrollPosition 설정 (커서가 없으면 initial, 있으면 keyset 생성)
-        // KeysetScrollPosition은 마지막으로 본 데이터의 식별자(ID)를 기억합니다.
+        // 1. 전체 댓글 개수 조회 (totalPages 계산용)
+        long totalElements = commentRepo.countByAnnouncementId(announcementId);
+
+        // 2. ScrollPosition 설정
         ScrollPosition position = (cursor == null)
                 ? ScrollPosition.keyset()
-                : ScrollPosition.of(Map.of("id", cursor), ScrollPosition.Direction.BACKWARD);
+                : ScrollPosition.of(Map.of("id", cursor), ScrollPosition.Direction.FORWARD);
 
-        // 2. Scrolling 쿼리 실행
+        // 3. 데이터 조회
         Window<Comment> window = commentRepo.findFirstByAnnouncementIdOrderByIdDesc(
                 announcementId,
                 position,
@@ -45,41 +45,26 @@ public class CommentServiceImpl implements CommentService {
 
         List<Comment> resultComments = window.getContent();
 
-        // 3. 일괄 카운트 및 조회
-        List<Long> commentIds = resultComments.stream().map(Comment::getId).toList();
-
-        Map<Long, Long> likeCountMap = commentLikeRepo.countLikesByCommentIds(commentIds).stream()
-                .collect(Collectors.toMap(
-                    CommentCountDto::getCommentId,
-                    CommentCountDto::getCount
-                ));
-
-        Map<Long, Long> reportCountMap = commentReportRepo.countReportsByCommentIds(commentIds).stream()
-                .collect(Collectors.toMap(
-                    CommentCountDto::getCommentId,
-                    CommentCountDto::getCount
-                ));
+        if (resultComments.isEmpty()) {
+            return new CommentSliceResponse(List.of(), null, false, cursor != null, totalElements, limit);
+        }
 
         // 4. DTO 변환
         List<CommentContentResponse> contents = resultComments.stream()
-                .map(comment -> CommentContentResponse.of(
-                        comment,
-                        likeCountMap.getOrDefault(comment.getId(), 0L),
-                        reportCountMap.getOrDefault(comment.getId(), 0L)
-                ))
+                .map(CommentContentResponse::of)
                 .toList();
 
-        // 5. 다음 커서 추출 (Window가 다음 위치를 알고 있음)
+        // 5. 다음 커서 추출
         Long nextCursor = null;
-        if (!window.isLast()) {
-            // KeysetScrollPosition에서 ID 값을 추출
+        if (window.hasNext()) {
             ScrollPosition nextPos = window.positionAt(resultComments.getLast());
             if (nextPos instanceof KeysetScrollPosition keyset) {
                 nextCursor = (Long) keyset.getKeys().get("id");
             }
         }
 
-        return new CommentSliceResponse(contents, nextCursor, !window.isLast());
+        // 6. 최종 응답 (totalElements와 limit을 넘겨 DTO 내부에서 계산)
+        return new CommentSliceResponse(contents, nextCursor, window.hasNext(), cursor != null, totalElements, limit);
     }
 
     @Override
