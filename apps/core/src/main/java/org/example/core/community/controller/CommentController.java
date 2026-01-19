@@ -65,7 +65,6 @@ public class CommentController {
     ) {
         Long deletedId =  commentService.deleteComment(commentPk, user.getUserId());
         return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .body(Map.of("commentId", deletedId));
+                .status(HttpStatus.NO_CONTENT).build();
     }
 }
