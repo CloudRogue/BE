@@ -2,7 +2,7 @@ package org.example.core.community.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.auth.dto.UsersPrincipal;
+//import org.example.auth.dto.UsersPrincipal;
 import org.example.core.community.dto.request.CommentCreateRequest;
 import org.example.core.community.dto.request.CommentUpdateRequest;
 import org.example.core.community.dto.response.CommentSliceResponse;
@@ -10,7 +10,7 @@ import org.example.core.community.dto.response.CommentUpdateResponse;
 import org.example.core.community.service.CommentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+//import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -37,10 +37,11 @@ public class CommentController {
     @PostMapping("/announcements/{announcementId}/comments")
     public ResponseEntity<Map<String, Long>> createComment(
             @PathVariable String announcementId,
-            @RequestBody @Valid CommentCreateRequest request,
-            @AuthenticationPrincipal UsersPrincipal user
+            @RequestBody @Valid CommentCreateRequest request
+//            @AuthenticationPrincipal UsersPrincipal user
             ) {
-        Long commentId = commentService.createComment(announcementId, request.content(), user.getUserId(), request.parentId());
+        String tempUserName = "tempUserName";
+        Long commentId = commentService.createComment(announcementId, request.content(), tempUserName, request.parentId());
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of("commentId", commentId));
     }
@@ -49,10 +50,11 @@ public class CommentController {
     @PatchMapping("/comments/{commentPk}")
     public ResponseEntity<Map<String, Long>> updateComment(
             @PathVariable Long commentPk,
-            @RequestBody CommentUpdateRequest request,
-            @AuthenticationPrincipal UsersPrincipal user
+            @RequestBody CommentUpdateRequest request
+//            @AuthenticationPrincipal UsersPrincipal user
     ) {
-        CommentUpdateResponse response = commentService.updateComment(commentPk, request.content(), user.getUserId());
+        String tempUserName = "tempUserName";
+        CommentUpdateResponse response = commentService.updateComment(commentPk, request.content(), tempUserName);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(Map.of("commentId", commentPk));
@@ -60,12 +62,12 @@ public class CommentController {
 
     // 4. 댓글 삭제
     @DeleteMapping("comments/{commentPk}")
-    public ResponseEntity<Map<String, Long>> deleteComment(
-            @PathVariable Long commentPk,
-            @AuthenticationPrincipal UsersPrincipal user
+    public ResponseEntity<Void> deleteComment(
+            @PathVariable Long commentPk
+//            @AuthenticationPrincipal UsersPrincipal user
     ) {
-        Long deletedId =  commentService.deleteComment(commentPk, user.getUserId());
-        return ResponseEntity
-                .status(HttpStatus.NO_CONTENT).build();
+        String tempUserName = "tempUserName";
+        commentService.deleteComment(commentPk, tempUserName);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }

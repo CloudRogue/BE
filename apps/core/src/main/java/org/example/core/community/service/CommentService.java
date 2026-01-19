@@ -13,5 +13,5 @@ public interface CommentService {
     // 3. 댓글 수정
     CommentUpdateResponse updateComment(Long commentPk, String content, String user); 
     // 4. 댓글 삭제
-    Long deleteComment(Long commentPk, String userId);
+    void deleteComment(Long commentPk, String userId);
 }
