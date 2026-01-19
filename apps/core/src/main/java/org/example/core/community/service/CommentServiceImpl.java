@@ -85,7 +85,7 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     @Transactional
-    public Long createComment(String announcementId, CommentCreateRequest request) {
+    public Long createComment(String announcementId, CommentCreateRequest request, String authorId) {
         Comment comment;
 
         // userID 향후에 추가?
@@ -93,7 +93,7 @@ public class CommentServiceImpl implements CommentService {
             // 1. 원 댓글 생성
             comment = Comment.newParentComment(
                     announcementId,
-                    request.authorUserId(),
+                    authorId,
                     request.content()
             );
         } else {
@@ -109,7 +109,7 @@ public class CommentServiceImpl implements CommentService {
             comment = Comment.newKindAnswer(
                     announcementId,
                     parent,
-                    request.authorUserId(),
+                    authorId,
                     request.content()
             );
         }
@@ -133,21 +133,6 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public void deleteComment() {
-
-    }
-
-    @Override
-    public void likeComment() {
-
-    }
-
-    @Override
-    public void unlikeComment() {
-
-    }
-
-    @Override
-    public void reportComment() {
 
     }
 }
