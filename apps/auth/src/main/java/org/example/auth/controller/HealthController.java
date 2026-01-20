@@ -10,5 +10,7 @@ public class HealthController {
     @GetMapping("/health")
     public ResponseEntity<Void> health() {
         return ResponseEntity.status(HttpStatus.OK).build();
+    public ResponseEntity<String> health() {
+        return ResponseEntity.ok("ok");
     }
 }
