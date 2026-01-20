@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -44,26 +45,29 @@ public class KakaoUserHandler implements ProviderUserHandler {
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.getOrDefault("kakao_account", Map.of());
         Map<String, Object> profile      = (Map<String, Object>) kakaoAccount.getOrDefault("profile", Map.of());
 
-        String email = "test@test.com"; //(String) kakaoAccount.get("email");
+        String email = (String) kakaoAccount.get("email");
         String name = (String) profile.get("nickname");
 
         if (name == null) {
             throw new OAuth2AuthenticationException("카카오 프로필 닉네임이 없습니다.");
         }
 
-        Users user = usersRepository
-                .findByProviderAndProviderUserId(OAuthProvider.KAKAO, providerUserId)
-                .orElseGet(() -> {
-                    String newUserId = UlidCreator.getUlid().toString();
-                    Users newUser = new Users(
-                            newUserId,
-                            name,
-                            email,
-                            OAuthProvider.KAKAO,
-                            providerUserId
-                    );
-                    return usersRepository.save(newUser);
-                });
+        Optional<Users> existing = usersRepository
+                .findByProviderAndProviderUserId(OAuthProvider.KAKAO, providerUserId);
+
+        boolean isNew = existing.isEmpty();
+
+        Users user = existing.orElseGet(() -> {
+            String newUserId = UlidCreator.getUlid().toString();
+            Users newUser = new Users(
+                    newUserId,
+                    name,
+                    email,
+                    OAuthProvider.KAKAO,
+                    providerUserId
+            );
+            return usersRepository.save(newUser);
+        });
 
         Collection<GrantedAuthority> authorities =
                 List.of(new SimpleGrantedAuthority(UserRole.MEMBER.authority()));
@@ -71,7 +75,8 @@ public class KakaoUserHandler implements ProviderUserHandler {
         return new UsersPrincipal(
                 user.getUserId(),
                 user.getName(),
-                authorities
+                authorities,
+                isNew
         );
     }
 }

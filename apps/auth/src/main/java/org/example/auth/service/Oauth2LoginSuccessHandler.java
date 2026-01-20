@@ -24,6 +24,9 @@ public class Oauth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     @Value("${auth.redirect.success-url}")
     private String successRedirectUrl;
 
+    @Value("${auth.redirect.success-new-url}")
+    private String new_successRedirectUrl;
+
     @Override
     public void onAuthenticationSuccess(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull Authentication authentication) throws IOException, ServletException {
         UsersPrincipal principal = (UsersPrincipal) authentication.getPrincipal();
@@ -52,7 +55,10 @@ public class Oauth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
-        // 2) 프론트로 리다이렉트
-        response.sendRedirect(successRedirectUrl);
+        String redirectUrl = principal.isNew()
+                ? new_successRedirectUrl
+                : successRedirectUrl;
+
+        response.sendRedirect(redirectUrl);
     }
 }
