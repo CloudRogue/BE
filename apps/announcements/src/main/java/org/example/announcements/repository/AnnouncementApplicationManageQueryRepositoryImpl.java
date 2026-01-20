@@ -68,7 +68,13 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
         //APPLYING용
         NumberExpression<Integer> applyingExpr =
                 new CaseBuilder()
-                        .when(announcement.endDate.goe(today)) // 조건: endDate >= today
+                        .when(
+                                announcement.endDate.goe(today)
+                                        .and(
+                                                announcement.documentPublishedAt.isNull()
+                                                        .or(announcement.documentPublishedAt.gt(today))
+                                        )
+                        )
                         .then(1)
                         .otherwise(0);
 
@@ -76,11 +82,11 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
         NumberExpression<Integer> documentWaitingExpr =
                 new CaseBuilder()
                         .when(
-                                announcement.endDate.lt(today) // endDate < today
-                                        .and(announcement.documentPublishedAt.isNotNull()) // null 막기
-                                        .and(announcement.documentPublishedAt.gt(today)) // today < documentPublishedAt
+                                announcement.endDate.lt(today)
+                                        .and(announcement.documentPublishedAt.isNotNull())
+                                        .and(announcement.documentPublishedAt.gt(today))
                         )
-                        .then(1) // 조건 만족하면 1
+                        .then(1)
                         .otherwise(0);
 
         //FiNAL_WAITING용
