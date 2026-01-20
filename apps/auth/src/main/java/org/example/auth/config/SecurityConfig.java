@@ -103,7 +103,8 @@ public class SecurityConfig {
             UsersPrincipal principal = new UsersPrincipal(
                     userId,
                     nickname,
-                    authorities
+                    authorities,
+                    false
             );
 
             return new UsernamePasswordAuthenticationToken(principal, jwt, authorities);
