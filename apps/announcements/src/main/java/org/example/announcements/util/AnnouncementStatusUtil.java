@@ -62,4 +62,45 @@ public final class AnnouncementStatusUtil {
         // 오늘부터 시작일까지 남은 일수 반환
         return (int) ChronoUnit.DAYS.between(today, startDate);
     }
+
+    // 지원완료 이후 신청관리 전용 상태 계산
+    public static String calcApplicationManageStatus(
+            LocalDate endDate,
+            LocalDate documentPublishedAt,
+            LocalDate finalPublishedAt,
+            LocalDate today
+    ){
+        if (endDate == null) return "CLOSED";
+
+        if(!today.isAfter(endDate)) return "APPLYING";
+
+        if (documentPublishedAt == null) return "CLOSED";
+
+        if(today.isBefore(documentPublishedAt)) return "DOCUMENT_WAITING";
+
+        if (finalPublishedAt == null) return "CLOSED";
+
+        if(today.isBefore(finalPublishedAt)) return "FINAL_WAITING";
+
+        return "CLOSED";
+
+    }
+
+    // 신청관리 전용 디데이 계산
+    public static Long calcApplicationManageDDay(
+            String currentStatus,
+            LocalDate endDate,
+            LocalDate documentPublishedAt,
+            LocalDate finalPublishedAt,
+            LocalDate today
+    ){
+        if (currentStatus == null || today == null) return null;
+
+        return switch (currentStatus) {
+            case "APPLYING" -> (endDate == null) ? null : ChronoUnit.DAYS.between(today, endDate);
+            case "DOCUMENT_WAITING" -> (documentPublishedAt == null) ? null : ChronoUnit.DAYS.between(today, documentPublishedAt);
+            case "FINAL_WAITING" -> (finalPublishedAt == null) ? null : ChronoUnit.DAYS.between(today, finalPublishedAt);
+            default -> null;
+        };
+    }
 }

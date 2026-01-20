@@ -28,3 +28,6 @@ announcements:
     env: ${ANNOUNCEMENTS_INGEST_ENV}
     scope: ${ANNOUNCEMENTS_INGEST_SCOPE}
     sh-category: ${ANNOUNCEMENTS_INGEST_SH_CATEGORY}
+  manage:
+    min-size: ${ANNOUNCEMENTS_APP_MANAGE_MIN_SIZE}
+    max-size: ${ANNOUNCEMENTS_APP_MANAGE_MAX_SIZE}
