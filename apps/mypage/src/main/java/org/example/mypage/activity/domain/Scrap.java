@@ -33,7 +33,7 @@ import java.time.Instant;
 @Entity
 @Getter
 @Table(
-        name = "announcement_bookmark",
+        name = "scrap",
         uniqueConstraints = {
                 @UniqueConstraint(
                         name = "uk_bookmark_user_announcement",
@@ -45,7 +45,7 @@ import java.time.Instant;
         }
 )
 @NoArgsConstructor
-public class AnnouncementBookmark {
+public class Scrap {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -63,7 +63,7 @@ public class AnnouncementBookmark {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    public AnnouncementBookmark(@Nonnull String userId, @Nonnull Long announcementId) {
+    public Scrap(@Nonnull String userId, @Nonnull Long announcementId) {
         this.userId = userId;
         this.announcementId = announcementId;
     }
