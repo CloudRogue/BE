@@ -1,10 +1,14 @@
 package org.example.announcements.util;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
 import org.example.announcements.exception.BusinessException;
 import org.example.announcements.exception.ErrorCode;
 import org.springframework.data.domain.KeysetScrollPosition;
 import org.springframework.data.domain.ScrollPosition;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Base64;
 import java.util.LinkedHashMap;
 
@@ -13,7 +17,21 @@ import java.util.LinkedHashMap;
 public final class ScrollCursorCodec {
 
     //JSON 직렬화/역지렬화 하기위한 도구
-    private static final ObjectMapper OM = new ObjectMapper();
+    private static final ObjectMapper OM = buildObjectMapper();
+
+    private static ObjectMapper buildObjectMapper() {
+        PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
+                .allowIfSubType("java.time.") // LocalDate/LocalDateTime
+                .allowIfSubType("java.lang.") // Long, String 등
+                .allowIfSubType("java.math.")
+                .allowIfSubType("java.util.") // Map/Collection
+                .build();
+
+        return JsonMapper.builder()
+                .findAndAddModules() // JavaTimeModule 자동 등록
+                .activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY)
+                .build();
+    }
 
     private ScrollCursorCodec() {}
 

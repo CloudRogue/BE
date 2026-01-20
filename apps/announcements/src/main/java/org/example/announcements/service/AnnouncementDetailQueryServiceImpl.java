@@ -42,11 +42,13 @@ public class AnnouncementDetailQueryServiceImpl implements AnnouncementDetailQue
         String status = calcStatus(a.getStartDate(), a.getEndDate(), today);
         Integer dDay = calcDDay(status, a.getEndDate(), today);
 
-        Boolean isScrapped = null;
-        if (userId != null && !userId.isBlank()) {
-            isScrapped = announcementScrapRepository // 찜 테이블 조회
-                    .existsByUserIdAndAnnouncement_Id(userId, announcementId); // 존재 여부로 찜 판단
-        }
+        Boolean isScrapped = false;
+
+        //추후에 서비스 코드 수정예정
+//        if (userId != null && !userId.isBlank()) {
+//            isScrapped = announcementScrapRepository // 찜 테이블 조회
+//                    .existsByUserIdAndAnnouncement_Id(userId, announcementId); // 존재 여부로 찜 판단
+//        }
 
         String externalApplyUrl = calcExternalApplyUrl(a.getSource()); // source(LH/SH)에 따라 신청 링크를 고정값으로 선택
 

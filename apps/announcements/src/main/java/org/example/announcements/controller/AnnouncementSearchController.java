@@ -19,9 +19,6 @@ public class AnnouncementSearchController {
 
     private final AnnouncementListQueryService listQueryService;
 
-    @Value("${announcements.paging.default-limit}")
-    private int defaultLimit;
-
     @Value("${announcements.paging.max-limit}")
     private int maxLimit;
 
@@ -97,6 +94,29 @@ public class AnnouncementSearchController {
 
         return ResponseEntity.ok(
                 listQueryService.getOpenByHousingType(sort, validatedHousingType, cursor, validatedLimit)
+        );
+    }
+
+    @GetMapping("/region")
+    public ResponseEntity<ApiListResponse<AnnouncementSearchItemResponse>> getOpenByRegion(
+            @RequestParam(required = false) String regionName,
+            @RequestParam(required = false) String cursor,
+            @RequestParam(required = false) Integer limit,
+            @RequestParam(required = false) AnnouncementSort sort
+    ) {
+        if (regionName == null || regionName.isBlank()) {
+            throw new BusinessException(ErrorCode.INVALID_REQUEST, "regionName 파라미터는 필수입니다.");
+        }
+
+        int validatedLimit = requireValidLimit(limit);
+
+        return ResponseEntity.ok(
+                listQueryService.getOpenByRegion(
+                        regionName.trim(),  // "강남구" 같
+                        sort,
+                        cursor,
+                        validatedLimit
+                )
         );
     }
 

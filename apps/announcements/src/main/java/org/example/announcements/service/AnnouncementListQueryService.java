@@ -43,4 +43,11 @@ public interface AnnouncementListQueryService {
             int limit
     );
 
+    // 지역으로 검색하기 (접수중 전용)
+    ApiListResponse<AnnouncementSearchItemResponse> getOpenByRegion(
+            String region,
+            AnnouncementSort sort,
+            String cursor,
+            int limit
+    );
 }

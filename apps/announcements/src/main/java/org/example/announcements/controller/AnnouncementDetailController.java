@@ -2,11 +2,14 @@ package org.example.announcements.controller;
 
 
 import lombok.RequiredArgsConstructor;
+import org.example.announcements.dto.AnnouncementDetailResponse;
 import org.example.announcements.dto.AnnouncementOverviewResponse;
 import org.example.announcements.dto.AnnouncementSummaryResponse;
+import org.example.announcements.service.AnnouncementDetailQueryService;
 import org.example.announcements.service.AnnouncementOverviewQueryService;
 import org.example.announcements.service.AnnouncementSummaryQueryService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/announcements")
 public class AnnouncementDetailController {
 
+    private final AnnouncementDetailQueryService detailQueryService;
     private final AnnouncementSummaryQueryService summaryQueryService;
     private final AnnouncementOverviewQueryService overviewQueryService;
 
@@ -25,5 +29,14 @@ public class AnnouncementDetailController {
     @GetMapping("/{announcementId}/detail/overview")
     public ResponseEntity<AnnouncementOverviewResponse> getOverview(@PathVariable Long announcementId) {
         return ResponseEntity.ok(overviewQueryService.getOverview(announcementId));
+    }
+
+    //공고 상세 조회
+    @GetMapping("/{announcementId}/detail")
+    public ResponseEntity<AnnouncementDetailResponse> getDetail(
+            @PathVariable Long announcementId,
+            @AuthenticationPrincipal(expression = "userId") String userId
+    ) {
+        return ResponseEntity.ok(detailQueryService.getDetail(announcementId, userId));
     }
 }

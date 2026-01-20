@@ -8,6 +8,7 @@ import org.example.announcements.domain.Announcement;
 import org.example.announcements.dto.AnnouncementOpenItemResponse;
 import org.example.announcements.dto.AnnouncementSearchItemResponse;
 import org.example.announcements.repository.AnnouncementRepository;
+import org.example.announcements.repository.RegionQueryResult;
 import org.example.announcements.util.ScrollCursorCodec;
 import org.springframework.data.domain.KeysetScrollPosition;
 import org.springframework.data.domain.Limit;
@@ -167,6 +168,41 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
             String status = calcStatus(a.getStartDate(), a.getEndDate(), today);
             return AnnouncementSearchItemResponse.of(a, status);
         });
+    }
+
+    @Override
+    public ApiListResponse<AnnouncementSearchItemResponse> getOpenByRegion(String region, AnnouncementSort sort, String cursor, int limit) {
+        if (sort == null) sort = AnnouncementSort.DEADLINE;
+
+        KeysetScrollPosition position = decode(cursor);
+        LocalDate today = LocalDate.now();
+
+        RegionQueryResult result =
+                announcementRepository.findOpenByRegionKeyword(
+                        today,
+                        region,
+                        sort,
+                        position,
+                        Limit.of(limit)
+                );
+
+        String nextCursor = ScrollCursorCodec.encode(result.nextPosition());
+
+        return new ApiListResponse<>(
+                result.content().stream()
+                        .map(a ->
+                                AnnouncementSearchItemResponse.of(
+                                        a,
+                                        calcStatus(a.getStartDate(), a.getEndDate(), today)
+                                )
+                        )
+                        .toList(),
+                new CursorMeta(
+                        limit,
+                        result.hasNext(),
+                        nextCursor
+                )
+        );
     }
 
     // =====중복제거용 고통 메서드 생성하기==========
