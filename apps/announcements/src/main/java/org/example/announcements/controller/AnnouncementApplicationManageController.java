@@ -40,6 +40,47 @@ public class AnnouncementApplicationManageController {
         );
     }
 
+    //신청관리 - 서류 발표대기
+    @GetMapping("/document-pending")
+    public ResponseEntity<ApplicationManageListResponse> getDocumentPending(
+            @AuthenticationPrincipal(expression = "userId") String userId,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(required = false) Integer size
+    ) {
+        int validatedSize = requireValidSize(size);
+
+        return ResponseEntity.ok(
+                applicationManageQueryService.getDocumentPending(userId, cursor, validatedSize)
+        );
+    }
+    //신청관리 - 최종 발표대기
+    @GetMapping("/final-pending")
+    public ResponseEntity<ApplicationManageListResponse> getFinalPending(
+            @AuthenticationPrincipal(expression = "userId") String userId,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(required = false) Integer size
+    ) {
+        int validatedSize = requireValidSize(size);
+
+        return ResponseEntity.ok(
+                applicationManageQueryService.getFinalPending(userId, cursor, validatedSize)
+        );
+    }
+
+    //신청관리 - 발표마감
+    @GetMapping("/closed")
+    public ResponseEntity<ApplicationManageListResponse> getClosed(
+            @AuthenticationPrincipal(expression = "userId") String userId,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(required = false) Integer size
+    ) {
+        int validatedSize = requireValidSize(size);
+
+        return ResponseEntity.ok(
+                applicationManageQueryService.getClosed(userId, cursor, validatedSize)
+        );
+    }
+
     //검증 유틸
     private int requireValidSize(Integer size) {
         if (size == null) {
