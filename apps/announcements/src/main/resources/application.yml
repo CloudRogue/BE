@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+
+announcements:
+  paging:
+    default-limit: ${ANNOUNCEMENTS_PAGING_DEFAULT_LIMIT}  # 디폴트값
+    max-limit: ${ANNOUNCEMENTS_PAGING_MAX_LIMIT}          # 최대
+  apply:
+    lh: ${ANNOUNCEMENTS_APPLY_LH_URL} #LH
+    sh: ${ANNOUNCEMENTS_APPLY_SH_URL} #SH
+  ingest:
+    env: ${ANNOUNCEMENTS_INGEST_ENV}
+    scope: ${ANNOUNCEMENTS_INGEST_SCOPE}
+    sh-category: ${ANNOUNCEMENTS_INGEST_SH_CATEGORY}

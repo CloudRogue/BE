@@ -10,22 +10,18 @@ public record CommentContentResponse(
         String authorUserId,
         Long parentId,
         String content,
-        Long likeCount,
-        Long reportCount,
-        boolean isDeleted,
+        OffsetDateTime deletedAt,
         OffsetDateTime createdAt,
         OffsetDateTime updatedAt
 ) {
-    public static CommentContentResponse of(Comment c, Long likeCount, Long reportCount) {
+    public static CommentContentResponse of(Comment c) {
         return new CommentContentResponse(
                 c.getId(),
                 c.getAnnouncementId(),
                 c.getAuthorUserId(),
                 c.getParent() != null ? c.getParent().getId() : null,
                 c.getDeletedAt() != null ? "삭제된 댓글입니다." : c.getContent(),
-                likeCount,
-                reportCount,
-                c.getDeletedAt() != null,
+                c.getDeletedAt(),
                 c.getCreatedAt(),
                 c.getUpdatedAt()
         );

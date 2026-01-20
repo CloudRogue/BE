@@ -12,13 +12,16 @@ public final class UsersPrincipal implements OAuth2User {
     private final String userId;
     private final String nickname;
     private final Collection<? extends GrantedAuthority> authorities;
+    private final boolean isNew;
 
     public UsersPrincipal(String userId,
                           String nickname,
-                          Collection<? extends GrantedAuthority> authorities) {
+                          Collection<? extends GrantedAuthority> authorities,
+                          boolean isNew) {
         this.userId = userId;
         this.nickname = nickname;
         this.authorities = authorities;
+        this.isNew = isNew;
     }
 
     @Override

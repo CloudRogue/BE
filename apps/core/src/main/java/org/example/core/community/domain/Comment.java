@@ -2,9 +2,12 @@ package org.example.core.community.domain;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.example.core.community.domain.enums.ContentFilter;
+import org.example.core.community.exception.BlankContentException;
+
 import java.time.OffsetDateTime;
 
 
@@ -18,7 +21,7 @@ import java.time.OffsetDateTime;
                 @Index(name = "idx_comment_author", columnList = "author_user_id")
         }
 )
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment {
 
     @Id
@@ -77,9 +80,16 @@ public class Comment {
     }
 
     public void markSoftDeleted() {
-        if (this.deletedAt != null) {
+        if (this.deletedAt == null) {
             this.deletedAt = OffsetDateTime.now();
         }
+    }
+
+    public void updateContent(String newContent) {
+        if(newContent == null || newContent.isBlank()) {
+            throw new BlankContentException("댓글 내용은 비어 있을 수 없습니다.");
+        }
+        this.content = newContent;
     }
 
     public void touchUpdatedAt() {

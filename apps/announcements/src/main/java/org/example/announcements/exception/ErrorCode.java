@@ -12,10 +12,15 @@ public enum ErrorCode {
     // 공고
     ANNOUNCEMENT_NOT_FOUND("ANNOUNCEMENT_NOT_FOUND", HttpStatus.NOT_FOUND, "공고를 찾을 수 없습니다."),
 
+    //값 오류
+    INVALID_LIMIT("INVALID_LIMIT", HttpStatus.BAD_REQUEST, "limit 값이 올바르지 않습니다."),
 
     // 검증/요청 오류
     VALIDATION_ERROR("VALIDATION_ERROR", HttpStatus.BAD_REQUEST, "요청 값이 올바르지 않습니다."),
     INVALID_REQUEST("INVALID_REQUEST", HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
+
+    // 커서 에러
+    INVALID_CURSOR("INVALID_CURSOR", HttpStatus.BAD_REQUEST, "커서 값이 올바르지 않습니다."),
 
 
     // 서버 애러

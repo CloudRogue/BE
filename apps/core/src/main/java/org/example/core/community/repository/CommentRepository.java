@@ -10,9 +10,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
-    Window<Comment> findFirstByAnnouncementIdOrderByIdDesc(
+    Window<Comment> findByAnnouncementIdOrderByIdDesc(
             String announcementId,
             ScrollPosition position,
             Limit limit
     );
+
+    long countByAnnouncementId(String announcementId);
 }

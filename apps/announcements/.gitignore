@@ -35,3 +35,10 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Environment variables
+env
+.env.*
+
+# test config
+apps/announcements/src/main/resources/application-test.yml
