@@ -1,10 +1,7 @@
 package org.example.mypage.advice;
 
 
-import org.example.mypage.exception.AddOnboardingException;
-import org.example.mypage.exception.NotificationChannelDisabledException;
-import org.example.mypage.exception.OnboardingIncompleteException;
-import org.example.mypage.exception.ErrorResponse;
+import org.example.mypage.exception.*;
 import org.example.mypage.exception.enums.ErrorCode;
 
 import org.springframework.http.ResponseEntity;
@@ -66,4 +63,29 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(ScrapNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleScrapNotFound(ScrapNotFoundException e) {
+        ErrorCode ec = e.getErrorCode();
+        return ResponseEntity.status(ec.httpStatus()).body(
+                new ErrorResponse(
+                        ec.code(),
+                        ec.message(),
+                        ec.status(),
+                        new ErrorResponse.Details("announcementId", "해당 공고는 스크랩되어 있지 않습니다.")
+                )
+        );
+    }
+
+    @ExceptionHandler(ScrapAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleScrapAlreadyExists(ScrapAlreadyExistsException e) {
+        ErrorCode ec = e.getErrorCode();
+        return ResponseEntity.status(ec.httpStatus()).body(
+                new ErrorResponse(
+                        ec.code(),
+                        ec.message(),
+                        ec.status(),
+                        new ErrorResponse.Details("announcementId", "이미 스크랩된 공고입니다.")
+                )
+        );
+    }
 }

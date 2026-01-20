@@ -67,4 +67,8 @@ public class Scrap {
         this.userId = userId;
         this.announcementId = announcementId;
     }
+
+    public static Scrap create(@Nonnull String userId, @Nonnull Long announcementId){
+        return new Scrap(userId, announcementId);
+    }
 }

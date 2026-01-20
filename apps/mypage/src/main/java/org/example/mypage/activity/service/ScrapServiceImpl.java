@@ -2,11 +2,13 @@ package org.example.mypage.activity.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.mypage.activity.ScrapRepository;
+import org.example.mypage.activity.repository.ScrapRepository;
 import org.example.mypage.activity.api.AnnouncementsApi;
 import org.example.mypage.activity.domain.Scrap;
 import org.example.mypage.activity.dto.AnnouncementsResponse;
 import org.example.mypage.activity.dto.response.ScrapResponse;
+import org.example.mypage.exception.ScrapAlreadyExistsException;
+import org.example.mypage.exception.ScrapNotFoundException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -51,35 +53,38 @@ public class ScrapServiceImpl implements ScrapService{
      */
     @Transactional(readOnly = true)
     public ScrapResponse getScraps(String userId, Long cursor, int limit) {
-        int size = Math.min(Math.max(limit, MIN_LIMIT), MAX_LIMIT);
+        int size = normalizeLimit(limit);
+        Pageable pageable = buildPageable(size);
 
-        Pageable pageable = PageRequest.of(
-                0,
-                size + 1,
-                Sort.by(Sort.Direction.DESC, "id")
-        );
-
+        // 1) 커서 스크롤 조회(size+1)
         List<Scrap> scraps = scrapRepository.scrollByUserId(userId, cursor, pageable);
 
         boolean hasNext = scraps.size() > size;
         if (hasNext) scraps = scraps.subList(0, size);
+
         Long nextCursor = scraps.isEmpty() ? null : scraps.getLast().getId();
 
-
+        // 2) announcementId 순서 보존 리스트
         List<Long> idsInOrder = scraps.stream()
                 .map(Scrap::getAnnouncementId)
                 .toList();
 
-        List<AnnouncementsResponse> fetched = idsInOrder.isEmpty()
-                ? List.of()
-                : announcementsApi.getAnnouncements(idsInOrder);
+        if (idsInOrder.isEmpty()) {
+            return new ScrapResponse(List.of(), nextCursor, hasNext);
+        }
 
+        // 3) 공고 조회 + announcementId로 매핑
+        List<AnnouncementsResponse> fetched = announcementsApi.getAnnouncements(idsInOrder);
+
+        // 정책: announcementId 중복 반환 가능 -> 첫 값 유지
         Map<Long, AnnouncementsResponse> map = fetched.stream()
                 .collect(Collectors.toMap(
                         AnnouncementsResponse::announcementId,
-                        Function.identity()
+                        Function.identity(),
+                        (a, b) -> a
                 ));
 
+        // 4) idsInOrder 순서대로 응답 구성(누락은 warn + 제외)
         List<ScrapResponse.Item> items = new ArrayList<>(idsInOrder.size());
         for (Long announcementId : idsInOrder) {
             AnnouncementsResponse a = map.get(announcementId);
@@ -101,6 +106,52 @@ public class ScrapServiceImpl implements ScrapService{
                     a.status()
             ));
         }
+
         return new ScrapResponse(items, nextCursor, hasNext);
     }
+
+    /**
+     * 스크랩(즐겨찾기) 추가 서비스.
+     *
+     * @param userId 사용자 ID(ULID)
+     * @param announcementId 공고 ID
+     * @throws ScrapAlreadyExistsException 이미 스크랩된 공고인 경우
+     */
+    @Override
+    @Transactional
+    public void addScrap(String userId, Long announcementId) {
+        if (scrapRepository.existsByUserIdAndAnnouncementId(userId, announcementId)) {
+            throw new ScrapAlreadyExistsException();
+        }
+
+        Scrap scrap = Scrap.create(userId, announcementId);
+        scrapRepository.save(scrap);
+    }
+
+    /**
+     * 스크랩(즐겨찾기) 삭제 서비스.
+     *
+     * @param userId 인증된 사용자 ID(ULID)
+     * @param announcementId 공고 ID
+     * @throws ScrapNotFoundException 해당 공고가 스크랩되어 있지 않은 경우
+     */
+    @Override
+    @Transactional
+    public void deleteScraps(String userId, Long announcementId) {
+        int deleted = scrapRepository.deleteByUserIdAndAnnouncementId(userId, announcementId);
+
+        if (deleted == 0) {
+            throw new ScrapNotFoundException();
+        }
+    }
+
+
+    private int normalizeLimit(int limit) {
+        return Math.min(Math.max(limit, MIN_LIMIT), MAX_LIMIT);
+    }
+
+    private Pageable buildPageable(int size) {
+        return PageRequest.of(0, size + 1, Sort.by(Sort.Direction.DESC, "id"));
+    }
+
 }

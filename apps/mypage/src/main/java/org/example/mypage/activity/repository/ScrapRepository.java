@@ -1,4 +1,4 @@
-package org.example.mypage.activity;
+package org.example.mypage.activity.repository;
 
 import org.example.mypage.activity.domain.Scrap;
 import org.springframework.data.domain.Pageable;
@@ -20,4 +20,7 @@ public interface ScrapRepository extends JpaRepository<Scrap, Long> {
     """)
     List<Scrap> scrollByUserId(@Param("userId") String userId, @Param("cursor") Long cursor, Pageable pageable
     );
+
+    int deleteByUserIdAndAnnouncementId(String userId, Long announcementId);
+    boolean existsByUserIdAndAnnouncementId(String userId, Long announcementId);
 }
