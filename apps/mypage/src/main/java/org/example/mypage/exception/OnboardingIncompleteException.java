@@ -1,6 +1,8 @@
 package org.example.mypage.exception;
 
 
+import lombok.Getter;
+import org.example.mypage.exception.enums.ErrorCode;
 
 /**
  * 온보딩(프로필 생성)이 완료되지 않은 사용자가 온보딩 완료 전용 기능에 접근할 때 발생하는 비즈니스 예외입니다.
@@ -22,8 +24,12 @@ package org.example.mypage.exception;
  * </ul>
  *
  */
+@Getter
 public class OnboardingIncompleteException extends RuntimeException {
+
+    private final ErrorCode errorCode = ErrorCode.ONBOARDING_INCOMPLETE;
+
     public OnboardingIncompleteException() {
-        super("온보딩이 완료되지 않았습니다.");
+        super(ErrorCode.ONBOARDING_INCOMPLETE.message());
     }
 }

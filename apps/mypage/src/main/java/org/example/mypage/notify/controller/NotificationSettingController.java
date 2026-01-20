@@ -1,0 +1,72 @@
+package org.example.mypage.notify.controller;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.example.mypage.notify.dto.EmailNotificationSettingPatchRequest;
+import org.example.mypage.notify.dto.KakaoNotificationSettingPatchRequest;
+import org.example.mypage.notify.dto.ReminderSettingUpsertRequest;
+import org.example.mypage.notify.dto.NotificationSettingResponse;
+import org.example.mypage.notify.dto.ReminderSettingResponse;
+import org.example.mypage.notify.service.NotificationSettingService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+import java.nio.file.attribute.UserPrincipal;
+
+
+@RestController
+@RequestMapping("/api/mypage")
+@RequiredArgsConstructor
+public class NotificationSettingController {
+    private final NotificationSettingService notificationSettingService;
+
+
+    @GetMapping("/notification-settings/kakao")
+    public ResponseEntity<NotificationSettingResponse> getKakaoSetting(@AuthenticationPrincipal UserPrincipal principal) {
+
+        return ResponseEntity.ok(notificationSettingService.getKakaoEnabled(principal.getName()));
+    }
+
+    @PatchMapping("/notification-settings/kakao")
+    public ResponseEntity<Void> patchKakaoSetting(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody KakaoNotificationSettingPatchRequest req) {
+
+        notificationSettingService.updateKakaoEnabled(principal.getName(), req.enabled());
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @GetMapping("/notification-settings/email")
+    public ResponseEntity<NotificationSettingResponse> getEmailSetting(@AuthenticationPrincipal UserPrincipal principal) {
+
+        return ResponseEntity.ok(notificationSettingService.getEmailEnabled(principal.getName()));
+    }
+
+    @PatchMapping("/notification-settings/email")
+    public ResponseEntity<Void> patchEmailSetting(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody EmailNotificationSettingPatchRequest req) {
+
+        notificationSettingService.updateEmailEnabled(principal.getName(), req.enabled());
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/reminder-settings")
+    public ResponseEntity<ReminderSettingResponse> getReminder(
+            @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        return ResponseEntity.ok(notificationSettingService.getReminderSetting(principal.getName()));
+    }
+
+    @PutMapping("/reminder-settings")
+    public ResponseEntity<Void> putReminder(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @Valid @RequestBody ReminderSettingUpsertRequest req
+    ) {
+        notificationSettingService.upsertReminderSetting(principal.getName(), req);
+        return ResponseEntity.noContent().build();
+    }
+
+}

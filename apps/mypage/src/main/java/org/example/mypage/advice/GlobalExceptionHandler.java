@@ -1,12 +1,12 @@
 package org.example.mypage.advice;
 
 
+import org.example.mypage.exception.AddOnboardingException;
 import org.example.mypage.exception.NotificationChannelDisabledException;
 import org.example.mypage.exception.OnboardingIncompleteException;
-import org.example.mypage.dto.response.ErrorResponse;
+import org.example.mypage.exception.ErrorResponse;
 import org.example.mypage.exception.enums.ErrorCode;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,9 +17,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(OnboardingIncompleteException.class)
     public ResponseEntity<ErrorResponse> handleOnboardingIncomplete(OnboardingIncompleteException e) {
-        ErrorCode ec = ErrorCode.ONBOARDING_INCOMPLETE;
+        ErrorCode ec = e.getErrorCode();
 
-        return ResponseEntity.status(ec.status()).body(
+        return ResponseEntity.status(ec.httpStatus()).body(
                 new ErrorResponse(
                         ec.code(),
                         ec.message(),
@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotificationChannelDisabledException.class)
     public ResponseEntity<ErrorResponse> handleNotificationChannelDisabled(NotificationChannelDisabledException e) {
-        ErrorCode ec = ErrorCode.NOTIFICATION_CHANNEL_DISABLED;
+        ErrorCode ec = e.getErrorCode();
 
         return ResponseEntity.status(ec.httpStatus()).body(
                 new ErrorResponse(
@@ -48,4 +48,22 @@ public class GlobalExceptionHandler {
                 )
         );
     }
+
+    @ExceptionHandler(AddOnboardingException.class)
+    public ResponseEntity<ErrorResponse> handleAddOnboarding(AddOnboardingException e) {
+        ErrorCode ec = e.getErrorCode();
+
+        return ResponseEntity.status(ec.httpStatus()).body(
+                new ErrorResponse(
+                        ec.code(),
+                        ec.message(),
+                        ec.status(),
+                        new ErrorResponse.Details(
+                                "answers",
+                                ec.message()
+                        )
+                )
+        );
+    }
+
 }
