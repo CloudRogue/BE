@@ -5,16 +5,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.mypage.profile.domain.Eligibility;
 import org.example.mypage.profile.domain.EligibilityAnswer;
+import org.example.mypage.profile.domain.EligibilityOption;
 import org.example.mypage.profile.dto.OnboardingAnswer;
 import org.example.mypage.profile.dto.OnboardingAnswerVO;
 import org.example.mypage.profile.dto.request.OnboardingRequest;
 import org.example.mypage.exception.AddOnboardingException;
 import org.example.mypage.exception.OnboardingIncompleteException;
 import org.example.mypage.exception.enums.ErrorCode;
-import org.example.mypage.profile.dto.response.OnboardingResponse;
+import org.example.mypage.profile.dto.response.OnboardingProfileResponse;
+import org.example.mypage.profile.dto.response.OnboardingQuestionResponse;
 import org.example.mypage.profile.repository.EligibilityAnswerRepository;
+import org.example.mypage.profile.repository.EligibilityOptionRepository;
 import org.example.mypage.profile.repository.EligibilityRepository;
-import org.example.mypage.profile.repository.MyPageRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,9 +52,10 @@ public class OnboardingServiceImpl implements OnboardingService{
 
     private final EligibilityAnswerRepository answerRepository;
     private final EligibilityRepository eligibilityRepository;
+    private final EligibilityOptionRepository eligibilityOptionRepository;
 
     @Override
-    public OnboardingResponse getDetailProfile(String userId) {
+    public OnboardingProfileResponse getDetailProfile(String userId) {
         List<OnboardingAnswer> profileAnswers = answerRepository.findAllByUserId(userId);
         List<OnboardingAnswerVO> answerList = new ArrayList<>();
         List<OnboardingAnswerVO> addAnswerList = new ArrayList<>();
@@ -75,8 +78,67 @@ public class OnboardingServiceImpl implements OnboardingService{
             else addAnswerList.add(vo);
         }
 
-        return new OnboardingResponse(answerList, addAnswerList);
+        return new OnboardingProfileResponse(answerList, addAnswerList);
     }
+
+
+    @Transactional(readOnly = true)
+    public OnboardingQuestionResponse getRequiredQuestions() {
+        List<Eligibility> eligibilitieList =
+                eligibilityRepository.findAllByRequiredOnboardingTrueOrderByIdAsc();
+        return buildResponse(eligibilitieList);
+    }
+
+    @Transactional(readOnly = true)
+    public OnboardingQuestionResponse getAddQuestions() {
+        List<Eligibility> eligibilitieList =
+                eligibilityRepository.findAllByRequiredOnboardingFalseOrderByIdAsc();
+        return buildResponse(eligibilitieList);
+    }
+
+    private OnboardingQuestionResponse buildResponse(List<Eligibility> eligibilitieList) {
+        if (eligibilitieList.isEmpty()) {
+            return new OnboardingQuestionResponse(List.of());
+        }
+
+        List<Long> ids = eligibilitieList.stream()
+                .map(Eligibility::getId)
+                .toList();
+
+        Map<Long, List<String>> optionLabelsByEligibilityId = fetchOptionLabelsGrouped(ids);
+
+        List<OnboardingQuestionResponse.Item> items = eligibilitieList.stream()
+                .map(e -> {
+                    List<String> labels = optionLabelsByEligibilityId.get(e.getId());
+                    List<String> optionsOrNull = (labels == null || labels.isEmpty()) ? null : labels;
+
+                    return new OnboardingQuestionResponse.Item(
+                            e.getId(),
+                            e.getTitle(),
+                            e.getOnboardingDescription(),
+                            e.getQuestion(),
+                            e.getType().name().toLowerCase(),
+                            optionsOrNull
+                    );
+                })
+                .toList();
+
+        return new OnboardingQuestionResponse(items);
+    }
+
+    private Map<Long, List<String>> fetchOptionLabelsGrouped(List<Long> eligibilityIds) {
+        List<EligibilityOption> options =
+                eligibilityOptionRepository.findAllByEligibilityIdsOrderByEligibilityIdAndDisplayOrder(eligibilityIds);
+
+        Map<Long, List<String>> map = new HashMap<>();
+        for (EligibilityOption o : options) {
+            Long eligibilityId = o.getEligibility().getId();
+            map.computeIfAbsent(eligibilityId, k -> new ArrayList<>())
+                    .add(o.getLabel());
+        }
+        return map;
+    }
+
 
     /**
      * 추가 온보딩 답변을 업서트(Upsert)합니다.

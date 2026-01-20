@@ -11,7 +11,7 @@ import java.util.List;
  *
  * <p>서버가 요구하는 필수 온보딩 질문 목록과, 사용자가 이미 입력한 값(value)을 함께 제공합니다.</p>
  */
-public record OnboardingResponse(
+public record OnboardingProfileResponse(
 
         @NotEmpty
         List<@NotNull OnboardingAnswerVO> requiredOnboardingAnswers,
