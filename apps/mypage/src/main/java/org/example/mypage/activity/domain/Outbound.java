@@ -4,6 +4,7 @@ import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import java.time.Instant;
@@ -32,6 +33,7 @@ import java.time.Instant;
                 @Index(name = "idx_outbound_user_id", columnList = "user_id")
         }
 )
+@Getter
 @NoArgsConstructor
 public class Outbound {
     @Id
@@ -54,5 +56,9 @@ public class Outbound {
     public Outbound(@Nonnull String userId, @Nonnull Long announcementId) {
         this.userId = userId;
         this.announcementId = announcementId;
+    }
+
+    public static Outbound create(@Nonnull String userId, @Nonnull Long announcementId){
+        return new Outbound(userId, announcementId);
     }
 }
