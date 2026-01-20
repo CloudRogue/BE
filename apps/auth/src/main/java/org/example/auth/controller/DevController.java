@@ -1,4 +1,4 @@
-package org.example.auth.Controller;
+package org.example.auth.controller;
 
 import com.github.f4b6a3.ulid.UlidCreator;
 import jakarta.servlet.http.HttpServletResponse;
