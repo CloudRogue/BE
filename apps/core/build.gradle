@@ -21,6 +21,7 @@ repositories {
 dependencies {
 
     implementation project(':apps:auth')
+    implementation project(':apps:announcements')
     
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
