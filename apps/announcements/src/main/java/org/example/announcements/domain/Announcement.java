@@ -243,5 +243,10 @@ public class Announcement {
         return s == null || s.isBlank();
     }
 
+    // 어드민검수여부를 true로 바꿔주는 메서드
+    public void markAdminChecked() {
+        this.adminChecked = true;
+    }
+
 
 }
