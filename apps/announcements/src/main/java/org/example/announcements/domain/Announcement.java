@@ -51,6 +51,9 @@ public class Announcement {
     @Column(name = "supply_type")
     private String supplyType; // 공급유형
 
+    @Column(name = "region_code")
+    private String regionCode; // 지역코드
+
     @Column(name = "region_name")
     private String regionName; // 시군구명
 
@@ -71,6 +74,9 @@ public class Announcement {
 
     @Column(name = "apply_url", length = 1000)
     private String applyUrl; // 공고url
+
+    @Column(name = "apply_entry_url", length = 1000)
+    private String applyEntryUrl; // 신청하러가기 링크
 
 
     //-------- 금액 관련 정보들------------
@@ -113,12 +119,14 @@ public class Announcement {
             String publisher,
             String housingType,
             String supplyType,
+            String regionCode,
             String regionName,
             LocalDate startDate,
             LocalDate endDate,
             LocalDate documentPublishedAt,
             LocalDate finalPublishedAt,
             String applyUrl,
+            String applyEntryUrl,
             Long rentGtn,
             Long enty,
             Long prtpay,
@@ -134,12 +142,14 @@ public class Announcement {
         a.publisher = publisher;
         a.housingType = housingType;
         a.supplyType = supplyType;
+        a.regionCode = regionCode;
         a.regionName = regionName;
         a.startDate = startDate;
         a.endDate = endDate;
         a.documentPublishedAt = documentPublishedAt;
         a.finalPublishedAt = finalPublishedAt;
         a.applyUrl = applyUrl;
+        a.applyEntryUrl = applyEntryUrl;
         a.rentGtn = rentGtn;
         a.enty = enty;
         a.prtpay = prtpay;
