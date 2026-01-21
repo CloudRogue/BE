@@ -7,7 +7,6 @@ import org.example.announcements.dto.AnnouncementDetailResponse;
 import org.example.announcements.exception.BusinessException;
 import org.example.announcements.exception.ErrorCode;
 import org.example.announcements.repository.AnnouncementRepository;
-import org.example.announcements.repository.AnnouncementScrapRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,7 +23,6 @@ import static org.example.announcements.util.AnnouncementStatusUtil.calcStatus;
 public class AnnouncementDetailQueryServiceImpl implements AnnouncementDetailQueryService {
 
     private final AnnouncementRepository announcementRepository;
-    private final AnnouncementScrapRepository announcementScrapRepository;
 
     @Value("${announcements.apply.lh}")
     private String lhApplyUrl;
