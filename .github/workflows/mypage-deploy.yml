@@ -39,7 +39,7 @@ jobs:
 
       - name: Update ECS service
         run: |
-          aws ecs update-service --cluster "${{ secrets.ECS_CLUSTER_NAME }}" \
-                                 --service "${{ secrets.ECS_MYPAGE_SERVICE_NAME }}" \
+          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
+                                 --service ${{ secrets.ECS_MYPAGE_SERVICE_NAME }} \
                                  --force-new-deployment \
-                                 --region "${{ secrets.AWS_OIDC_REGION }}"
+                                 --region ${{ secrets.AWS_OIDC_REGION }}
