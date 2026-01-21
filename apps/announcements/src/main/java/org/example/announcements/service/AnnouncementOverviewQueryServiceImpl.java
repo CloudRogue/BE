@@ -27,7 +27,7 @@ public class AnnouncementOverviewQueryServiceImpl implements AnnouncementOvervie
     public AnnouncementOverviewResponse getOverview(Long announcementId) {
 
         // 공고가 있나 검증
-        Announcement a = announcementRepository.findById(announcementId)
+        Announcement a = announcementRepository.findByIdAndAdminCheckedTrue(announcementId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ANNOUNCEMENT_NOT_FOUND));
 
         // 아직 없을수있음

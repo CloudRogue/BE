@@ -29,7 +29,7 @@ public class ApplicationManagePrepareDetailQueryServiceImpl implements Applicati
     @Override
     public ApplicationManagePrepareDetailResponse getDetail(Long announcementId) {
         //공고 로드
-        Announcement ann = announcementRepository.findById(announcementId)
+        Announcement ann = announcementRepository.findByIdAndAdminCheckedTrue(announcementId)
                 .orElseThrow(() -> new IllegalArgumentException("announcement not found: " + announcementId));
 
         LocalDate today = LocalDate.now();

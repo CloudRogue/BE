@@ -48,11 +48,11 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
         Window<Announcement> window =
                 (sort == AnnouncementSort.LATEST)
                         ? announcementRepository
-                        .findByStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByCreatedAtDescIdDesc(
+                        .findByAdminCheckedTrueAndStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByCreatedAtDescIdDesc(
                                 today, today, position, Limit.of(limit)
                         )
                         : announcementRepository
-                        .findByStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByEndDateAscIdDesc(
+                        .findByAdminCheckedTrueAndStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByEndDateAscIdDesc(
                                 today, today, position, Limit.of(limit)
                         );
 
@@ -71,11 +71,11 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
         Window<Announcement> window =
                 (sort == AnnouncementSort.LATEST)
                         ? announcementRepository
-                        .findByStartDateGreaterThanOrderByCreatedAtDescIdDesc(
+                        .findByAdminCheckedTrueAndStartDateGreaterThanOrderByCreatedAtDescIdDesc(
                                 today, position, Limit.of(limit)
                         )
                         : announcementRepository
-                        .findByStartDateGreaterThanOrderByEndDateAscIdDesc(
+                        .findByAdminCheckedTrueAndStartDateGreaterThanOrderByEndDateAscIdDesc(
                                 today, position, Limit.of(limit)
                         );
 
@@ -90,7 +90,7 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
         LocalDate today = LocalDate.now();
 
         Window<Announcement> window =
-                announcementRepository.findByEndDateLessThanOrderByEndDateDescIdDesc(
+                announcementRepository.findByAdminCheckedTrueAndEndDateLessThanOrderByEndDateDescIdDesc(
                         today, position, Limit.of(limit)
                 );
 
@@ -113,7 +113,7 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
         Window<Announcement> window =
                 (sort == AnnouncementSort.LATEST)
                         ? announcementRepository
-                        .findByStartDateLessThanEqualAndEndDateGreaterThanEqualAndPublisherContainingIgnoreCaseOrderByCreatedAtDescIdDesc(
+                        .findByAdminCheckedTrueAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndPublisherContainingIgnoreCaseOrderByCreatedAtDescIdDesc(
                                 today,
                                 today,
                                 publisher,
@@ -121,7 +121,7 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
                                 Limit.of(limit)
                         )
                         : announcementRepository
-                        .findByStartDateLessThanEqualAndEndDateGreaterThanEqualAndPublisherContainingIgnoreCaseOrderByEndDateAscIdDesc(
+                        .findByAdminCheckedTrueAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndPublisherContainingIgnoreCaseOrderByEndDateAscIdDesc(
                                 today,
                                 today,
                                 publisher,
@@ -147,7 +147,7 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
         Window<Announcement> window =
                 (sort == AnnouncementSort.LATEST)
                         ? announcementRepository
-                        .findByStartDateLessThanEqualAndEndDateGreaterThanEqualAndHousingTypeContainingIgnoreCaseOrderByCreatedAtDescIdDesc(
+                        .findByAdminCheckedTrueAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndHousingTypeContainingIgnoreCaseOrderByCreatedAtDescIdDesc(
                                 today,
                                 today,
                                 housingType,
@@ -155,7 +155,7 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
                                 Limit.of(limit)
                         )
                         : announcementRepository
-                        .findByStartDateLessThanEqualAndEndDateGreaterThanEqualAndHousingTypeContainingIgnoreCaseOrderByEndDateAscIdDesc(
+                        .findByAdminCheckedTrueAndStartDateLessThanEqualAndEndDateGreaterThanEqualAndHousingTypeContainingIgnoreCaseOrderByEndDateAscIdDesc(
                                 today,
                                 today,
                                 housingType,

@@ -34,6 +34,7 @@ public class AnnouncementRegionQueryRepositoryImpl implements AnnouncementRegion
                 .join(announcementRegion)
                 .on(announcementRegion.announcement.eq(announcement))
                 .where(
+                        announcement.adminChecked.isTrue(),
                         announcement.startDate.loe(today),
                         announcement.endDate.goe(today),
                         announcementRegion.regionName.containsIgnoreCase(regionKeyword)

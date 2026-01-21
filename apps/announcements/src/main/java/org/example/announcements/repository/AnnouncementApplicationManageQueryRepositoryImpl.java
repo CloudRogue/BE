@@ -44,6 +44,7 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
                 .on(announcement.id.eq(announcementApplication.announcementId))
                 .where(
                         announcementApplication.userId.eq(userId),
+                        announcement.adminChecked.isTrue(),
                         announcement.endDate.goe(today), // applying조건
                         announcement.documentPublishedAt.isNull() // 서류발표일이없으면 통과
                                 .or(announcement.documentPublishedAt.gt(today))
@@ -81,6 +82,7 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
                 .on(announcement.id.eq(announcementApplication.announcementId))
                 .where(
                         announcementApplication.userId.eq(userId),
+                        announcement.adminChecked.isTrue(),
                         announcement.endDate.lt(today), // endDate < today
                         announcement.documentPublishedAt.isNotNull(), // documentPublishedAt은 있어야 함
                         announcement.documentPublishedAt.gt(today) // today < documentPublishedAt
@@ -115,6 +117,7 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
                 .on(announcement.id.eq(announcementApplication.announcementId))
                 .where(
                         announcementApplication.userId.eq(userId),
+                        announcement.adminChecked.isTrue(),
                         announcement.documentPublishedAt.isNotNull(), // documentPublishedAt은 있어야 함
                         announcement.documentPublishedAt.loe(today), // documentPublishedAt <= today
                         announcement.finalPublishedAt.isNotNull(), // finalPublishedAt은 있어야 함
@@ -151,6 +154,7 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
                 .on(announcement.id.eq(announcementApplication.announcementId))
                 .where(
                         announcementApplication.userId.eq(userId),
+                        announcement.adminChecked.isTrue(),
                         announcement.finalPublishedAt.isNotNull(), // 최종 발표일이 있어야 발표 완료로 볼 수 있음
                         announcement.finalPublishedAt.loe(today) // finalPublishedAt <= today
                 );
@@ -220,7 +224,9 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
                 .from(announcementApplication)
                 .join(announcement).on(announcement.id.eq(announcementApplication.announcementId))
                 //로그인 유저의 지원완료 기록만 대상으로 제한하기
-                .where(announcementApplication.userId.eq(userId))
+                .where(
+                        announcementApplication.userId.eq(userId),
+                        announcement.adminChecked.isTrue() )
                 .fetchOne();
 
         if (tuple == null) {
