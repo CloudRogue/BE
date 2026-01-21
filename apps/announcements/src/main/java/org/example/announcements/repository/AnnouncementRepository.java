@@ -14,6 +14,10 @@ import java.util.Optional;
 @Repository
 public interface AnnouncementRepository extends JpaRepository<Announcement, Long>,AnnouncementRegionQueryRepository {
 
+    //어드민 검수 안된 공고만 전부 조회
+    List<Announcement> findByAdminCheckedFalse();
+
+
     //맞춤공고 후보 안에서 어드민검증하고 최신순
     Window<Announcement> findByIdInAndAdminCheckedTrueOrderByCreatedAtDescIdDesc(
             List<Long> ids,
