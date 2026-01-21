@@ -15,6 +15,10 @@ public enum ErrorCode {
     //값 오류
     INVALID_LIMIT("INVALID_LIMIT", HttpStatus.BAD_REQUEST, "limit 값이 올바르지 않습니다."),
 
+    //인증/인가
+    UNAUTHORIZED("UNAUTHORIZED", HttpStatus.UNAUTHORIZED, "비로그인/토큰 만료"),
+    FORBIDDEN("FORBIDDEN", HttpStatus.FORBIDDEN, "온보딩 미완료"),
+
     // 검증/요청 오류
     VALIDATION_ERROR("VALIDATION_ERROR", HttpStatus.BAD_REQUEST, "요청 값이 올바르지 않습니다."),
     INVALID_REQUEST("INVALID_REQUEST", HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
