@@ -7,7 +7,6 @@ on:
       - 'apps/core/**'     # core 폴더 변경 시에만 실행
       - 'apps/auth/**'          # 추가: auth 모듈 변경 시
       - 'apps/announcements/**' # 추가: announcements 모듈 변경 시
-      - 'apps/common/**'   # 공통 모듈 변경 시에도 실행 권장
       - 'Dockerfile'       # 루트 도커파일 변경 시
 
 permissions:
