@@ -2,6 +2,7 @@ package org.example.announcements.service.internal.mypage;
 
 import lombok.RequiredArgsConstructor;
 import org.example.announcements.dto.internal.mypage.MypageOutboundRequest;
+import org.example.announcements.dto.internal.mypage.MypagePersonalizedResponse;
 import org.example.announcements.dto.internal.mypage.MypageScrapRequest;
 import org.example.announcements.exception.BusinessException;
 import org.example.announcements.exception.ErrorCode;
@@ -61,5 +62,29 @@ public class MypageClientImpl  implements MypageClient {
                     );
                 })
                 .toBodilessEntity();
+    }
+
+    @Override
+    public MypagePersonalizedResponse getPersonalized(String userId) {
+        return mypageRestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/internal/personalized")
+                        .queryParam("userId", userId)
+                        .build()
+                )
+                .retrieve()
+                .onStatus(status -> status.value() == 401, (req, res) -> {
+                    throw new BusinessException(ErrorCode.UNAUTHORIZED, "비로그인/토큰 만료");
+                })
+                .onStatus(status -> status.value() == 403, (req, res) -> {
+                    throw new BusinessException(ErrorCode.FORBIDDEN, "온보딩 미완료");
+                })
+                .onStatus(HttpStatusCode::isError, (req, res) -> {
+                    throw new BusinessException(
+                            ErrorCode.INTERNAL_ERROR,
+                            "mypage personalized 호출 실패. status=" + res.getStatusCode().value()
+                    );
+                })
+                .body(MypagePersonalizedResponse.class);
     }
 }

@@ -62,6 +62,9 @@ public class AdminAnnouncementEnrichPort implements  AdminAnnouncementEnrichUseC
 
         //regions
         createRegionsIfAbsent(ann, command);
+
+        //통합저장 완료시 공개상태로 전환
+        ann.markAdminChecked();
     }
 
     //document 메서드(페이즈 별로 이미 존재하면 그대로두기)

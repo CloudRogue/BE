@@ -26,7 +26,7 @@ public class AnnouncementDetailQueryServiceImpl implements AnnouncementDetailQue
 
     @Override
     public AnnouncementDetailResponse getDetail(Long announcementId, String userId) {
-        Announcement a = announcementRepository.findById(announcementId) // PK로 공고 조회
+        Announcement a = announcementRepository.findByIdAndAdminCheckedTrue(announcementId) // PK로 공고 조회
                 .orElseThrow(() -> new BusinessException(ErrorCode.ANNOUNCEMENT_NOT_FOUND));
 
         // 디데이 및 상태 계산

@@ -111,6 +111,10 @@ public class Announcement {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt; // 수정 시각
 
+    //어드민 체크여부 기본값이 false임
+    @Column(name = "admin_checked", nullable = false)
+    private boolean adminChecked;
+
     //정적 메서드
     public static Announcement create(
             AnnouncementSource source,
@@ -157,6 +161,7 @@ public class Announcement {
         a.mtRntchrg = mtRntchrg;
         a.fullAddress = fullAddress;
         a.refrnLegaldongNm = refrnLegaldongNm;
+        a.adminChecked = false;
         return a;
     }
 
@@ -236,6 +241,11 @@ public class Announcement {
     }
     private static boolean isBlank(String s) {
         return s == null || s.isBlank();
+    }
+
+    // 어드민검수여부를 true로 바꿔주는 메서드
+    public void markAdminChecked() {
+        this.adminChecked = true;
     }
 
 
