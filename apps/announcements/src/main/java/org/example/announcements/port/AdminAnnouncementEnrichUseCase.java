@@ -1,4 +1,4 @@
-package org.example.announcements.service.internal.admin;
+package org.example.announcements.port;
 
 //어드민 통합저장입력을 받고 도메인을 없는값 만채우기 위한 유스케이스
 public interface AdminAnnouncementEnrichUseCase {

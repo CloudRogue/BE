@@ -18,7 +18,7 @@ public class ApplicationManagePrepareDetailResponse {
     private final String title; //공고제목
 
 
-    private final Integer dDay;
+    private final Long dDay;
 
 
     private final String publisher;
@@ -30,7 +30,7 @@ public class ApplicationManagePrepareDetailResponse {
     private final String currentStatus;
 
     // 공고접수마감일
-    private final LocalDateTime endDate;
+    private final LocalDate endDate;
 
     //신청링크
     private final String applyUrl;

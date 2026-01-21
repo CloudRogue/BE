@@ -1,4 +1,4 @@
-package org.example.announcements.service.internal.admin;
+package org.example.announcements.port;
 
 import java.time.LocalDate;
 import java.util.List;

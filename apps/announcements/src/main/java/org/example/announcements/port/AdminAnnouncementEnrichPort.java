@@ -1,4 +1,4 @@
-package org.example.announcements.service.internal.admin;
+package org.example.announcements.port;
 
 
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AdminAnnouncementEnrichService implements  AdminAnnouncementEnrichUseCase{
+public class AdminAnnouncementEnrichPort implements  AdminAnnouncementEnrichUseCase{
 
     private final AnnouncementRepository announcementRepository;
     private final AnnouncementDocumentRepository announcementDocumentRepository;
