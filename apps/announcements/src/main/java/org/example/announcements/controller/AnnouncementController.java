@@ -1,16 +1,9 @@
 package org.example.announcements.controller;
 
 
-import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
-import org.example.announcements.api.OutboundType;
-import org.example.announcements.dto.internal.mypage.MypageOutboundRequest;
-import org.example.announcements.dto.internal.mypage.MypageScrapRequest;
-import org.example.announcements.exception.BusinessException;
-import org.example.announcements.exception.ErrorCode;
-import org.example.announcements.repository.AnnouncementRepository;
 import org.example.announcements.service.AnnouncementApplyCommandService;
-import org.example.announcements.service.internal.mypage.MypageClient;
+import org.example.announcements.service.MypageActionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
@@ -22,32 +15,16 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/announcements")
 public class AnnouncementController {
 
-    private final AnnouncementRepository announcementRepository;
+    private final MypageActionService mypageActionService;
     private final AnnouncementApplyCommandService applyCommandService;
 
-    //마이페이지 내부 api 호출용
-    private final MypageClient mypageClient;
-
-    //공고 열람/외부이동 기록
+    // 공고 열람기록
     @PostMapping("/{announcementId}/outbounds")
     public ResponseEntity<Void> postOutbound(
             @AuthenticationPrincipal(expression = "userId") String userId,
-            @PathVariable  Long announcementId,
-            @RequestParam(required = false) OutboundType type
+            @PathVariable Long announcementId
     ) {
-        // type 기본값 VIEW
-        if (type == null) type = OutboundType.VIEW;
-
-        if (userId == null || userId.isBlank()) {
-            throw new BusinessException(ErrorCode.INVALID_REQUEST, "userId가 필요합니다.");
-        }
-        announcementRepository.findById(announcementId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.ANNOUNCEMENT_NOT_FOUND));
-
-
-        mypageClient.postOutbound(new MypageOutboundRequest(userId, announcementId, type));
-
-        // 204
+        mypageActionService.recordOutbound(userId, announcementId);
         return ResponseEntity.noContent().build();
     }
 
@@ -55,7 +32,7 @@ public class AnnouncementController {
     @PostMapping("/{announcementId}/apply")
     public ResponseEntity<Void> apply(
             @AuthenticationPrincipal(expression = "userId") String userId,
-            @PathVariable  Long announcementId
+            @PathVariable Long announcementId
     ) {
         applyCommandService.apply(userId, announcementId);
         return ResponseEntity.noContent().build();
@@ -65,16 +42,9 @@ public class AnnouncementController {
     @PostMapping("/{announcementId}/scrap")
     public ResponseEntity<Void> postScrap(
             @AuthenticationPrincipal(expression = "userId") String userId,
-            @PathVariable  Long announcementId
+            @PathVariable Long announcementId
     ) {
-        if (userId == null || userId.isBlank()) {
-            throw new BusinessException(ErrorCode.INVALID_REQUEST, "userId가 필요합니다.");
-        }
-        announcementRepository.findById(announcementId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.ANNOUNCEMENT_NOT_FOUND));
-
-        mypageClient.postScrap(new MypageScrapRequest(userId, announcementId));
-
+        mypageActionService.addScrap(userId, announcementId);
         return ResponseEntity.noContent().build();
     }
 
@@ -82,17 +52,9 @@ public class AnnouncementController {
     @DeleteMapping("/{announcementId}/scrap")
     public ResponseEntity<Void> deleteScrap(
             @AuthenticationPrincipal(expression = "userId") String userId,
-            @PathVariable  Long announcementId
+            @PathVariable Long announcementId
     ) {
-        if (userId == null || userId.isBlank()) {
-            throw new BusinessException(ErrorCode.INVALID_REQUEST, "userId가 필요합니다.");
-        }
-
-        announcementRepository.findById(announcementId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.ANNOUNCEMENT_NOT_FOUND));
-
-        mypageClient.deleteScrap(new MypageScrapRequest(userId, announcementId));
-
+        mypageActionService.removeScrap(userId, announcementId);
         return ResponseEntity.noContent().build();
     }
 }
