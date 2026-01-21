@@ -61,6 +61,108 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
 
     }
 
+    // 서류 발표대기
+    @Override
+    public List<ApplicationManageAnnouncementRow> findDocumentWaitingRows(String userId, LocalDate today, Long cursor, int sizePlusOne) {
+        var q = jpaQueryFactory.select(
+                        Projections.constructor(
+                                ApplicationManageAnnouncementRow.class,
+                                announcement.id,
+                                announcement.title,
+                                announcement.publisher,
+                                announcement.housingType,
+                                announcement.endDate,
+                                announcement.documentPublishedAt,
+                                announcement.finalPublishedAt
+                        )
+                )
+                .from(announcementApplication)
+                .join(announcement) // 공고 테이블이랑 조인
+                .on(announcement.id.eq(announcementApplication.announcementId))
+                .where(
+                        announcementApplication.userId.eq(userId),
+                        announcement.endDate.lt(today), // endDate < today
+                        announcement.documentPublishedAt.isNotNull(), // documentPublishedAt은 있어야 함
+                        announcement.documentPublishedAt.gt(today) // today < documentPublishedAt
+                );
+
+        if (cursor != null) {
+            q.where(announcement.id.lt(cursor));
+        }
+
+        return q.orderBy(announcement.id.desc())
+                .limit(sizePlusOne)
+                .fetch();
+    }
+
+    //최종발표 대기
+    @Override
+    public List<ApplicationManageAnnouncementRow> findFinalWaitingRows(String userId, LocalDate today, Long cursor, int sizePlusOne) {
+        var q = jpaQueryFactory.select(
+                        Projections.constructor(
+                                ApplicationManageAnnouncementRow.class,
+                                announcement.id,
+                                announcement.title,
+                                announcement.publisher,
+                                announcement.housingType,
+                                announcement.endDate,
+                                announcement.documentPublishedAt,
+                                announcement.finalPublishedAt
+                        )
+                )
+                .from(announcementApplication)
+                .join(announcement)
+                .on(announcement.id.eq(announcementApplication.announcementId))
+                .where(
+                        announcementApplication.userId.eq(userId),
+                        announcement.documentPublishedAt.isNotNull(), // documentPublishedAt은 있어야 함
+                        announcement.documentPublishedAt.loe(today), // documentPublishedAt <= today
+                        announcement.finalPublishedAt.isNotNull(), // finalPublishedAt은 있어야 함
+                        announcement.finalPublishedAt.gt(today) // today < finalPublishedAt
+                );
+
+        if (cursor != null) {
+            q.where(announcement.id.lt(cursor));
+        }
+
+        return q.orderBy(announcement.id.desc())
+                .limit(sizePlusOne)
+                .fetch();
+    }
+
+
+    //발표완료 조회
+    @Override
+    public List<ApplicationManageAnnouncementRow> findClosedRows(String userId, LocalDate today, Long cursor, int sizePlusOne) {
+        var q = jpaQueryFactory.select(
+                        Projections.constructor(
+                                ApplicationManageAnnouncementRow.class,
+                                announcement.id,
+                                announcement.title,
+                                announcement.publisher,
+                                announcement.housingType,
+                                announcement.endDate,
+                                announcement.documentPublishedAt,
+                                announcement.finalPublishedAt
+                        )
+                )
+                .from(announcementApplication)
+                .join(announcement)
+                .on(announcement.id.eq(announcementApplication.announcementId))
+                .where(
+                        announcementApplication.userId.eq(userId),
+                        announcement.finalPublishedAt.isNotNull(), // 최종 발표일이 있어야 발표 완료로 볼 수 있음
+                        announcement.finalPublishedAt.loe(today) // finalPublishedAt <= today
+                );
+        if (cursor != null) {
+            q.where(announcement.id.lt(cursor));
+        }
+
+        return q.orderBy(announcement.id.desc())
+                .limit(sizePlusOne)
+                .fetch();
+    }
+
     // 상단 서머리 카운트 조회
     @Override
     public ApplicationManageSummaryCounts countSummary(String userId, LocalDate today) {
@@ -68,7 +170,13 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
         //APPLYING용
         NumberExpression<Integer> applyingExpr =
                 new CaseBuilder()
-                        .when(announcement.endDate.goe(today)) // 조건: endDate >= today
+                        .when(
+                                announcement.endDate.goe(today)
+                                        .and(
+                                                announcement.documentPublishedAt.isNull()
+                                                        .or(announcement.documentPublishedAt.gt(today))
+                                        )
+                        )
                         .then(1)
                         .otherwise(0);
 
@@ -76,11 +184,11 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
         NumberExpression<Integer> documentWaitingExpr =
                 new CaseBuilder()
                         .when(
-                                announcement.endDate.lt(today) // endDate < today
-                                        .and(announcement.documentPublishedAt.isNotNull()) // null 막기
-                                        .and(announcement.documentPublishedAt.gt(today)) // today < documentPublishedAt
+                                announcement.endDate.lt(today)
+                                        .and(announcement.documentPublishedAt.isNotNull())
+                                        .and(announcement.documentPublishedAt.gt(today))
                         )
-                        .then(1) // 조건 만족하면 1
+                        .then(1)
                         .otherwise(0);
 
         //FiNAL_WAITING용

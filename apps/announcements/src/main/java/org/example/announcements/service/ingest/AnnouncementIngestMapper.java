@@ -7,7 +7,7 @@ public final class AnnouncementIngestMapper {
 
     private AnnouncementIngestMapper() {}
 
-    public static Announcement toEntity(AnnouncementIngestItem item) {
+    public static Announcement toEntity(AnnouncementIngestItem item,String regionCode, String applyEntryUrl) {
         if (item == null) return null;
 
         return Announcement.create(
@@ -17,12 +17,14 @@ public final class AnnouncementIngestMapper {
                 trimToNull(item.publisher()),
                 trimToNull(item.housingType()),
                 trimToNull(item.supplyType()),
+                trimToNull(regionCode),
                 trimToNull(item.regionName()),
                 item.startDate(),
                 item.endDate(),
                 item.documentPublishedAt(),
                 item.finalPublishedAt(),
                 trimToNull(item.applyUrl()),
+                trimToNull(applyEntryUrl),
                 item.rentGtn(),
                 item.enty(),
                 item.prtpay(),

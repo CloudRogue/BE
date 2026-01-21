@@ -1,0 +1,20 @@
+version: '3.8'
+services:
+  mysql:
+    image: mysql:8
+    container_name: zipchak-mysql
+    environment:
+      MYSQL_DATABASE: user
+      MYSQL_ROOT_PASSWORD: 123
+    ports:
+      - "3307:3306"
+
+  postgres:
+    image: postgres:15
+    container_name: zipchak-postgres
+    environment:
+      POSTGRES_DB: zipchak_pg
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: 123
+    ports:
+      - "5432:5432"

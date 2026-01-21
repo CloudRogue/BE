@@ -1,0 +1,52 @@
+package org.example.mypage.profile.service;
+
+import lombok.RequiredArgsConstructor;
+import org.example.mypage.profile.domain.Profile;
+import org.example.mypage.profile.dto.response.ProfileResponse;
+import org.example.mypage.exception.OnboardingIncompleteException;
+import org.example.mypage.profile.repository.MyPageRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+
+/**
+ * 마이페이지/온보딩 프로필 기능을 제공하는 서비스 구현체입니다.
+ *
+ * <h2>구성</h2>
+ * <ul>
+ *   <li>{@link MyPageService}: 프로필 조회</li>
+ *   <li>{@link OnboardingService}: 프로필 제출(생성/전체 갱신), 프로필 부분 수정</li>
+ * </ul>
+ *
+ * <h2>예외 정책</h2>
+ * <ul>
+ *   <li>프로필이 존재하지 않으면 {@link OnboardingIncompleteException}을 던집니다.</li>
+ *   <li>서비스 정책에 따라 "조회 시 프로필 없음"을 404/403 등으로 매핑할 수 있습니다.</li>
+ * </ul>
+ *
+ */
+@Service
+@RequiredArgsConstructor
+public class MyPageServiceImpl implements MyPageService{
+    private final MyPageRepository myPageRepository;
+
+    /**
+     * 사용자 프로필을 조회합니다.
+     *
+     * <p>프로필이 존재하지 않으면 온보딩 미완료로 간주하여 예외를 발생시킵니다.</p>
+     *
+     * @param userId 사용자 식별자(예: ULID 문자열)
+     * @return 프로필 조회 응답 DTO
+     * @throws OnboardingIncompleteException 프로필이 존재하지 않는 경우
+     */
+    @Transactional(readOnly = true)
+    public ProfileResponse getProfile(String userId) {
+        Profile p = myPageRepository.findByUserIdAndDeletedAtIsNull(userId)
+                .orElseThrow(OnboardingIncompleteException::new);
+
+        return ProfileResponse.builder()
+                .name(p.getName())
+                .email(p.getEmail())
+                .build();
+    }
+}

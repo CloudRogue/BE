@@ -30,20 +30,19 @@ public class AnnouncementDetailResponse {
     private final Long surlus;
     private final Long mtRntchrg;
 
-    private final String fullAddres;
+    private final String fullAddress;
     private final String refrnLegaldongNm;
 
     private final String url;
     private final Boolean isScrapped;
 
-    private final String externalApplyUrl; // 신청하러가기 링크
+    private final String applyEntryUrl;  // 신청하러가기 링크
 
     public static AnnouncementDetailResponse of(
             Announcement a,
             String status,
             Integer dDay,
-            Boolean isScrapped,
-            String externalApplyUrl
+            Boolean isScrapped
     ) {
         return new AnnouncementDetailResponse(
                 a.getId(),
@@ -66,8 +65,7 @@ public class AnnouncementDetailResponse {
                 a.getRefrnLegaldongNm(),
                 a.getApplyUrl(),
                 isScrapped,
-                externalApplyUrl
-
+                a.getApplyEntryUrl()
         );
     }
 }

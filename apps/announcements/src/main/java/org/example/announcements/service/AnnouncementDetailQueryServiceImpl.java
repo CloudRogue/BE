@@ -7,7 +7,6 @@ import org.example.announcements.dto.AnnouncementDetailResponse;
 import org.example.announcements.exception.BusinessException;
 import org.example.announcements.exception.ErrorCode;
 import org.example.announcements.repository.AnnouncementRepository;
-import org.example.announcements.repository.AnnouncementScrapRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,13 +23,6 @@ import static org.example.announcements.util.AnnouncementStatusUtil.calcStatus;
 public class AnnouncementDetailQueryServiceImpl implements AnnouncementDetailQueryService {
 
     private final AnnouncementRepository announcementRepository;
-    private final AnnouncementScrapRepository announcementScrapRepository;
-
-    @Value("${announcements.apply.lh}")
-    private String lhApplyUrl;
-
-    @Value("${announcements.apply.sh}")
-    private String shApplyUrl;
 
     @Override
     public AnnouncementDetailResponse getDetail(Long announcementId, String userId) {
@@ -50,16 +42,10 @@ public class AnnouncementDetailQueryServiceImpl implements AnnouncementDetailQue
 //                    .existsByUserIdAndAnnouncement_Id(userId, announcementId); // 존재 여부로 찜 판단
 //        }
 
-        String externalApplyUrl = calcExternalApplyUrl(a.getSource()); // source(LH/SH)에 따라 신청 링크를 고정값으로 선택
 
-        return AnnouncementDetailResponse.of(a, status, dDay, isScrapped, externalApplyUrl);
+        return AnnouncementDetailResponse.of(a, status, dDay, isScrapped);
     }
 
-    // 공급 주체에따라 신청링크 제공
-    private String calcExternalApplyUrl(AnnouncementSource source) {
-        if (source == null) return null;
-        return (source == AnnouncementSource.MYHOME) ? lhApplyUrl : shApplyUrl; // MYHOME(LH)면 LH 링크, 아니면 SH 링크
-    }
 
 
 }

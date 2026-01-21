@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -91,6 +92,24 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
             KeysetScrollPosition position,
             Limit limit
     );
+
+
+    // 발행기관으로 필터
+    @Query("""
+        select distinct a.source
+        from Announcement a
+        where a.source is not null
+    """)
+    List<AnnouncementSource> findDistinctSources();
+
+    // 주택유형으로 필터
+    @Query("""
+    select distinct trim(a.housingType)
+    from Announcement a
+    where a.housingType is not null and trim(a.housingType) <> ''
+    order by trim(a.housingType) asc
+""")
+    List<String> findDistinctHousingTypes();
 
 
 }
