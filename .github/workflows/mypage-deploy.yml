@@ -1,0 +1,46 @@
+name: MyPage Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'apps/mypage/**'
+      - 'apps/common/**' # 마이페이지가 common을 참조한다면 포함
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}
+          aws-region: ${{ secrets.AWS_OIDC_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: latest
+        run: |
+          # -f 옵션으로 mypage 전용 Dockerfile을 지정합니다.
+          docker build -t $ECR_REGISTRY/${{ secrets.ECR_MYPAGE_REPOSITORY }}:$IMAGE_TAG -f apps/mypage/Dockerfile .
+          docker push $ECR_REGISTRY/${{ secrets.ECR_MYPAGE_REPOSITORY }}:$IMAGE_TAG
+          echo "Pushed: $ECR_REGISTRY/${{ secrets.ECR_MYPAGE_REPOSITORY }}:$IMAGE_TAG"
+
+      - name: Update ECS service
+        run: |
+          # 핵심: mypage 전용 ECS 서비스 이름을 지정합니다.
+          aws ecs update-service --cluster ${{ secrets.ECS_MYPAGE_CLUSTER_NAME }} \
+                                 --service ${{ secrets.ECS_MYPAGE_CLUSTER_NAME }} \
+                                 --force-new-deployment \
+                                 --region ${{ secrets.AWS_OIDC_REGION }}
