@@ -38,8 +38,7 @@ jobs:
 
       - name: Update ECS service
         run: |
-          # 핵심: mypage 전용 ECS 서비스 이름을 지정합니다.
-          aws ecs update-service --cluster ${{ secrets.ECS_CLUSTER_NAME }} \
-                                 --service ${{ secrets.ECS_MYPAGE_SERVICE_NAME }} \
+          aws ecs update-service --cluster "${{ secrets.ECS_CLUSTER_NAME }}" \
+                                 --service "${{ secrets.ECS_MYPAGE_SERVICE_NAME }}" \
                                  --force-new-deployment \
-                                 --region ${{ secrets.AWS_OIDC_REGION }}
+                                 --region "${{ secrets.AWS_OIDC_REGION }}"
