@@ -3,6 +3,7 @@ package org.example.mypage.profile.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.mypage.profile.dto.request.OnboardingRequest;
+import org.example.mypage.profile.dto.response.AiQuestionsResponse;
 import org.example.mypage.profile.dto.response.OnboardingProfileResponse;
 import org.example.mypage.profile.dto.response.OnboardingQuestionResponse;
 import org.example.mypage.profile.service.OnboardingService;
@@ -48,5 +49,11 @@ public class OnboardingController {
         onboardingService.upsertOnboarding(userPrincipal.getName(), onboardingRequest);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping()
+    public ResponseEntity<AiQuestionsResponse> getAiQuestions(){
+        return null;
+    }
+
 
 }
