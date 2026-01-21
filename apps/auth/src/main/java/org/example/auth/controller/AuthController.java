@@ -18,19 +18,19 @@ public class AuthController {
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(HttpServletResponse response) {
 
-        response.addHeader(HttpHeaders.SET_COOKIE, expireCookie("ACCESS_TOKEN", "/").toString());
-        response.addHeader(HttpHeaders.SET_COOKIE, expireCookie("REFRESH_TOKEN", "/api/auth").toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, expire("ACCESS_TOKEN", "/").toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, expire("REFRESH_TOKEN", "/api/auth").toString());
 
         return ResponseEntity.noContent().build(); // 204
     }
 
-    private static ResponseCookie expireCookie(String name, String path) {
+    private static ResponseCookie expire(String name, String path) {
         return ResponseCookie.from(name, "")
                 .httpOnly(true)
-                .secure(false)          // 로그인 때와 동일 (로컬/개발)
-                .sameSite("Lax")
+                .secure(true)
+                .sameSite("None")
                 .path(path)
-                .maxAge(Duration.ZERO)  // 즉시 만료
+                .maxAge(Duration.ZERO)
                 .build();
     }
 }
