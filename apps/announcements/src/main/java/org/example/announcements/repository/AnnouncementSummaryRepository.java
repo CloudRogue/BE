@@ -11,4 +11,7 @@ public interface AnnouncementSummaryRepository extends JpaRepository<Announcemen
 
     //announcementId로 조회하기
     Optional<AnnouncementSummary> findByAnnouncementId(Long announcementId);
+
+    boolean existsByAnnouncementId(Long announcementId);
+
 }

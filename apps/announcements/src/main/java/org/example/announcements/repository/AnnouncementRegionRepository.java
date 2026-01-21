@@ -12,5 +12,6 @@ public interface AnnouncementRegionRepository extends JpaRepository<Announcement
     // 공고 기준으로 지역 조회
     List<AnnouncementRegion> findAllByAnnouncement_Id(Long announcementId);
 
+    boolean existsByAnnouncement_IdAndRegionName(Long announcementId, String regionName);
 
 }
