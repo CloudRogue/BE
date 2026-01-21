@@ -24,12 +24,6 @@ public class AnnouncementDetailQueryServiceImpl implements AnnouncementDetailQue
 
     private final AnnouncementRepository announcementRepository;
 
-    @Value("${announcements.apply.lh}")
-    private String lhApplyUrl;
-
-    @Value("${announcements.apply.sh}")
-    private String shApplyUrl;
-
     @Override
     public AnnouncementDetailResponse getDetail(Long announcementId, String userId) {
         Announcement a = announcementRepository.findById(announcementId) // PK로 공고 조회
@@ -48,16 +42,10 @@ public class AnnouncementDetailQueryServiceImpl implements AnnouncementDetailQue
 //                    .existsByUserIdAndAnnouncement_Id(userId, announcementId); // 존재 여부로 찜 판단
 //        }
 
-        String externalApplyUrl = calcExternalApplyUrl(a.getSource()); // source(LH/SH)에 따라 신청 링크를 고정값으로 선택
 
-        return AnnouncementDetailResponse.of(a, status, dDay, isScrapped, externalApplyUrl);
+        return AnnouncementDetailResponse.of(a, status, dDay, isScrapped);
     }
 
-    // 공급 주체에따라 신청링크 제공
-    private String calcExternalApplyUrl(AnnouncementSource source) {
-        if (source == null) return null;
-        return (source == AnnouncementSource.MYHOME) ? lhApplyUrl : shApplyUrl; // MYHOME(LH)면 LH 링크, 아니면 SH 링크
-    }
 
 
 }

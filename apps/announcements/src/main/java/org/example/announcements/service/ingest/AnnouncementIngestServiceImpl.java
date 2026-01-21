@@ -32,6 +32,12 @@ public class AnnouncementIngestServiceImpl implements AnnouncementIngestService 
     @Value("${announcements.ingest.sh-category}")
     private String shFixedCategory;
 
+    @Value("${announcements.apply.lh}")
+    private String lhApplyEntryUrl;
+
+    @Value("${announcements.apply.sh}")
+    private String shApplyEntryUrl;
+
     @Transactional
     @Override
     public IngestResult ingest(String requestCategory, List<AnnouncementIngestItem> items) {
@@ -86,8 +92,11 @@ public class AnnouncementIngestServiceImpl implements AnnouncementIngestService 
                 continue;
             }
 
+            String applyEntryUrl = resolveApplyEntryUrl(source);
 
-            toSave.add(AnnouncementIngestMapper.toEntity(item));
+
+            Announcement entity = AnnouncementIngestMapper.toEntity(item, null, applyEntryUrl);
+            toSave.add(entity);
 
             // 7) Redis에 넣을 stdId도 저장 대상에 대해서만 생성해서 모아둔다.
             String effectiveCategory = resolveCategory(source, requestCategory);
@@ -127,6 +136,12 @@ public class AnnouncementIngestServiceImpl implements AnnouncementIngestService 
             return shFixedCategory;
         }
         return requestCategory;
+    }
+
+    // 소스기반 신청하기 링크
+    private String resolveApplyEntryUrl(AnnouncementSource source) {
+        if (source == null) return null;
+        return (source == AnnouncementSource.MYHOME) ? lhApplyEntryUrl : shApplyEntryUrl;
     }
 
 
