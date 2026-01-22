@@ -1,5 +1,6 @@
 package org.example.mypage.activity.dto.response;
 
+import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -16,7 +17,8 @@ public record OutboundResponse (
                 LocalDate endDate,
                 LocalDate publishedAt,
                 String publisher,
-                String status
+                String status,
+                Instant viewedAt
         ) { }
 }
 

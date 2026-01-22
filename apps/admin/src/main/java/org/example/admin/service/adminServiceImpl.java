@@ -3,8 +3,10 @@ package org.example.admin.service;
 import lombok.RequiredArgsConstructor;
 import org.example.admin.api.AIApi;
 import org.example.admin.api.AnnouncementApi;
+import org.example.admin.api.EligibilityCatalogResponse;
 import org.example.admin.api.MyPageApi;
 import org.example.admin.dto.request.AIApiRequest;
+import org.example.admin.dto.request.AnnouncementDetailRequest;
 import org.example.admin.dto.response.*;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +23,11 @@ public class adminServiceImpl implements adminService {
     @Override
     public AnnouncementInboxResponse getNewAnnouncement() {
         return announcementApi.getNewAnnouncement();
+    }
+
+    @Override
+    public EligibilityCatalogResponse getOnboardingAdminCatalog(){
+        return myPageApi.getOnboardingAdminCatalog();
     }
 
     @Override
@@ -61,6 +68,12 @@ public class adminServiceImpl implements adminService {
                 false,         // isScrapped
                 toKvDigestItems(digests)
         );
+    }
+
+    @Override
+    public void postAdminAnnouncement(long announcementId, AnnouncementDetailRequest request) {
+        announcementApi.postAdminAnnouncement(announcementId, request);
+        myPageApi.postOnboarding(announcementId, request);
     }
 
     private static List<AIApiRequest.Question> toAIApiQuestions(AiQuestionsResponse qs) {

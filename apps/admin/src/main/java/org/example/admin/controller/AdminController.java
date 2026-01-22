@@ -1,6 +1,7 @@
 package org.example.admin.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.example.admin.api.EligibilityCatalogResponse;
 import org.example.admin.dto.request.AnnouncementDetailRequest;
 import org.example.admin.dto.response.AnnouncementAdminResponse;
 import org.example.admin.dto.response.AnnouncementInboxResponse;
@@ -24,10 +25,15 @@ public class AdminController {
     }
 
     @PostMapping("/api/admin/announcement/{announcementId}")
-    public ResponseEntity<Void> postAdminAnnouncement(@RequestBody AnnouncementDetailRequest request){
+    public ResponseEntity<Void> postAdminAnnouncement(@PathVariable long announcementId, @RequestBody AnnouncementDetailRequest request){
+        adminService.postAdminAnnouncement(announcementId, request);
         return ResponseEntity.noContent().build();
     }
 
+    @GetMapping("/api/admin/additional-onboardings")
+    public ResponseEntity<EligibilityCatalogResponse> getEligibility(){
+        return ResponseEntity.ok(adminService.getOnboardingAdminCatalog());
+    }
 
 
 }

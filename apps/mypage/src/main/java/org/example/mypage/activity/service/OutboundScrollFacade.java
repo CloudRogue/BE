@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,9 +46,7 @@ public class OutboundScrollFacade {
     public OutboundResponse getOutbound(String userId, Long cursor, int limit) {
         int size = normalizeLimit(limit);
 
-
         List<Outbound> outbounds = outboundService.fetchForScroll(userId, cursor, size + 1);
-
 
         boolean hasNext = outbounds.size() > size;
         if (hasNext) outbounds = outbounds.subList(0, size);
@@ -62,6 +61,14 @@ public class OutboundScrollFacade {
         if (idsInOrder.isEmpty()) {
             return new OutboundResponse(List.of(), nextCursor, hasNext);
         }
+
+
+        Map<Long, Instant> viewedAtByAnnouncementId = outbounds.stream()
+                .collect(Collectors.toMap(
+                        Outbound::getAnnouncementId,
+                        Outbound::getCreatedAt,
+                        (a, b) -> a.isAfter(b) ? a : b
+                ));
 
         List<AnnouncementsResponse> fetched = announcementsApi.getAnnouncements(idsInOrder);
 
@@ -82,6 +89,8 @@ public class OutboundScrollFacade {
                 continue;
             }
 
+            Instant viewedAt = viewedAtByAnnouncementId.get(announcementId);
+
             items.add(new OutboundResponse.Item(
                     a.announcementId(),
                     a.title(),
@@ -90,7 +99,8 @@ public class OutboundScrollFacade {
                     a.endDate(),
                     a.publishedAt(),
                     a.publisher(),
-                    a.status()
+                    a.status(),
+                    viewedAt
             ));
         }
 

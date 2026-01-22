@@ -27,7 +27,7 @@ public class AIApi {
     public List<AIApiResponse> ingest(AIApiRequest request) {
         try {
             AIApiResponse[] arr = restClient.post()
-                    .uri("/ingest")
+                    .uri("/api/ingest")
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaType.APPLICATION_JSON)
                     .body(request)

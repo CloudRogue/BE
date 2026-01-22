@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.mypage.exception.AdminOnboardingException;
 import org.example.mypage.profile.domain.AnnouncementEligibility;
 import org.example.mypage.profile.domain.Eligibility;
 import org.example.mypage.profile.domain.EligibilityAnswer;
@@ -13,11 +14,13 @@ import org.example.mypage.profile.dto.OnboardingAnswer;
 import org.example.mypage.profile.dto.OnboardingAnswerVO;
 import org.example.mypage.profile.dto.request.EligibilityAnswersRequest;
 import org.example.mypage.profile.dto.request.EligibilityDiagnoseRequest;
+import org.example.mypage.profile.dto.request.OnboardingPostRequest;
 import org.example.mypage.profile.dto.request.OnboardingRequest;
 import org.example.mypage.exception.AddOnboardingException;
 import org.example.mypage.exception.OnboardingIncompleteException;
 import org.example.mypage.exception.enums.ErrorCode;
 import org.example.mypage.profile.dto.response.AiQuestionsResponse;
+import org.example.mypage.profile.dto.response.EligibilityCatalogResponse;
 import org.example.mypage.profile.dto.response.OnboardingProfileResponse;
 import org.example.mypage.profile.dto.response.OnboardingQuestionResponse;
 import org.example.mypage.profile.repository.AnnouncementEligibilityRepository;
@@ -105,62 +108,66 @@ public class OnboardingServiceImpl implements OnboardingService{
     }
 
     @Transactional
+    public EligibilityCatalogResponse getEligibilityCatalog() {
+        List<Eligibility> eligibilities = eligibilityRepository.findAll();
+
+        List<EligibilityCatalogResponse.Item> items = eligibilities.stream()
+                .map(e -> new EligibilityCatalogResponse.Item(
+                        e.getId(),
+                        e.getTitle(),
+                        e.getOnboardingDescription(),
+                        e.getQuestion(),
+                        e.getType(),
+                        e.isRequiredOnboarding()
+                ))
+                .toList();
+
+        return new EligibilityCatalogResponse(items);
+    }
+
+    @Transactional
     public void saveAnnouncementOnboarding(long announcementId, EligibilityAnswersRequest request) {
 
-        List<OnboardingRequest.Answer> answers = request.eligibility().answers();
+        if (announcementEligibilityRepository.existsByAnnouncementId(announcementId)) {
+            throw new AdminOnboardingException(ErrorCode.ADMIN_ONBOARDING_ALREADY_CREATED);
+        }
+
+        List<OnboardingPostRequest.Answer> answers = request.eligibility().answers();
         if (answers == null || answers.isEmpty()) {
-            throw new IllegalArgumentException("answers must not be empty");
+            throw new AdminOnboardingException(ErrorCode.ADMIN_ONBOARDING_EMPTY_ANSWERS);
         }
 
         List<Long> ids = answers.stream()
-                .map(OnboardingRequest.Answer::additionalOnboardingId)
+                .map(OnboardingPostRequest.Answer::additionalOnboardingId)
                 .toList();
 
         Set<Long> idSet = new HashSet<>(ids);
         if (idSet.size() != ids.size()) {
-            throw new IllegalArgumentException("duplicate additionalOnboardingId");
+            throw new AdminOnboardingException(ErrorCode.ADMIN_ONBOARDING_DUPLICATE_KEY);
         }
 
-        List<Eligibility> eligibilitieList = eligibilityRepository.findAllById(idSet);
-        if (eligibilitieList.size() != idSet.size()) {
-            throw new IllegalArgumentException("eligibility not found");
+        List<Eligibility> eligibilityList = eligibilityRepository.findAllById(idSet);
+        if (eligibilityList.size() != idSet.size()) {
+            throw new AdminOnboardingException(ErrorCode.ADMIN_ONBOARDING_NOT_FOUND);
         }
 
         Map<Long, Eligibility> eligibilityMap = new HashMap<>();
-        for (Eligibility e : eligibilitieList) {
+        for (Eligibility e : eligibilityList) {
             eligibilityMap.put(e.getId(), e);
         }
 
-        List<AnnouncementEligibility> existingMappings =
-                announcementEligibilityRepository.findAllByAnnouncementIdFetch(announcementId);
+        List<AnnouncementEligibility> toCreateMappings = new ArrayList<>(answers.size());
 
-        Map<Long, AnnouncementEligibility> mappingByEligibilityId = new HashMap<>();
-        for (AnnouncementEligibility ae : existingMappings) {
-            mappingByEligibilityId.put(ae.getEligibility().getId(), ae);
-        }
-
-        List<AnnouncementEligibility> toSaveMappings = new ArrayList<>(answers.size());
-
-        for (OnboardingRequest.Answer a : answers) {
+        for (OnboardingPostRequest.Answer a : answers) {
             Long eligibilityId = a.additionalOnboardingId();
             Eligibility eligibility = eligibilityMap.get(eligibilityId);
 
             JsonNode value = a.value();
 
-            eligibility.setValue(value);
-
-            AnnouncementEligibility existing = mappingByEligibilityId.get(eligibilityId);
-            if (existing != null) {
-                existing.changeExpectedValue(value);
-                toSaveMappings.add(existing);
-            } else {
-                toSaveMappings.add(AnnouncementEligibility.of(announcementId, eligibility, value));
-            }
+            toCreateMappings.add(AnnouncementEligibility.of(announcementId, eligibility, value));
         }
 
-        // 5) flush 저장
-        eligibilityRepository.saveAll(eligibilitieList);
-        announcementEligibilityRepository.saveAll(toSaveMappings);
+        announcementEligibilityRepository.saveAll(toCreateMappings);
     }
 
     @Transactional(readOnly = true)

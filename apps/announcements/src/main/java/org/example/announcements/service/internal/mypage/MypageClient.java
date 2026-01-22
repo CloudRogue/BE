@@ -1,5 +1,6 @@
 package org.example.announcements.service.internal.mypage;
 
+import org.example.announcements.dto.internal.mypage.EligibilityDiagnoseRequest;
 import org.example.announcements.dto.internal.mypage.MypageOutboundRequest;
 import org.example.announcements.dto.internal.mypage.MypagePersonalizedResponse;
 import org.example.announcements.dto.internal.mypage.MypageScrapRequest;
@@ -18,4 +19,6 @@ public interface MypageClient {
     //맞춤공고 목록 조회
     MypagePersonalizedResponse getPersonalized(String userId);
 
+
+    EligibilityDiagnoseRequest getDiagnose(long announcementId, String userId);
 }

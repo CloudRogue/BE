@@ -27,4 +27,6 @@ public interface AnnouncementEligibilityRepository extends JpaRepository<Announc
           and e.type in (org.example.mypage.profile.domain.enums.UiBlockType.BOOLEAN, org.example.mypage.profile.domain.enums.UiBlockType.SELECT_SINGLE)
     """)
     List<AnnouncementEligibility> findAllRequiredBoolOrSingleConditionsFetch();
+
+    boolean existsByAnnouncementId(long announcementId);
 }

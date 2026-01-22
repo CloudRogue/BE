@@ -2,10 +2,12 @@ package org.example.mypage.profile.repository;
 
 import org.example.mypage.profile.domain.EligibilityOption;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Set;
 
 public interface EligibilityOptionRepository extends JpaRepository<EligibilityOption, Long> {
 
@@ -16,7 +18,6 @@ public interface EligibilityOptionRepository extends JpaRepository<EligibilityOp
         order by o.eligibility.id asc, o.displayOrder asc
     """)
     List<EligibilityOption> findAllByEligibilityIdsOrderByEligibilityIdAndDisplayOrder(@Param("eligibilityIds") List<Long> eligibilityIds);
-
 
 
 }

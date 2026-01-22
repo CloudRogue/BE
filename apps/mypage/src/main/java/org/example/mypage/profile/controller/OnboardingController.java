@@ -7,6 +7,7 @@ import org.example.mypage.profile.dto.request.EligibilityAnswersRequest;
 import org.example.mypage.profile.dto.request.EligibilityDiagnoseRequest;
 import org.example.mypage.profile.dto.request.OnboardingRequest;
 import org.example.mypage.profile.dto.response.AiQuestionsResponse;
+import org.example.mypage.profile.dto.response.EligibilityCatalogResponse;
 import org.example.mypage.profile.dto.response.OnboardingProfileResponse;
 import org.example.mypage.profile.dto.response.OnboardingQuestionResponse;
 import org.example.mypage.profile.service.OnboardingService;
@@ -57,8 +58,14 @@ public class OnboardingController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/internal/ai-questions/{announcementId}")
-    public ResponseEntity<Void> postOnboarding(@PathVariable long announcementId, EligibilityAnswersRequest request){
+
+    @PostMapping("/internal/onboarding")
+    public ResponseEntity<EligibilityCatalogResponse> getOnboardingAdmin(){
+        return ResponseEntity.ok(onboardingService.getEligibilityCatalog());
+    }
+
+    @PostMapping("/internal/onboarding/{announcementId}")
+    public ResponseEntity<Void> postOnboarding(@PathVariable long announcementId, @RequestBody @Valid EligibilityAnswersRequest request){
         onboardingService.saveAnnouncementOnboarding(announcementId, request);
         return ResponseEntity.noContent().build();
     }
@@ -79,6 +86,7 @@ public class OnboardingController {
     public ResponseEntity<EligibilityDiagnoseRequest> getDiagnose(@PathVariable long announcementId, @RequestParam @NotBlank String userId){
         return ResponseEntity.ok(onboardingService.getDiagnose(announcementId, userId));
     }
+
 
 
 }

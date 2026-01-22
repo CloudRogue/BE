@@ -27,7 +27,6 @@ public class PersonalizedAnnouncementServiceImpl implements PersonalizedAnnounce
     @Transactional(readOnly = true)
     public List<Long> getPersonalizedAnnouncementIds(String userId) {
 
-        // 1) requiredOnboarding 전체 답변 개수 검증(타입 무관)
         long requiredCount = eligibilityRepository.countByRequiredOnboardingTrue();
         if (requiredCount == 0) {
             return List.of();
@@ -77,7 +76,6 @@ public class PersonalizedAnnouncementServiceImpl implements PersonalizedAnnounce
             }
         }
 
-        // 6) required 조건을 "모두" 만족한 공고만 반환
         List<Long> result = new ArrayList<>();
         for (Map.Entry<Long, Integer> entry : requiredCountByAnnouncement.entrySet()) {
             long announcementId = entry.getKey();
@@ -89,7 +87,6 @@ public class PersonalizedAnnouncementServiceImpl implements PersonalizedAnnounce
             }
         }
 
-        // 정렬(선택): 일관성
         result.sort(Long::compareTo);
         return result;
     }

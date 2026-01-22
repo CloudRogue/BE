@@ -1,5 +1,7 @@
 package org.example.admin.dto.request;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import java.util.List;
 
 public record AnnouncementDetailRequest(
@@ -20,14 +22,12 @@ public record AnnouncementDetailRequest(
         OverviewSummary overviewSummary
 ) {
 
-    public record Eligibility(
-            List<Answer> answers
-    ) {
+    public record Eligibility(List<Answer> answers) {
         public record Answer(
                 long additionalOnboardingId,
                 String type,
                 boolean unknown,
-                String value,
+                JsonNode value,
                 List<String> options
         ) {}
     }
