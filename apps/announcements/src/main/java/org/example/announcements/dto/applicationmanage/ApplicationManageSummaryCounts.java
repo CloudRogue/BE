@@ -10,8 +10,9 @@ public class ApplicationManageSummaryCounts {
     private final long applyingCount;
     private final long documentWaitingCount;
     private final long finalWaitingCount;
+    private final long closedCount;
 
     public static ApplicationManageSummaryCounts empty() {
-        return new ApplicationManageSummaryCounts(0, 0, 0);
+        return new ApplicationManageSummaryCounts(0, 0, 0,0);
     }
 }
