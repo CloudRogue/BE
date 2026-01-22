@@ -37,4 +37,25 @@ public interface EligibilityAnswerRepository extends JpaRepository<EligibilityAn
 
         List<EligibilityAnswer> findAllByUserIdAndEligibilityIdIn(String userId, Set<Long> idSet);
 
+    @Query("""
+        select count(a)
+        from EligibilityAnswer a
+        where a.userId = :userId
+          and a.eligibility.id in :eligibilityIds
+    """)
+    long countByUserIdAndEligibilityIds(@Param("userId") String userId,
+                                        @Param("eligibilityIds") List<Long> eligibilityIds);
+
+    @Query("""
+        select a
+        from EligibilityAnswer a
+        join fetch a.eligibility e
+        where a.userId = :userId
+          and e.id in :eligibilityIds
+    """)
+    List<EligibilityAnswer> findAllByUserIdWithEligibility(@Param("userId") String userId,
+                                                           @Param("eligibilityIds") List<Long> eligibilityIds);
+
+
+
 }
