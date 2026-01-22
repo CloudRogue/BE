@@ -17,7 +17,7 @@ public class OutboundController {
     private final OutboundScrollFacade outboundScrollFacade;
     private final OutboundService outboundService;
 
-    @PostMapping("/internal/mypage/outbound")
+    @GetMapping("/internal/mypage/outbound")
     public ResponseEntity<OutboundResponse> getOutbound(@AuthenticationPrincipal UserDetails principal, @RequestParam(required = false) Long cursor, @RequestParam(defaultValue = "20") int limit){
         return ResponseEntity.ok(outboundScrollFacade.getOutbound(principal.getUsername(), cursor, limit));
     }
