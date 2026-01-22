@@ -1,19 +1,26 @@
 package org.example.mypage.profile.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.example.mypage.profile.domain.AnnouncementEligibility;
 import org.example.mypage.profile.domain.Eligibility;
 import org.example.mypage.profile.domain.EligibilityAnswer;
 import org.example.mypage.profile.domain.EligibilityOption;
 import org.example.mypage.profile.dto.OnboardingAnswer;
 import org.example.mypage.profile.dto.OnboardingAnswerVO;
+import org.example.mypage.profile.dto.request.EligibilityAnswersRequest;
+import org.example.mypage.profile.dto.request.EligibilityDiagnoseRequest;
 import org.example.mypage.profile.dto.request.OnboardingRequest;
 import org.example.mypage.exception.AddOnboardingException;
 import org.example.mypage.exception.OnboardingIncompleteException;
 import org.example.mypage.exception.enums.ErrorCode;
+import org.example.mypage.profile.dto.response.AiQuestionsResponse;
 import org.example.mypage.profile.dto.response.OnboardingProfileResponse;
 import org.example.mypage.profile.dto.response.OnboardingQuestionResponse;
+import org.example.mypage.profile.repository.AnnouncementEligibilityRepository;
 import org.example.mypage.profile.repository.EligibilityAnswerRepository;
 import org.example.mypage.profile.repository.EligibilityOptionRepository;
 import org.example.mypage.profile.repository.EligibilityRepository;
@@ -23,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 
 /**
  * 온보딩(프로필/추가 온보딩 답변) 관련 비즈니스 로직을 담당하는 서비스 구현체입니다.
@@ -50,9 +56,12 @@ import java.util.stream.Collectors;
 public class OnboardingServiceImpl implements OnboardingService{
     private final static int ONBOARDING_HARD_LIMIT = 30;
 
+    private final AnnouncementEligibilityRepository announcementEligibilityRepository;
     private final EligibilityAnswerRepository answerRepository;
     private final EligibilityRepository eligibilityRepository;
     private final EligibilityOptionRepository eligibilityOptionRepository;
+    private final ObjectMapper objectMapper;
+
 
     @Override
     public OnboardingProfileResponse getDetailProfile(String userId) {
@@ -81,7 +90,6 @@ public class OnboardingServiceImpl implements OnboardingService{
         return new OnboardingProfileResponse(answerList, addAnswerList);
     }
 
-
     @Transactional(readOnly = true)
     public OnboardingQuestionResponse getRequiredQuestions() {
         List<Eligibility> eligibilitieList =
@@ -96,49 +104,84 @@ public class OnboardingServiceImpl implements OnboardingService{
         return buildResponse(eligibilitieList);
     }
 
-    private OnboardingQuestionResponse buildResponse(List<Eligibility> eligibilitieList) {
-        if (eligibilitieList.isEmpty()) {
-            return new OnboardingQuestionResponse(List.of());
+    @Transactional
+    public void saveAnnouncementOnboarding(long announcementId, EligibilityAnswersRequest request) {
+
+        List<OnboardingRequest.Answer> answers = request.eligibility().answers();
+        if (answers == null || answers.isEmpty()) {
+            throw new IllegalArgumentException("answers must not be empty");
         }
 
-        List<Long> ids = eligibilitieList.stream()
-                .map(Eligibility::getId)
+        List<Long> ids = answers.stream()
+                .map(OnboardingRequest.Answer::additionalOnboardingId)
                 .toList();
 
-        Map<Long, List<String>> optionLabelsByEligibilityId = fetchOptionLabelsGrouped(ids);
+        Set<Long> idSet = new HashSet<>(ids);
+        if (idSet.size() != ids.size()) {
+            throw new IllegalArgumentException("duplicate additionalOnboardingId");
+        }
 
-        List<OnboardingQuestionResponse.Item> items = eligibilitieList.stream()
-                .map(e -> {
-                    List<String> labels = optionLabelsByEligibilityId.get(e.getId());
-                    List<String> optionsOrNull = (labels == null || labels.isEmpty()) ? null : labels;
+        List<Eligibility> eligibilitieList = eligibilityRepository.findAllById(idSet);
+        if (eligibilitieList.size() != idSet.size()) {
+            throw new IllegalArgumentException("eligibility not found");
+        }
 
-                    return new OnboardingQuestionResponse.Item(
-                            e.getId(),
+        Map<Long, Eligibility> eligibilityMap = new HashMap<>();
+        for (Eligibility e : eligibilitieList) {
+            eligibilityMap.put(e.getId(), e);
+        }
+
+        List<AnnouncementEligibility> existingMappings =
+                announcementEligibilityRepository.findAllByAnnouncementIdFetch(announcementId);
+
+        Map<Long, AnnouncementEligibility> mappingByEligibilityId = new HashMap<>();
+        for (AnnouncementEligibility ae : existingMappings) {
+            mappingByEligibilityId.put(ae.getEligibility().getId(), ae);
+        }
+
+        List<AnnouncementEligibility> toSaveMappings = new ArrayList<>(answers.size());
+
+        for (OnboardingRequest.Answer a : answers) {
+            Long eligibilityId = a.additionalOnboardingId();
+            Eligibility eligibility = eligibilityMap.get(eligibilityId);
+
+            JsonNode value = a.value();
+
+            eligibility.setValue(value);
+
+            AnnouncementEligibility existing = mappingByEligibilityId.get(eligibilityId);
+            if (existing != null) {
+                existing.changeExpectedValue(value);
+                toSaveMappings.add(existing);
+            } else {
+                toSaveMappings.add(AnnouncementEligibility.of(announcementId, eligibility, value));
+            }
+        }
+
+        // 5) flush 저장
+        eligibilityRepository.saveAll(eligibilitieList);
+        announcementEligibilityRepository.saveAll(toSaveMappings);
+    }
+
+    @Transactional(readOnly = true)
+    public AiQuestionsResponse getAiQuestions(long announcementId) {
+
+        List<AnnouncementEligibility> mappings =
+                announcementEligibilityRepository.findAllByAnnouncementIdFetch(announcementId);
+
+        List<AiQuestionsResponse.Question> questions = mappings.stream()
+                .map(ae -> {
+                    Eligibility e = ae.getEligibility();
+                    return new AiQuestionsResponse.Question(
                             e.getTitle(),
                             e.getOnboardingDescription(),
-                            e.getQuestion(),
-                            e.getType().name().toLowerCase(),
-                            optionsOrNull
+                            e.getQuestion()
                     );
                 })
                 .toList();
 
-        return new OnboardingQuestionResponse(items);
+        return new AiQuestionsResponse(questions);
     }
-
-    private Map<Long, List<String>> fetchOptionLabelsGrouped(List<Long> eligibilityIds) {
-        List<EligibilityOption> options =
-                eligibilityOptionRepository.findAllByEligibilityIdsOrderByEligibilityIdAndDisplayOrder(eligibilityIds);
-
-        Map<Long, List<String>> map = new HashMap<>();
-        for (EligibilityOption o : options) {
-            Long eligibilityId = o.getEligibility().getId();
-            map.computeIfAbsent(eligibilityId, k -> new ArrayList<>())
-                    .add(o.getLabel());
-        }
-        return map;
-    }
-
 
     /**
      * 추가 온보딩 답변을 업서트(Upsert)합니다.
@@ -187,6 +230,95 @@ public class OnboardingServiceImpl implements OnboardingService{
 
         answerRepository.saveAll(toSave);
     }
+
+
+    @Transactional(readOnly = true)
+    public EligibilityDiagnoseRequest getDiagnose(long announcementId, String userId) {
+
+
+        List<AnnouncementEligibility> conditions =
+                announcementEligibilityRepository.findAllByAnnouncementIdFetch(announcementId);
+
+        if (conditions == null || conditions.isEmpty()) {
+            throw new IllegalArgumentException("no requirements for announcementId=" + announcementId);
+        }
+
+        List<Long> eligibilityIds = new ArrayList<>(conditions.size());
+        List<EligibilityDiagnoseRequest.RequirementItem> requirements = new ArrayList<>(conditions.size());
+
+        for (AnnouncementEligibility ae : conditions) {
+            Eligibility e = ae.getEligibility();
+            if (e == null || e.getId() == null) {
+                throw new IllegalStateException("announcementEligibility.eligibility is null. announcementId=" + announcementId);
+            }
+
+            Long additionalOnboardingId = e.getId();
+            String key = e.getQuestion();
+
+            JsonNode expectedNode = ae.getExpectedValue();
+            if (expectedNode == null || expectedNode.isNull()) {
+                throw new IllegalArgumentException("expectedValue must not be null. additionalOnboardingId=" + additionalOnboardingId);
+            }
+
+            final String expectedValueStr;
+            if (expectedNode.isTextual() || expectedNode.isBoolean() || expectedNode.isNumber()) {
+                expectedValueStr = expectedNode.asText();
+            } else {
+                try {
+                    expectedValueStr = objectMapper.writeValueAsString(expectedNode);
+                } catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+                    throw new IllegalArgumentException("failed to serialize expectedValue. additionalOnboardingId=" + additionalOnboardingId, ex);
+                }
+            }
+
+            if (expectedValueStr == null || expectedValueStr.isBlank()) {
+                throw new IllegalArgumentException("expectedValue must be non-blank. additionalOnboardingId=" + additionalOnboardingId);
+            }
+
+            requirements.add(new EligibilityDiagnoseRequest.RequirementItem(
+                    additionalOnboardingId,
+                    key,
+                    expectedValueStr
+            ));
+            eligibilityIds.add(additionalOnboardingId);
+        }
+
+        // 성능 이유 있을듯 나중에 수정
+        List<EligibilityAnswer> answers =
+                answerRepository.findAllByUserIdWithEligibility(userId, eligibilityIds);
+
+        Map<Long, EligibilityAnswer> answerMap = new HashMap<>();
+        if (answers != null) {
+            for (EligibilityAnswer a : answers) {
+                if (a == null || a.getEligibility() == null || a.getEligibility().getId() == null) continue;
+                answerMap.putIfAbsent(a.getEligibility().getId(), a);
+            }
+        }
+
+        List<EligibilityDiagnoseRequest.AnswerItem> answerItems = new ArrayList<>(eligibilityIds.size());
+
+        for (Long eligibilityId : eligibilityIds) {
+            EligibilityAnswer a = answerMap.get(eligibilityId);
+
+            String answerValueStr = null;
+            if (a != null && a.getValue() != null && !a.getValue().isNull()) {
+                try {
+                    answerValueStr = objectMapper.writeValueAsString(a.getValue());
+                } catch (JsonProcessingException e) {
+                    throw new IllegalArgumentException("failed to serialize answer value", e);
+                }
+            }
+
+            answerItems.add(new EligibilityDiagnoseRequest.AnswerItem(
+                    eligibilityId,
+                    answerValueStr
+            ));
+        }
+
+        return new EligibilityDiagnoseRequest(requirements, answerItems);
+    }
+
+
 
     private Map<Long, OnboardingRequest.Answer> toReqMap(OnboardingRequest request) {
         try {
@@ -238,5 +370,51 @@ public class OnboardingServiceImpl implements OnboardingService{
 
         return toSave;
     }
+
+    private OnboardingQuestionResponse buildResponse(List<Eligibility> eligibilitieList) {
+        if (eligibilitieList.isEmpty()) {
+            return new OnboardingQuestionResponse(List.of());
+        }
+
+        List<Long> ids = eligibilitieList.stream()
+                .map(Eligibility::getId)
+                .toList();
+
+        Map<Long, List<String>> optionLabelsByEligibilityId = fetchOptionLabelsGrouped(ids);
+
+        List<OnboardingQuestionResponse.Item> items = eligibilitieList.stream()
+                .map(e -> {
+                    List<String> labels = optionLabelsByEligibilityId.get(e.getId());
+                    List<String> optionsOrNull = (labels == null || labels.isEmpty()) ? null : labels;
+
+                    return new OnboardingQuestionResponse.Item(
+                            e.getId(),
+                            e.getTitle(),
+                            e.getOnboardingDescription(),
+                            e.getQuestion(),
+                            e.getType().name().toLowerCase(),
+                            optionsOrNull
+                    );
+                })
+                .toList();
+
+        return new OnboardingQuestionResponse(items);
+    }
+
+    private Map<Long, List<String>> fetchOptionLabelsGrouped(List<Long> eligibilityIds) {
+        List<EligibilityOption> options =
+                eligibilityOptionRepository.findAllByEligibilityIdsOrderByEligibilityIdAndDisplayOrder(eligibilityIds);
+
+        Map<Long, List<String>> map = new HashMap<>();
+        for (EligibilityOption o : options) {
+            Long eligibilityId = o.getEligibility().getId();
+            map.computeIfAbsent(eligibilityId, k -> new ArrayList<>())
+                    .add(o.getLabel());
+        }
+        return map;
+    }
+
+
+
 
 }

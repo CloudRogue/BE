@@ -15,11 +15,11 @@ public record AnnouncementAdminResponse(
         LocalDate finalPublishedAt,
         String status,
         int dDay,
-        long rentGtn,
-        long enty,
-        long prtpay,
-        long surlus,
-        long mtRntchrg,
+        Long rentGtn,
+        Long enty,
+        Long prtpay,
+        Long surlus,
+        Long mtRntchrg,
         String fullAdres,
         String refrnLegaldongNm,
         String url,
@@ -27,8 +27,5 @@ public record AnnouncementAdminResponse(
         boolean isScrapped,
         List<KvDigestItem> kvDigest
 ) {
-    public record KvDigestItem(
-            String key,
-            String value
-    ) {}
+    public record KvDigestItem(String key, String value) {}
 }

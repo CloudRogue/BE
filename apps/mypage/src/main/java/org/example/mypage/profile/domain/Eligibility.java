@@ -1,12 +1,16 @@
 package org.example.mypage.profile.domain;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.example.mypage.profile.domain.enums.UiBlockType;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Getter
 @Entity
@@ -32,7 +36,6 @@ public class Eligibility {
     @Column(name = "question", nullable = false, length = 300)
     private String question;
 
-
     @NotBlank
     @Size(max = 300)
     @Column(name = "example_question", nullable = false, length = 300)
@@ -42,6 +45,11 @@ public class Eligibility {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 32)
     private UiBlockType type;
+
+    @Setter
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "value", columnDefinition = "jsonb")
+    private JsonNode value;
 
     @Column(name = "required_onboarding", nullable = false)
     private boolean requiredOnboarding;
