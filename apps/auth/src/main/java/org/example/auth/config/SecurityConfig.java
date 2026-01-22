@@ -61,7 +61,15 @@ public class SecurityConfig {
                                 .userService(customOAuth2UserService)
                         )
                         .successHandler(oauth2LoginSuccessHandler)
-                        .failureHandler(oauth2FailureHandler())
+                        .failureHandler((request, response, exception) -> {
+                            org.slf4j.LoggerFactory.getLogger("OAUTH2_FAIL").error(
+                                    "@@@@@@@@@@@@@@@@@OAUTH2_FAIL@@@@@@@@@@@@@@@@@ exClass={} msg={}",
+                                    exception.getClass().getName(),
+                                    exception.getMessage(),
+                                    exception
+                            );
+                            response.sendRedirect("https://localhost:3000/fail");
+                        })
                 )
                 .oauth2ResourceServer(resource -> resource
                         .authenticationEntryPoint(authEntryPoint)
@@ -77,14 +85,6 @@ public class SecurityConfig {
     }
 
 
-   @Bean
-    public AuthenticationFailureHandler oauth2FailureHandler() {
-        return (request, response, exception) -> {
-            // 일단 실패는 다보냈습니다
-            response.sendRedirect(OAUTH2_FAILURE_REDIRECT_URL);
-        };
-    }
-    
     @Bean
     public BearerTokenResolver bearerTokenResolver() {
         return request -> {
