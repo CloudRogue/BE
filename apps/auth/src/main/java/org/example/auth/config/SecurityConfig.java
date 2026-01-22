@@ -29,7 +29,8 @@ import java.util.List;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
+    private static final String OAUTH2_FAILURE_REDIRECT_URL = "https://localhost:3000/fail";
+    
     private final AuthEntryPoint authEntryPoint;
     private final AuthAccessDeniedHandler authAccessDeniedHandler;
 
@@ -60,6 +61,7 @@ public class SecurityConfig {
                                 .userService(customOAuth2UserService)
                         )
                         .successHandler(oauth2LoginSuccessHandler)
+                        .failureHandler(oauth2FailureHandler())
                 )
                 .oauth2ResourceServer(resource -> resource
                         .authenticationEntryPoint(authEntryPoint)
@@ -74,6 +76,15 @@ public class SecurityConfig {
         return http.build();
     }
 
+
+   @Bean
+    public AuthenticationFailureHandler oauth2FailureHandler() {
+        return (request, response, exception) -> {
+            // 일단 실패는 다보냈습니다
+            response.sendRedirect(OAUTH2_FAILURE_REDIRECT_URL);
+        };
+    }
+    
     @Bean
     public BearerTokenResolver bearerTokenResolver() {
         return request -> {
