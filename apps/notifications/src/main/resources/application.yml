@@ -1,0 +1,31 @@
+notifications:
+  templates:
+    # ?? ?? ?? D-7
+    apply-d7:
+      title: ${NOTIF_APPLY_D7_TITLE}
+      body: ${NOTIF_APPLY_D7_BODY}
+      button1-name: ${NOTIF_APPLY_D7_BTN1_NAME}
+      button1-url: ${NOTIF_APPLY_D7_BTN1_URL}
+
+    # ?? ?? ?? D-Day
+    apply-dday:
+      title: ${NOTIF_APPLY_DDAY_TITLE}
+      body: ${NOTIF_APPLY_DDAY_BODY}
+      button1-name: ${NOTIF_APPLY_DDAY_BTN1_NAME}
+      button1-url: ${NOTIF_APPLY_DDAY_BTN1_URL}
+
+    # ?? ??? ?? D-7
+    doc-d7:
+      title: ${NOTIF_DOC_D7_TITLE}
+      body: ${NOTIF_DOC_D7_BODY}
+      button1-name: ${NOTIF_DOC_D7_BTN1_NAME}
+      button1-url: ${NOTIF_DOC_D7_BTN1_URL}
+
+    # ?? ??? ?? D-Day
+    doc-dday:
+      title: ${NOTIF_DOC_DDAY_TITLE}
+      body: ${NOTIF_DOC_DDAY_BODY}
+      button1-name: ${NOTIF_DOC_DDAY_BTN1_NAME}
+      button1-url: ${NOTIF_DOC_DDAY_BTN1_URL}
+      button2-name: ${NOTIF_DOC_DDAY_BTN2_NAME}
+      button2-url: ${NOTIF_DOC_DDAY_BTN2_URL}

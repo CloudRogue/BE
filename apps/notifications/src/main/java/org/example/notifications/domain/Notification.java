@@ -15,8 +15,6 @@ import java.time.LocalDateTime;
         indexes = {
                 // 유저별 알림 조회용으로
                 @Index(name = "idx_notif_user_created", columnList = "user_id, created_at"),
-                // 중복 발송 방지검사하기용
-                @Index(name = "idx_notif_fire_date", columnList = "fire_date")
         }
 )
 @Getter
@@ -45,9 +43,6 @@ public class Notification {
     @Column(name = "body", length = 500, nullable = false)
     private String body;
 
-    //중복 방지용
-    @Column(name = "fire_date", nullable = false)
-    private LocalDate fireDate;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -60,8 +55,7 @@ public class Notification {
             NotificationTemplateCode templateCode,
             Long announcementId,
             String title,
-            String body,
-            LocalDate fireDate
+            String body
     ) {
         Notification n = new Notification();
         n.userId = userId;
@@ -69,7 +63,6 @@ public class Notification {
         n.announcementId = announcementId;
         n.title = title;
         n.body = body;
-        n.fireDate = fireDate;
         return n;
     }
 }
