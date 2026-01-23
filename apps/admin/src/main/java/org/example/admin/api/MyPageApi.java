@@ -2,10 +2,11 @@ package org.example.admin.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import org.example.admin.dto.request.AnnouncementDetailRequest;
 import org.example.admin.dto.response.AiQuestionsResponse;
 import org.example.admin.exception.AdminPipelineFailException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -13,13 +14,18 @@ import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
 
 @Component
-@RequiredArgsConstructor
 public class MyPageApi {
     private final RestClient restClient;
     private final ObjectMapper objectMapper;
 
     @Value("${mypage.api.base-url}")
     private String baseUrl;
+
+    @Autowired
+    public MyPageApi(@Qualifier("mypageRestClient") RestClient restClient, ObjectMapper objectMapper) {
+        this.restClient = restClient;
+        this.objectMapper = objectMapper;
+    }
 
     public AiQuestionsResponse getAiQuestions(long announcementId) {
         String url = baseUrl + "/internal/ai-questions/" + announcementId;
