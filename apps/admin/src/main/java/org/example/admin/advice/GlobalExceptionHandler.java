@@ -6,7 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "org.example.admin")
+@Component("adminExceptionHandler")
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AdminPipelineFailException.class)
