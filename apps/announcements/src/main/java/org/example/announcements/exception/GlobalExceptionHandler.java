@@ -15,7 +15,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestControllerAdvice(basePackages = "org.example.announcements")
-@Component("announcementsExceptionHanlder")
+@Component("announcementsExceptionHandler")
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
