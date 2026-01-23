@@ -1,10 +1,10 @@
-package org.example.notificationdemo;
+package org.example.notifications;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class NotificationdemoApplicationTests {
+class NotificationsApplicationTests {
 
 	@Test
 	void contextLoads() {
