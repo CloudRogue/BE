@@ -8,7 +8,7 @@ import tools.jackson.databind.ObjectMapper;
 public class ObMapperConfig {
 
     @Bean
-    public ObjectMapper objectMapper() {
+    public ObjectMapper authObjectMapper() {
         return new ObjectMapper();
     }
 }
