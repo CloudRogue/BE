@@ -11,7 +11,7 @@ import org.springframework.web.client.RestClient;
 public class InternalRestClientConfig {
 
     @Bean("authRestClient")
-    public RestClient authMypageRestClient(@Value("${internal.mypage.base-url}") String baseUrl) {
+    public RestClient authRestClient(@Value("${internal.mypage.base-url}") String baseUrl) {
         return RestClient.builder()
                 .baseUrl(baseUrl)
                 .build();

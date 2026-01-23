@@ -2,7 +2,7 @@ package org.example.auth.service;
 
 import com.github.f4b6a3.ulid.UlidCreator;
 import lombok.RequiredArgsConstructor;
-import org.example.auth.api.MypageInternalClient;
+import org.example.auth.api.AuthInternalClient;
 import org.example.auth.domain.OAuthProvider;
 import org.example.auth.domain.UserRole;
 import org.example.auth.domain.Users;
@@ -25,7 +25,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class KakaoUserHandler implements ProviderUserHandler {
-    private final MypageInternalClient mypageInternalClient;
+    private final AuthInternalClient authInternalClient;
     private final UserRepository usersRepository;
 
     @Override
@@ -63,7 +63,7 @@ public class KakaoUserHandler implements ProviderUserHandler {
 
         if (isNew) {
             try {
-                mypageInternalClient.createProfile(newUserId, email, name);
+                authInternalClient.createProfile(newUserId, email, name);
             } catch (RestClientException e) {
 
                 OAuth2Error error = new OAuth2Error(
