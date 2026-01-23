@@ -8,9 +8,18 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class MypageRestClientConfig {
 
-    @Bean
+    @Bean("mypageRestClient")
     public RestClient mypageRestClient(
             @Value("${internal.mypage.base-url}") String baseUrl
+    ) {
+        return RestClient.builder()
+                .baseUrl(baseUrl)
+                .build();
+    }
+
+    @Bean("aiRestClient")
+    public RestClient aiRestClient(
+            @Value("${internal.ai.base-url}") String baseUrl
     ) {
         return RestClient.builder()
                 .baseUrl(baseUrl)

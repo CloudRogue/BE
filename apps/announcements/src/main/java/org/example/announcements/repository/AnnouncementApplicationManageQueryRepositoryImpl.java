@@ -44,6 +44,7 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
                 .on(announcement.id.eq(announcementApplication.announcementId))
                 .where(
                         announcementApplication.userId.eq(userId),
+                        announcement.adminChecked.isTrue(),
                         announcement.endDate.goe(today), // applying조건
                         announcement.documentPublishedAt.isNull() // 서류발표일이없으면 통과
                                 .or(announcement.documentPublishedAt.gt(today))
@@ -81,6 +82,7 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
                 .on(announcement.id.eq(announcementApplication.announcementId))
                 .where(
                         announcementApplication.userId.eq(userId),
+                        announcement.adminChecked.isTrue(),
                         announcement.endDate.lt(today), // endDate < today
                         announcement.documentPublishedAt.isNotNull(), // documentPublishedAt은 있어야 함
                         announcement.documentPublishedAt.gt(today) // today < documentPublishedAt
@@ -115,6 +117,7 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
                 .on(announcement.id.eq(announcementApplication.announcementId))
                 .where(
                         announcementApplication.userId.eq(userId),
+                        announcement.adminChecked.isTrue(),
                         announcement.documentPublishedAt.isNotNull(), // documentPublishedAt은 있어야 함
                         announcement.documentPublishedAt.loe(today), // documentPublishedAt <= today
                         announcement.finalPublishedAt.isNotNull(), // finalPublishedAt은 있어야 함
@@ -151,6 +154,7 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
                 .on(announcement.id.eq(announcementApplication.announcementId))
                 .where(
                         announcementApplication.userId.eq(userId),
+                        announcement.adminChecked.isTrue(),
                         announcement.finalPublishedAt.isNotNull(), // 최종 발표일이 있어야 발표 완료로 볼 수 있음
                         announcement.finalPublishedAt.loe(today) // finalPublishedAt <= today
                 );
@@ -203,6 +207,16 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
                         .then(1) // 조건 만족하면 1
                         .otherwise(0);
 
+        //CLOSED용
+        NumberExpression<Integer> closedExpr =
+                new CaseBuilder()
+                        .when(
+                                announcement.finalPublishedAt.isNotNull()
+                                        .and(announcement.finalPublishedAt.loe(today)) // finalPublishedAt <= today
+                        )
+                        .then(1)
+                        .otherwise(0);
+
         //합계시작
         NumberExpression<Integer> applyingSum =
                 Expressions.numberTemplate(Integer.class, "sum({0})", applyingExpr).coalesce(0);
@@ -212,15 +226,19 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
 
         NumberExpression<Integer> finalWaitingSum =
                 Expressions.numberTemplate(Integer.class, "sum({0})", finalWaitingExpr).coalesce(0);
+        NumberExpression<Integer> closedSum =
+                Expressions.numberTemplate(Integer.class, "sum({0})", closedExpr).coalesce(0);
 
 
         //실행결과를 튜플로 받기
         Tuple tuple = jpaQueryFactory
-                .select(applyingSum, documentWaitingSum, finalWaitingSum)
+                .select(applyingSum, documentWaitingSum, finalWaitingSum, closedSum)
                 .from(announcementApplication)
                 .join(announcement).on(announcement.id.eq(announcementApplication.announcementId))
-                //로그인 유저의 지원완료 기록만 대상으로 제한하기
-                .where(announcementApplication.userId.eq(userId))
+                .where(
+                        announcementApplication.userId.eq(userId),
+                        announcement.adminChecked.isTrue()
+                )
                 .fetchOne();
 
         if (tuple == null) {
@@ -230,11 +248,13 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
         Integer applying = tuple.get(applyingSum);
         Integer documentWaiting = tuple.get(documentWaitingSum);
         Integer finalWaiting = tuple.get(finalWaitingSum);
+        Integer closed = tuple.get(closedSum);
 
         return new ApplicationManageSummaryCounts(
                 applying == null ? 0 : applying.longValue(),
                 documentWaiting == null ? 0 : documentWaiting.longValue(),
-                finalWaiting == null ? 0 : finalWaiting.longValue()
+                finalWaiting == null ? 0 : finalWaiting.longValue(),
+                closed == null ? 0 : closed.longValue()
         );
     }
 }

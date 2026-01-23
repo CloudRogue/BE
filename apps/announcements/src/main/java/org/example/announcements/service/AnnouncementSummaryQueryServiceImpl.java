@@ -22,7 +22,7 @@ public class AnnouncementSummaryQueryServiceImpl implements AnnouncementSummaryQ
     @Override
     public AnnouncementSummaryResponse getSummary(Long announcementId) {
         // 공고 없으면 에러발생
-        Announcement a = announcementRepository.findById(announcementId)
+        Announcement a = announcementRepository.findByIdAndAdminCheckedTrue(announcementId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ANNOUNCEMENT_NOT_FOUND));
 
         // 요약은 없을 수 있으므로 널가능

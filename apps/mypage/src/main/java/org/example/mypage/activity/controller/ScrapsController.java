@@ -31,5 +31,4 @@ public class ScrapsController {
         scrapService.deleteScraps(userId, announcementId);
         return ResponseEntity.ok().build();
     }
-
 }

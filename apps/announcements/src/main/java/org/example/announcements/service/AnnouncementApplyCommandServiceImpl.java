@@ -21,7 +21,7 @@ public class AnnouncementApplyCommandServiceImpl implements AnnouncementApplyCom
     @Override
     @Transactional
     public void apply(String userId, Long announcementId) {
-        if (!announcementRepository.existsById(announcementId)) {
+        if (!announcementRepository.existsByIdAndAdminCheckedTrue(announcementId)) {
             throw new BusinessException(ErrorCode.ANNOUNCEMENT_NOT_FOUND);
         }
         if (announcementApplicationRepository.existsByUserIdAndAnnouncementId(userId, announcementId)) {

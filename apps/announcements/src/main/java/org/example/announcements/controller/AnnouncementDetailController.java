@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.example.announcements.dto.AnnouncementDetailResponse;
 import org.example.announcements.dto.AnnouncementOverviewResponse;
 import org.example.announcements.dto.AnnouncementSummaryResponse;
+import org.example.announcements.dto.EligibilityDiagnoseResponse;
+import org.example.announcements.service.AnnouncementAiService;
 import org.example.announcements.service.AnnouncementDetailQueryService;
 import org.example.announcements.service.AnnouncementOverviewQueryService;
 import org.example.announcements.service.AnnouncementSummaryQueryService;
@@ -20,6 +22,7 @@ public class AnnouncementDetailController {
     private final AnnouncementDetailQueryService detailQueryService;
     private final AnnouncementSummaryQueryService summaryQueryService;
     private final AnnouncementOverviewQueryService overviewQueryService;
+    private final AnnouncementAiService announcementAiService;
 
     @GetMapping("/{announcementId}/detail/summary")
     public ResponseEntity<AnnouncementSummaryResponse> getSummary(@PathVariable Long announcementId) {
@@ -39,4 +42,10 @@ public class AnnouncementDetailController {
     ) {
         return ResponseEntity.ok(detailQueryService.getDetail(announcementId, userId));
     }
+
+    @PutMapping("/api/announcements/{announcementId}/detail/eligibility/check")
+    public ResponseEntity<EligibilityDiagnoseResponse> eligibilityCheck(@PathVariable Long announcementId, @AuthenticationPrincipal(expression = "userId") String userId){
+        return ResponseEntity.ok(announcementAiService.diagnose(announcementId, userId));
+    }
+
 }

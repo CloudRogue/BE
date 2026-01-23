@@ -9,7 +9,12 @@ public enum ErrorCode {
     ADD_ONBOARDING_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 추가 온보딩 질문 ID가 포함되어 있습니다."),
     ADD_ONBOARDING_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "추가 온보딩 답변 타입이 질문 타입과 일치하지 않습니다."),
     SCRAP_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 스크랩된 공고입니다."),
-    SCRAP_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 스크랩입니다.");
+    SCRAP_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 스크랩입니다."),
+    ADMIN_ONBOARDING_ALREADY_CREATED(HttpStatus.CONFLICT, "어드민 지원자격 추가 실패"),
+    ADMIN_ONBOARDING_EMPTY_ANSWERS(HttpStatus.BAD_REQUEST, "어드민 지원자격 추가 실패"),
+    ADMIN_ONBOARDING_DUPLICATE_KEY(HttpStatus.CONFLICT, "어드민 지원자격 추가 실패"),
+    ADMIN_ONBOARDING_NOT_FOUND(HttpStatus.NOT_FOUND, "어드민 지원자격 추가 실패");
+
 
     private final HttpStatus httpStatus;
     private final String message;

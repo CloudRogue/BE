@@ -111,6 +111,10 @@ public class Announcement {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt; // 수정 시각
 
+    //어드민 체크여부 기본값이 false임
+    @Column(name = "admin_checked", nullable = false)
+    private boolean adminChecked;
+
     //정적 메서드
     public static Announcement create(
             AnnouncementSource source,
@@ -157,7 +161,92 @@ public class Announcement {
         a.mtRntchrg = mtRntchrg;
         a.fullAddress = fullAddress;
         a.refrnLegaldongNm = refrnLegaldongNm;
+        a.adminChecked = false;
         return a;
     }
+
+    //통합저장 반영용(빈 값만 채우도록 설계)
+    public void enrichIfAbsent(
+            String publisher,
+            String housingType,
+            String supplyType,
+            String regionCode,
+            String regionName,
+            String applyUrl,
+            String applyEntryUrl,
+            LocalDate startDate,
+            LocalDate endDate,
+            LocalDate documentPublishedAt,
+            LocalDate finalPublishedAt,
+            Long rentGtn,
+            Long enty,
+            Long prtpay,
+            Long surlus,
+            Long mtRntchrg
+    ) {
+        // ===== 문자열 =====
+        if (isBlank(this.publisher) && !isBlank(publisher)) {
+            this.publisher = publisher.trim();
+        }
+        if (isBlank(this.housingType) && !isBlank(housingType)) {
+            this.housingType = housingType.trim();
+        }
+        if (isBlank(this.supplyType) && !isBlank(supplyType)) {
+            this.supplyType = supplyType.trim();
+        }
+        if (isBlank(this.regionCode) && !isBlank(regionCode)) {
+            this.regionCode = regionCode.trim();
+        }
+        if (isBlank(this.regionName) && !isBlank(regionName)) {
+            this.regionName = regionName.trim();
+        }
+        if (isBlank(this.applyUrl) && !isBlank(applyUrl)) {
+            this.applyUrl = applyUrl.trim();
+        }
+        if (isBlank(this.applyEntryUrl) && !isBlank(applyEntryUrl)) {
+            this.applyEntryUrl = applyEntryUrl.trim();
+        }
+
+        // ===== 날짜 =====
+        if (this.startDate == null && startDate != null) {
+            this.startDate = startDate;
+        }
+        if (this.endDate == null && endDate != null) {
+            this.endDate = endDate;
+        }
+        if (this.documentPublishedAt == null && documentPublishedAt != null) {
+            this.documentPublishedAt = documentPublishedAt;
+        }
+        if (this.finalPublishedAt == null && finalPublishedAt != null) {
+            this.finalPublishedAt = finalPublishedAt;
+        }
+
+        // ===== 금액 =====
+        if (this.rentGtn == null && rentGtn != null) {
+            this.rentGtn = rentGtn;
+        }
+        if (this.enty == null && enty != null) {
+            this.enty = enty;
+        }
+        if (this.prtpay == null && prtpay != null) {
+            this.prtpay = prtpay;
+        }
+        if (this.surlus == null && surlus != null) {
+            this.surlus = surlus;
+        }
+        if (this.mtRntchrg == null && mtRntchrg != null) {
+            this.mtRntchrg = mtRntchrg;
+        }
+
+    }
+    private static boolean isBlank(String s) {
+        return s == null || s.isBlank();
+    }
+
+    // 어드민검수여부를 true로 바꿔주는 메서드
+    public void markAdminChecked() {
+        this.adminChecked = true;
+    }
+
 
 }

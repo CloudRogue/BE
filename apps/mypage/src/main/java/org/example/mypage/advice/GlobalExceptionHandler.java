@@ -46,6 +46,18 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(AdminOnboardingException.class)
+    public ResponseEntity<ErrorResponse> handleAdminOnboarding(AdminOnboardingException e) {
+        ErrorCode ec = e.getErrorCode();
+        return ResponseEntity.status(ec.httpStatus())
+                .body(new ErrorResponse(
+                        ec.code(),
+                        ec.message(),
+                        ec.status(),
+                        new ErrorResponse.Details("eligibility", ec.message())
+                ));
+    }
+
     @ExceptionHandler(AddOnboardingException.class)
     public ResponseEntity<ErrorResponse> handleAddOnboarding(AddOnboardingException e) {
         ErrorCode ec = e.getErrorCode();

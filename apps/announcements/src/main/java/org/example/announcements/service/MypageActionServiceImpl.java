@@ -45,7 +45,7 @@ public class MypageActionServiceImpl implements MypageActionService {
 
     // DB에 값이 존재하나
     private void assertAnnouncementExists(Long announcementId) {
-        if (!announcementRepository.existsById(announcementId)) {
+        if (!announcementRepository.existsByIdAndAdminCheckedTrue(announcementId)) {
             throw new BusinessException(ErrorCode.ANNOUNCEMENT_NOT_FOUND);
         }
     }

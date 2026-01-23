@@ -2,10 +2,7 @@ package org.example.mypage.activity.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.mypage.activity.api.AnnouncementsApi;
 import org.example.mypage.activity.domain.Outbound;
-import org.example.mypage.activity.dto.AnnouncementsResponse;
-import org.example.mypage.activity.dto.response.OutboundResponse;
 import org.example.mypage.activity.repository.OutboundRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

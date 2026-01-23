@@ -3,13 +3,16 @@ package org.example.announcements.controller;
 import lombok.RequiredArgsConstructor;
 import org.example.announcements.api.AnnouncementSort;
 import org.example.announcements.api.ApiListResponse;
+import org.example.announcements.api.PersonalizedSort;
 import org.example.announcements.dto.AnnouncementOpenItemResponse;
 import org.example.announcements.dto.AnnouncementSearchItemResponse;
 import org.example.announcements.exception.BusinessException;
 import org.example.announcements.exception.ErrorCode;
 import org.example.announcements.service.AnnouncementListQueryService;
+import org.example.announcements.service.PersonalizedAnnouncementQueryService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class AnnouncementSearchController {
 
     private final AnnouncementListQueryService listQueryService;
+    private final PersonalizedAnnouncementQueryService personalizedQueryService;
 
     @Value("${announcements.paging.max-limit}")
     private int maxLimit;
@@ -116,6 +120,26 @@ public class AnnouncementSearchController {
                         sort,
                         cursor,
                         validatedLimit
+                )
+        );
+    }
+
+    //맞춤 공고 목록 조회
+    @GetMapping("/personalized")
+    public ResponseEntity<ApiListResponse<AnnouncementSearchItemResponse>> getPersonalized(
+            @AuthenticationPrincipal(expression = "userId") String userId, // ✅ 쿠키(JWT) 인증 기반
+            @RequestParam(required = false) String cursor,
+            @RequestParam(required = false) Integer limit,
+            @RequestParam(required = false) PersonalizedSort sort
+    ) {
+        int validatedLimit = requireValidLimit(limit);
+
+        return ResponseEntity.ok(
+                personalizedQueryService.getPersonalized(
+                        userId,
+                        cursor,
+                        validatedLimit,
+                        sort
                 )
         );
     }

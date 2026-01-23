@@ -35,3 +35,5 @@ announcements:
 internal:
   mypage:
     base-url: ${INTERNAL_MYPAGE_BASE_URL}
+  ai:
+    base-url: ${INTERNAL_AI_BASE_URL}

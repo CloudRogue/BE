@@ -21,4 +21,5 @@ public interface MyPageService {
      * @return 프로필 조회 응답 DTO
      */
     ProfileResponse getProfile(String userId);
+    void createProfile(String userId, String email, String nickname);
 }
