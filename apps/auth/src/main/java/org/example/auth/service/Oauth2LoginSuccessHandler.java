@@ -19,46 +19,46 @@ import java.util.Objects;
 @Component
 @RequiredArgsConstructor
 public class Oauth2LoginSuccessHandler implements AuthenticationSuccessHandler {
+
     private final JwtService jwtService;
 
     @Value("${auth.redirect.success-url}")
     private String successRedirectUrl;
 
     @Value("${auth.redirect.success-new-url}")
-    private String new_successRedirectUrl;
+    private String newSuccessRedirectUrl;
 
     @Override
-    public void onAuthenticationSuccess(@Nonnull HttpServletRequest request, @Nonnull HttpServletResponse response, @Nonnull Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(@Nonnull HttpServletRequest request,
+                                        @Nonnull HttpServletResponse response,
+                                        @Nonnull Authentication authentication) throws IOException {
+
         UsersPrincipal principal = (UsersPrincipal) authentication.getPrincipal();
         Objects.requireNonNull(principal, "principal must not be null");
 
         String accessToken  = jwtService.createAccessToken(principal);
         String refreshToken = jwtService.createRefreshToken(principal);
 
-        // local test시 false, deploy시 true로 변경 필요
         ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", accessToken)
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/")
                 .maxAge(60 * 60)
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
 
         ResponseCookie refreshCookie = ResponseCookie.from("REFRESH_TOKEN", refreshToken)
                 .httpOnly(true)
-                .secure(false)
+                .secure(true)
                 .path("/api/auth")
                 .maxAge(60L * 60 * 24 * 14)
-                .sameSite("Lax")
+                .sameSite("None")
                 .build();
 
         response.addHeader(HttpHeaders.SET_COOKIE, accessCookie.toString());
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
 
-        String redirectUrl = principal.isNew()
-                ? new_successRedirectUrl
-                : successRedirectUrl;
-
+        String redirectUrl = principal.isNew() ? newSuccessRedirectUrl : successRedirectUrl;
         response.sendRedirect(redirectUrl);
     }
 }

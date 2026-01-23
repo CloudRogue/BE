@@ -7,6 +7,7 @@ import org.example.mypage.activity.service.OutboundService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,7 +18,7 @@ public class OutboundController {
     private final OutboundScrollFacade outboundScrollFacade;
     private final OutboundService outboundService;
 
-    @PostMapping("/internal/mypage/outbound")
+    @GetMapping("/internal/mypage/outbound")
     public ResponseEntity<OutboundResponse> getOutbound(@AuthenticationPrincipal UserDetails principal, @RequestParam(required = false) Long cursor, @RequestParam(defaultValue = "20") int limit){
         return ResponseEntity.ok(outboundScrollFacade.getOutbound(principal.getUsername(), cursor, limit));
     }

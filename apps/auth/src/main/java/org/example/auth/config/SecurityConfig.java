@@ -29,7 +29,8 @@ import java.util.List;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
+    private static final String OAUTH2_FAILURE_REDIRECT_URL = "https://localhost:3000/fail";
+    
     private final AuthEntryPoint authEntryPoint;
     private final AuthAccessDeniedHandler authAccessDeniedHandler;
 
@@ -60,6 +61,15 @@ public class SecurityConfig {
                                 .userService(customOAuth2UserService)
                         )
                         .successHandler(oauth2LoginSuccessHandler)
+                        .failureHandler((request, response, exception) -> {
+                            org.slf4j.LoggerFactory.getLogger("OAUTH2_FAIL").error(
+                                    "@@@@@@@@@@@@@@@@@OAUTH2_FAIL@@@@@@@@@@@@@@@@@ exClass={} msg={}",
+                                    exception.getClass().getName(),
+                                    exception.getMessage(),
+                                    exception
+                            );
+                            response.sendRedirect("https://localhost:3000/fail");
+                        })
                 )
                 .oauth2ResourceServer(resource -> resource
                         .authenticationEntryPoint(authEntryPoint)
@@ -73,6 +83,7 @@ public class SecurityConfig {
 
         return http.build();
     }
+
 
     @Bean
     public BearerTokenResolver bearerTokenResolver() {
