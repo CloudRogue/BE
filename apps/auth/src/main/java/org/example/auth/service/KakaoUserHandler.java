@@ -2,6 +2,7 @@ package org.example.auth.service;
 
 import com.github.f4b6a3.ulid.UlidCreator;
 import lombok.RequiredArgsConstructor;
+import org.example.auth.api.MypageInternalClient;
 import org.example.auth.domain.OAuthProvider;
 import org.example.auth.domain.UserRole;
 import org.example.auth.domain.Users;
@@ -11,8 +12,10 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 
 import java.util.Collection;
 import java.util.List;
@@ -22,7 +25,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 public class KakaoUserHandler implements ProviderUserHandler {
-
+    private final MypageInternalClient mypageInternalClient;
     private final UserRepository usersRepository;
 
     @Override
@@ -45,6 +48,7 @@ public class KakaoUserHandler implements ProviderUserHandler {
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.getOrDefault("kakao_account", Map.of());
         Map<String, Object> profile      = (Map<String, Object>) kakaoAccount.getOrDefault("profile", Map.of());
 
+        String newUserId = UlidCreator.getUlid().toString();
         String email = (String) kakaoAccount.get("email");
         String name = (String) profile.get("nickname");
 
@@ -57,8 +61,21 @@ public class KakaoUserHandler implements ProviderUserHandler {
 
         boolean isNew = existing.isEmpty();
 
+        if (isNew) {
+            try {
+                mypageInternalClient.createProfile(newUserId, email, name);
+            } catch (RestClientException e) {
+
+                OAuth2Error error = new OAuth2Error(
+                        "MYPAGE_PROFILE_CREATE_FAILED",
+                        "회원가입 후 프로필 생성에 실패했습니다.",
+                        null
+                );
+                throw new OAuth2AuthenticationException(error, e);
+            }
+        }
+
         Users user = existing.orElseGet(() -> {
-            String newUserId = UlidCreator.getUlid().toString();
             Users newUser = new Users(
                     newUserId,
                     name,

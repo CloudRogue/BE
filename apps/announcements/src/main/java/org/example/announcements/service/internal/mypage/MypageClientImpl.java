@@ -1,12 +1,14 @@
 package org.example.announcements.service.internal.mypage;
 
-import lombok.RequiredArgsConstructor;
+
 import org.example.announcements.dto.internal.mypage.EligibilityDiagnoseRequest;
 import org.example.announcements.dto.internal.mypage.MypageOutboundRequest;
 import org.example.announcements.dto.internal.mypage.MypagePersonalizedResponse;
 import org.example.announcements.dto.internal.mypage.MypageScrapRequest;
 import org.example.announcements.exception.BusinessException;
 import org.example.announcements.exception.ErrorCode;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -14,10 +16,14 @@ import org.springframework.web.client.RestClient;
 import static org.springframework.http.HttpMethod.*;
 
 @Component
-@RequiredArgsConstructor
 public class MypageClientImpl  implements MypageClient {
 
     private final RestClient mypageRestClient;
+
+    @Autowired
+    public MypageClientImpl(@Qualifier("mypageRestClient") RestClient mypageRestClient) {
+        this.mypageRestClient = mypageRestClient;
+    }
 
     @Override
     public void postOutbound(MypageOutboundRequest request) {

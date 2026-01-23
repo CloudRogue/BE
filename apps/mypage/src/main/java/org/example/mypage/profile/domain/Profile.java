@@ -59,6 +59,4 @@ public class Profile {
         this.email = email;
         this.name = name;
     }
-
-
 }

@@ -49,4 +49,13 @@ public class MyPageServiceImpl implements MyPageService{
                 .email(p.getEmail())
                 .build();
     }
+
+    @Transactional
+    public void createProfile(String userId, String email, String nickname) {
+        if (myPageRepository.existsByUserId(userId)) {
+            return;
+        }
+
+        myPageRepository.save(new Profile(userId, email, nickname));
+    }
 }

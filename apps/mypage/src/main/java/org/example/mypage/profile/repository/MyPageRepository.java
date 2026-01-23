@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface MyPageRepository extends JpaRepository<Profile, Long> {
     Optional<Profile> findByUserIdAndDeletedAtIsNull(String userId);
+    boolean existsByUserId(String userId);
+
 }
