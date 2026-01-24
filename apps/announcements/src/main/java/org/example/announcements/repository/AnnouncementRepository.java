@@ -14,6 +14,24 @@ import java.util.Optional;
 @Repository
 public interface AnnouncementRepository extends JpaRepository<Announcement, Long>,AnnouncementRegionQueryRepository {
 
+    // 검수 완료 공고 중 endDate가 targetDate인 공고들
+    @Query("""
+        select a.id
+        from Announcement a
+        where a.adminChecked = true
+          and a.endDate = :endDate
+    """)
+    List<Long> findIdsByEndDateAndAdminCheckedTrue(LocalDate endDate);
+
+    // 검수 완료 공고 중 documentPublishedAt이 targetDate인 공고들
+    @Query("""
+        select a.id
+        from Announcement a
+        where a.adminChecked = true
+          and a.documentPublishedAt = :documentPublishedAt
+    """)
+    List<Long> findIdsByDocumentPublishedAtAndAdminCheckedTrue(LocalDate documentPublishedAt);
+
     //어드민 검수 안된 공고만 전부 조회
     List<Announcement> findByAdminCheckedFalse();
 
