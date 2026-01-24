@@ -28,6 +28,8 @@ public class Oauth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     @Value("${auth.redirect.success-new-url}")
     private String newSuccessRedirectUrl;
 
+
+
     @Override
     public void onAuthenticationSuccess(@Nonnull HttpServletRequest request,
                                         @Nonnull HttpServletResponse response,

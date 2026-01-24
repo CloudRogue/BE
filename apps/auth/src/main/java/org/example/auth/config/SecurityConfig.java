@@ -25,6 +25,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import java.util.List;
 
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -37,6 +38,7 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final Oauth2LoginSuccessHandler oauth2LoginSuccessHandler;
     private final JwtDecoder jwtDecoder;
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

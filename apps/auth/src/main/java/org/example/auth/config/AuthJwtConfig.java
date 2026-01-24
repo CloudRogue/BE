@@ -17,7 +17,11 @@ import java.util.UUID;
 @Configuration
 public class AuthJwtConfig {
 
-    // 추후 pem 마이그레이션
+    @Bean
+    public JWKSet jwkSet(RSAKey rsaKey) {
+        return new JWKSet(rsaKey.toPublicJWK());
+    }
+
     @Bean
     public RSAKey rsaKey() {
         try {
