@@ -18,7 +18,7 @@ public class AuthInternalClient {
     public void createProfile(String userId, String email, String nickname) {
         authRestClient.post()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/internal/profile")
+                        .path("/api/mypage/internal/profile")
                         .queryParam("userId", userId)
                         .build())
                 .body(new ProfileCreateRequest(email, nickname))
