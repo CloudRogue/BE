@@ -135,5 +135,5 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
 """)
     List<String> findDistinctHousingTypes();
 
-
+    List<Announcement> findTop50ByTitleStartingWithIgnoreCaseOrderByCreatedAtDesc(String prefix);
 }
