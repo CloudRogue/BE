@@ -2,8 +2,12 @@ package org.example.notifications;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
+@EnableScheduling
 @SpringBootApplication(scanBasePackages = "org.example")
+@ConfigurationPropertiesScan(basePackages = "org.example.notifications")
 public class NotificationsApplication {
 
 	public static void main(String[] args) {

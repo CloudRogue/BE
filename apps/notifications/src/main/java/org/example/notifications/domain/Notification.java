@@ -15,7 +15,15 @@ import java.time.LocalDateTime;
         indexes = {
                 // 유저별 알림 조회용으로
                 @Index(name = "idx_notif_user_created", columnList = "user_id, created_at"),
+        },
+        uniqueConstraints = {
+                // 동일 유저/동일 템플릿/동일 공고는 1번만 생성
+                @UniqueConstraint(
+                        name = "uk_notif_user_template_announcement",
+                        columnNames = {"user_id", "template_code", "announcement_id"}
+                )
         }
+
 )
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -32,7 +40,7 @@ public class Notification {
     @Column(name = "template_code", nullable = false)
     private NotificationTemplateCode templateCode;
 
-    @Column(name = "announcement_id")
+    @Column(name = "announcement_id", nullable = false)
     private Long announcementId;
 
     //메인 문구

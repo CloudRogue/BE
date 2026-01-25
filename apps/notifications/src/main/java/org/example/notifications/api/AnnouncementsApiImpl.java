@@ -19,13 +19,13 @@ public class AnnouncementsApiImpl implements AnnouncementApi {
     @Override
     public AnnouncementIds findAnnouncementIdsByEndDate(LocalDate targetDate) {
         List<Long> ids = announcementNotificationListener.findByEndDate(targetDate);
-        return new AnnouncementIds(ids);
+        return new AnnouncementIds(ids == null ? List.of() : ids);
     }
 
     @Override
     public AnnouncementIds findAnnouncementIdsByDocumentPublishedAt(LocalDate targetDate) {
         List<Long> ids = announcementNotificationListener.findByDocumentPublishedAt(targetDate);
-        return new AnnouncementIds(ids);
+        return new AnnouncementIds(ids == null ? List.of() : ids);
     }
 
     @Override
