@@ -22,7 +22,7 @@ public class MyPageController {
     }
 
     @PostMapping("/internal/profile")
-    public ResponseEntity<Void> postProfile(String userId, @RequestBody ProfileCreateRequest request){
+    public ResponseEntity<Void> postProfile(@RequestParam("userId") String userId, @RequestBody ProfileCreateRequest request){
         myPageService.createProfile(userId, request.email(), request.nickname());
 
         return ResponseEntity.noContent().build();
