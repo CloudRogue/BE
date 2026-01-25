@@ -2,21 +2,28 @@ package org.example.announcements.controller;
 
 
 import lombok.RequiredArgsConstructor;
+import org.example.announcements.dto.AnnouncementOpenItemResponse;
 import org.example.announcements.service.AnnouncementApplyCommandService;
+import org.example.announcements.service.AnnouncementSearchService;
 import org.example.announcements.service.MypageActionService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Validated
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/announcements")
 public class AnnouncementController {
+    private static final int MIN_QUERY_LEN = 3;
+    private static final int LIMIT = 20;
 
     private final MypageActionService mypageActionService;
     private final AnnouncementApplyCommandService applyCommandService;
+    private final AnnouncementSearchService announcementSearchService;
 
     // 공고 열람기록
     @PostMapping("/{announcementId}/outbounds")
@@ -57,4 +64,13 @@ public class AnnouncementController {
         mypageActionService.removeScrap(userId, announcementId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<AnnouncementOpenItemResponse>> search(
+            @RequestParam("title") String title
+    ) {
+        return ResponseEntity.ok(announcementSearchService.searchByTitlePrefix(title));
+    }
 }
+
+
