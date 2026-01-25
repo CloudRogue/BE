@@ -7,6 +7,7 @@ import org.example.mypage.activity.service.ScrapService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,8 +17,12 @@ public class ScrapsController {
     private final ScrapScrollFacade scrapScrollFacade;
 
     @GetMapping("/api/mypage/scraps")
-    public ResponseEntity<ScrapResponse> getScraps(@AuthenticationPrincipal UserDetails principal, @RequestParam(required = false) Long cursor, @RequestParam(defaultValue = "20") int limit){
-        return ResponseEntity.ok(scrapScrollFacade.getScraps(principal.getUsername(), cursor, limit));
+    public ResponseEntity<ScrapResponse> getScraps(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = "20") int limit
+    ) {
+        return ResponseEntity.ok(scrapScrollFacade.getScraps(jwt.getSubject(), cursor, limit));
     }
 
     @PostMapping("/internal/mypage/scraps")

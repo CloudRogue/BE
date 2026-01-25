@@ -8,6 +8,7 @@ import org.example.mypage.profile.service.MyPageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,14 +18,17 @@ public class MyPageController {
     private final MyPageService myPageService;
 
     @GetMapping("/profile")
-    public ResponseEntity<ProfileResponse> getProfile(@AuthenticationPrincipal UserDetails principal){
-        return ResponseEntity.ok(myPageService.getProfile(principal.getUsername()));
+    public ResponseEntity<ProfileResponse> getProfile(@AuthenticationPrincipal Jwt jwt) {
+        String userId = jwt.getSubject();
+        return ResponseEntity.ok(myPageService.getProfile(userId));
     }
 
     @PostMapping("/internal/profile")
-    public ResponseEntity<Void> postProfile(@RequestParam("userId") String userId, @RequestBody ProfileCreateRequest request){
+    public ResponseEntity<Void> postProfile(
+            @RequestParam("userId") String userId,
+            @RequestBody ProfileCreateRequest request
+    ) {
         myPageService.createProfile(userId, request.email(), request.nickname());
-
         return ResponseEntity.noContent().build();
     }
 }

@@ -7,6 +7,7 @@ import org.example.mypage.activity.service.OutboundService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,12 +20,20 @@ public class OutboundController {
     private final OutboundService outboundService;
 
     @GetMapping("/internal/mypage/outbound")
-    public ResponseEntity<OutboundResponse> getOutbound(@AuthenticationPrincipal UserDetails principal, @RequestParam(required = false) Long cursor, @RequestParam(defaultValue = "20") int limit){
-        return ResponseEntity.ok(outboundScrollFacade.getOutbound(principal.getUsername(), cursor, limit));
+    public ResponseEntity<OutboundResponse> getOutbound(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = "20") int limit
+    ) {
+        String userId = jwt.getSubject(); // sub
+        return ResponseEntity.ok(outboundScrollFacade.getOutbound(userId, cursor, limit));
     }
 
     @PostMapping("/internal/mypage/outbound")
-    public ResponseEntity<Void> postOutbound(@RequestParam String userId, @RequestParam Long announcementId){
+    public ResponseEntity<Void> postOutbound(
+            @RequestParam String userId,
+            @RequestParam Long announcementId
+    ) {
         outboundService.recordOutbound(userId, announcementId);
         return ResponseEntity.ok().build();
     }
