@@ -15,6 +15,7 @@ public class AnnouncementAiServiceImpl implements AnnouncementAiService{
     private final MypageClient mypageClient;
     private final EligibilityAiClient eligibilityAiClient;
 
+
     @Override
     public EligibilityDiagnoseResponse diagnose(long announcementId, String userId) {
         EligibilityDiagnoseRequest req = mypageClient.getDiagnose(announcementId, userId);
