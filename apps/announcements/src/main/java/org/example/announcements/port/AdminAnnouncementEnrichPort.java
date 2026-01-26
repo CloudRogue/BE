@@ -4,6 +4,7 @@ package org.example.announcements.port;
 import lombok.RequiredArgsConstructor;
 import org.example.announcements.domain.*;
 import org.example.announcements.repository.*;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,7 +15,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class AdminAnnouncementEnrichPort implements  AdminAnnouncementEnrichUseCase{
+public class AdminAnnouncementEnrichPort implements AdminAnnouncementEnrichUseCase {
 
     private final AnnouncementRepository announcementRepository;
     private final AnnouncementDocumentRepository announcementDocumentRepository;
@@ -25,11 +26,9 @@ public class AdminAnnouncementEnrichPort implements  AdminAnnouncementEnrichUseC
     @Override
     @Transactional
     public void enrich(Long announcementId, AdminAnnouncementEnrichCommand command) {
-        //공고 로드
         Announcement ann = announcementRepository.findById(announcementId)
                 .orElseThrow(() -> new IllegalArgumentException("announcement not found: " + announcementId));
 
-        //Announcement 없는것만 채우기
         var dates = command.submission().dates();
 
         ann.enrichIfAbsent(
@@ -50,27 +49,15 @@ public class AdminAnnouncementEnrichPort implements  AdminAnnouncementEnrichUseC
                 command.surlus(),
                 command.mtRntchrg()
         );
-
-        //documents
         upsertDocumentsIfAbsent(announcementId, ann, command.submission());
-
-        //summary
-        createSummaryIfAbsent(announcementId, command);
-
-        //overview
-        createOverviewIfAbsent(announcementId, command);
-
-        //regions
-        createRegionsIfAbsent(ann, command);
-
-        //통합저장 완료시 공개상태로 전환
+        createSummaryBestEffort(announcementId, command);
+        createOverviewBestEffort(announcementId, command);
+        createRegionsBestEffort(ann, command);
         ann.markAdminChecked();
     }
 
-    //document 메서드(페이즈 별로 이미 존재하면 그대로두기)
     private void upsertDocumentsIfAbsent(Long announcementId, Announcement ann, AdminAnnouncementEnrichCommand.Submission submission) {
 
-        // APPLY 단계 문서
         if (!announcementDocumentRepository.existsByAnnouncement_IdAndPhase(announcementId, AnnouncementDocumentPhase.APPLY)) {
             List<AnnouncementDocument> applyDocs = submission.applyDocuments().stream()
                     .filter(d -> d != null && d.name() != null && !d.name().isBlank())
@@ -87,7 +74,6 @@ public class AdminAnnouncementEnrichPort implements  AdminAnnouncementEnrichUseC
             }
         }
 
-        // DOC_RESULT 단계 문서
         if (!announcementDocumentRepository.existsByAnnouncement_IdAndPhase(announcementId, AnnouncementDocumentPhase.DOC_RESULT)) {
             List<AnnouncementDocument> docResultDocs = submission.atDocument().stream()
                     .filter(d -> d != null && d.name() != null && !d.name().isBlank())
@@ -105,44 +91,44 @@ public class AdminAnnouncementEnrichPort implements  AdminAnnouncementEnrichUseC
         }
     }
 
-    //summary
-    private void createSummaryIfAbsent(Long announcementId, AdminAnnouncementEnrichCommand command) {
+    private void createSummaryBestEffort(Long announcementId, AdminAnnouncementEnrichCommand command) {
         String summary = command.overviewSummary().summary();
         if (summary == null || summary.isBlank()) return;
 
-        if (announcementSummaryRepository.existsByAnnouncementId(announcementId)) {
-            return; // 있으면 덮지 않음
+        try {
+
+            announcementSummaryRepository.save(AnnouncementSummary.create(announcementId, summary.trim()));
+        } catch (DataIntegrityViolationException e) {
+            if (isUniqueConstraintViolation(e, "uq_announcement_summary_announcement_id")) return;
+            throw e;
         }
-        announcementSummaryRepository.save(AnnouncementSummary.create(announcementId, summary.trim()));
     }
 
-    //overview
-    private void createOverviewIfAbsent(Long announcementId, AdminAnnouncementEnrichCommand command) {
+    private void createOverviewBestEffort(Long announcementId, AdminAnnouncementEnrichCommand command) {
         var ov = command.overviewSummary().overview();
         if (ov == null) return;
 
         if (isBlank(ov.content()) || isBlank(ov.target()) || isBlank(ov.applyMethod())) return;
 
-        if (announcementOverviewRepository.existsByAnnouncementId(announcementId)) {
-            return; // 있으면 덮지 않음
+        try {
+            announcementOverviewRepository.save(
+                    AnnouncementOverview.create(
+                            announcementId,
+                            ov.content().trim(),
+                            ov.target().trim(),
+                            ov.applyMethod().trim()
+                    )
+            );
+        } catch (DataIntegrityViolationException e) {
+            if (isUniqueConstraintViolation(e, "uq_announcement_overview_announcement_id")) return;
+            throw e;
         }
-
-        announcementOverviewRepository.save(
-                AnnouncementOverview.create(
-                        announcementId,
-                        ov.content().trim(),
-                        ov.target().trim(),
-                        ov.applyMethod().trim()
-                )
-        );
     }
 
-    //regions
-    private void createRegionsIfAbsent(Announcement ann, AdminAnnouncementEnrichCommand command) {
+    private void createRegionsBestEffort(Announcement ann, AdminAnnouncementEnrichCommand command) {
         var ov = command.overviewSummary().overview();
         if (ov == null || ov.regions() == null || ov.regions().isEmpty()) return;
 
-        // 중복제거및 정리
         Set<String> regionNames = new LinkedHashSet<>();
         for (String r : ov.regions()) {
             if (r == null) continue;
@@ -151,16 +137,27 @@ public class AdminAnnouncementEnrichPort implements  AdminAnnouncementEnrichUseC
         }
         if (regionNames.isEmpty()) return;
 
-        // 이미 들어있는 region들은 제외하고 insert
         for (String regionName : regionNames) {
-            boolean exists = announcementRegionRepository.existsByAnnouncement_IdAndRegionName(ann.getId(), regionName);
-            if (exists) continue;
-            announcementRegionRepository.save(AnnouncementRegion.create(ann, regionName));
+            try {
+                announcementRegionRepository.save(AnnouncementRegion.create(ann, regionName));
+            } catch (DataIntegrityViolationException e) {
+                if (isUniqueConstraintViolation(e, "uq_announcement_region")) continue;
+                throw e;
+            }
         }
     }
 
-
     private static boolean isBlank(String s) {
         return s == null || s.isBlank();
+    }
+
+    private static boolean isUniqueConstraintViolation(Throwable t, String constraintName) {
+        Throwable cur = t;
+        while (cur != null) {
+            String msg = cur.getMessage();
+            if (msg != null && msg.contains(constraintName)) return true;
+            cur = cur.getCause();
+        }
+        return false;
     }
 }
