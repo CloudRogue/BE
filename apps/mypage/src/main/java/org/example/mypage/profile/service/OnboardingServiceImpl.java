@@ -195,7 +195,7 @@ public class OnboardingServiceImpl implements OnboardingService{
             Long eligibilityId = a.additionalOnboardingId();
             Eligibility eligibility = eligibilityMap.get(eligibilityId);
 
-            JsonNode value = a.value();
+            JsonNode value = a.valueNode();
 
             toCreateMappings.add(AnnouncementEligibility.of(announcementId, eligibility, value));
         }
@@ -393,7 +393,7 @@ public class OnboardingServiceImpl implements OnboardingService{
                 throw new AddOnboardingException(ErrorCode.ADD_ONBOARDING_TYPE_MISMATCH);
             }
 
-            JsonNode newValue = a.value();
+            JsonNode newValue = a.valueNode();
 
             EligibilityAnswer old = existingMap.get(e.getId());
             if (old != null) {

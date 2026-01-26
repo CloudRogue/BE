@@ -2,6 +2,8 @@ package org.example.announcements.repository;
 
 import org.example.announcements.domain.AnnouncementRegion;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,4 +16,9 @@ public interface AnnouncementRegionRepository extends JpaRepository<Announcement
 
     boolean existsByAnnouncement_IdAndRegionName(Long announcementId, String regionName);
 
+
+    @Query("select ar.regionName " +
+            "from AnnouncementRegion ar " +
+            "where ar.announcement.id = :announcementId")
+    List<String> findRegionNamesByAnnouncementId(@Param("announcementId") Long announcementId);
 }
