@@ -22,6 +22,7 @@ public class AnnouncementFilterController {
         return ResponseEntity.ok(filterQueryService.getPublishers());
     }
 
+
     //공고 필터 - 주택유형 목록 조회
     @GetMapping("/housing-types")
     public ResponseEntity<HousingTypesFilterResponse> getHousingTypes() {
