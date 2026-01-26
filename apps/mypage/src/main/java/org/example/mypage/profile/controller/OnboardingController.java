@@ -4,14 +4,13 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.example.mypage.profile.dto.request.EligibilityAnswersRequest;
+import org.example.mypage.profile.dto.request.EligibilityBatchCreateRequest;
 import org.example.mypage.profile.dto.request.EligibilityDiagnoseRequest;
 import org.example.mypage.profile.dto.request.OnboardingRequest;
-import org.example.mypage.profile.dto.response.AiQuestionsResponse;
-import org.example.mypage.profile.dto.response.EligibilityCatalogResponse;
-import org.example.mypage.profile.dto.response.OnboardingProfileResponse;
-import org.example.mypage.profile.dto.response.OnboardingQuestionResponse;
+import org.example.mypage.profile.dto.response.*;
 import org.example.mypage.profile.service.OnboardingService;
 import org.example.mypage.profile.service.PersonalizedAnnouncementService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -45,18 +44,34 @@ public class OnboardingController {
         return ResponseEntity.ok(onboardingService.getRequiredQuestions());
     }
 
+    @PostMapping("/required-onboardings")
+    public ResponseEntity<OnboardingQuestionResponse> postRequiredOnboarding() {
+        return ResponseEntity.ok(onboardingService.getRequiredQuestions());
+    }
+
+
     @GetMapping("/onboardings")
     public ResponseEntity<OnboardingQuestionResponse> getAddOnboarding() {
         return ResponseEntity.ok(onboardingService.getAddQuestions());
     }
 
-    // 프론트엔드 요청으로 경로 분리
     @PostMapping("/onboardings")
     public ResponseEntity<Void> putOnboarding(@AuthenticationPrincipal Jwt jwt,
                                               @Valid @RequestBody OnboardingRequest onboardingRequest) {
 
         onboardingService.upsertOnboarding(jwt.getSubject(), onboardingRequest);
         return ResponseEntity.noContent().build();
+    }
+
+
+    @PostMapping("/internal/additional-onboardings")
+    public ResponseEntity<AdditionalOnboardingBatchCreateResponse> createAdditionalOnboardings(
+            @Valid @RequestBody EligibilityBatchCreateRequest request
+    ) {
+        AdditionalOnboardingBatchCreateResponse response =
+                onboardingService.createBatch(request);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     // 내부 호출

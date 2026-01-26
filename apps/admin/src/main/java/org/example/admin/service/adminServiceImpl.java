@@ -7,6 +7,7 @@ import org.example.admin.api.EligibilityCatalogResponse;
 import org.example.admin.api.MyPageApi;
 import org.example.admin.dto.request.AIApiRequest;
 import org.example.admin.dto.request.AnnouncementDetailRequest;
+import org.example.admin.dto.request.EligibilityBatchCreateRequest;
 import org.example.admin.dto.response.*;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +20,10 @@ public class adminServiceImpl implements adminService {
     private final AIApi aiApi;
     private final MyPageApi myPageApi;
 
+    @Override
+    public AdditionalOnboardingBatchCreateResponse getOnboarding(EligibilityBatchCreateRequest request){
+        return myPageApi.createAdditionalOnboardings(request);
+    }
 
     @Override
     public AnnouncementInboxResponse getNewAnnouncement() {

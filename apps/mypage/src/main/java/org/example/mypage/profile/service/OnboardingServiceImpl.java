@@ -12,17 +12,11 @@ import org.example.mypage.profile.domain.EligibilityAnswer;
 import org.example.mypage.profile.domain.EligibilityOption;
 import org.example.mypage.profile.dto.OnboardingAnswer;
 import org.example.mypage.profile.dto.OnboardingAnswerVO;
-import org.example.mypage.profile.dto.request.EligibilityAnswersRequest;
-import org.example.mypage.profile.dto.request.EligibilityDiagnoseRequest;
-import org.example.mypage.profile.dto.request.OnboardingPostRequest;
-import org.example.mypage.profile.dto.request.OnboardingRequest;
+import org.example.mypage.profile.dto.request.*;
 import org.example.mypage.exception.AddOnboardingException;
 import org.example.mypage.exception.OnboardingIncompleteException;
 import org.example.mypage.exception.enums.ErrorCode;
-import org.example.mypage.profile.dto.response.AiQuestionsResponse;
-import org.example.mypage.profile.dto.response.EligibilityCatalogResponse;
-import org.example.mypage.profile.dto.response.OnboardingProfileResponse;
-import org.example.mypage.profile.dto.response.OnboardingQuestionResponse;
+import org.example.mypage.profile.dto.response.*;
 import org.example.mypage.profile.repository.AnnouncementEligibilityRepository;
 import org.example.mypage.profile.repository.EligibilityAnswerRepository;
 import org.example.mypage.profile.repository.EligibilityOptionRepository;
@@ -92,6 +86,45 @@ public class OnboardingServiceImpl implements OnboardingService{
 
         return new OnboardingProfileResponse(answerList, addAnswerList);
     }
+
+    @Transactional
+    public AdditionalOnboardingBatchCreateResponse createBatch(EligibilityBatchCreateRequest req) {
+
+        List<Eligibility> entities = req.items().stream()
+                .map(i -> {
+                    Eligibility e = Eligibility.of(
+                            i.title(),
+                            i.description(),
+                            i.question(),
+                            null,
+                            i.type()
+                    );
+                    if (i.options() != null) {
+                        e.setValue(objectMapper.valueToTree(i.options()));
+                    } else {
+                        e.setValue(null);
+                    }
+
+                    return e;
+                })
+                .toList();
+
+        List<Eligibility> saved = eligibilityRepository.saveAll(entities);
+
+        List<AdditionalOnboardingBatchCreateResponse.Item> data = saved.stream()
+                .map(e -> new AdditionalOnboardingBatchCreateResponse.Item(
+                        e.getId(),
+                        e.getTitle(),
+                        e.getOnboardingDescription(),
+                        e.getQuestion(),
+                        e.getType().name(),
+                        false
+                ))
+                .toList();
+
+        return new AdditionalOnboardingBatchCreateResponse(data);
+    }
+
 
     @Transactional(readOnly = true)
     public OnboardingQuestionResponse getRequiredQuestions() {

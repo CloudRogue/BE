@@ -2,12 +2,10 @@ package org.example.mypage.profile.service;
 
 
 import org.example.mypage.profile.dto.request.EligibilityAnswersRequest;
+import org.example.mypage.profile.dto.request.EligibilityBatchCreateRequest;
 import org.example.mypage.profile.dto.request.EligibilityDiagnoseRequest;
 import org.example.mypage.profile.dto.request.OnboardingRequest;
-import org.example.mypage.profile.dto.response.AiQuestionsResponse;
-import org.example.mypage.profile.dto.response.EligibilityCatalogResponse;
-import org.example.mypage.profile.dto.response.OnboardingProfileResponse;
-import org.example.mypage.profile.dto.response.OnboardingQuestionResponse;
+import org.example.mypage.profile.dto.response.*;
 
 
 public interface OnboardingService {
@@ -20,4 +18,5 @@ public interface OnboardingService {
     void saveAnnouncementOnboarding(long announcementId, EligibilityAnswersRequest request);
     EligibilityDiagnoseRequest getDiagnose(long announcementId, String userId);
     EligibilityCatalogResponse getEligibilityCatalog();
+    AdditionalOnboardingBatchCreateResponse createBatch(EligibilityBatchCreateRequest req);
 }

@@ -58,4 +58,7 @@ public class MyPageServiceImpl implements MyPageService{
 
         myPageRepository.save(new Profile(userId, email, nickname));
     }
+
+
+
 }

@@ -3,6 +3,8 @@ package org.example.admin.api;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.admin.dto.request.AnnouncementDetailRequest;
+import org.example.admin.dto.request.EligibilityBatchCreateRequest;
+import org.example.admin.dto.response.AdditionalOnboardingBatchCreateResponse;
 import org.example.admin.dto.response.AiQuestionsResponse;
 import org.example.admin.exception.AdminPipelineFailException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +48,34 @@ public class MyPageApi {
                 .retrieve()
                 .body(EligibilityCatalogResponse.class);
     }
+
+
+    public AdditionalOnboardingBatchCreateResponse createAdditionalOnboardings(EligibilityBatchCreateRequest request) {
+        String url = baseUrl + "/internal/additional-onboardings";
+
+        try {
+            return restClient.post()
+                    .uri(url)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .accept(MediaType.APPLICATION_JSON)
+                    .body(request)
+                    .retrieve()
+                    .body(AdditionalOnboardingBatchCreateResponse.class);
+
+        } catch (RestClientResponseException e) {
+            String upstreamBody = e.getResponseBodyAsString();
+            String message = extractUpstreamMessage(upstreamBody);
+
+            throw new AdminPipelineFailException(
+                    e.getStatusCode().value(),
+                    "ADMIN_ADDITIONAL_ONBOARDING_CREATE_FAIL",
+                    message != null ? message : "추가 온보딩 질문 생성 실패",
+                    "upstream",
+                    "POST " + url
+            );
+        }
+    }
+
 
     public void postOnboarding(long announcementId, AnnouncementDetailRequest detailRequest) {
         String url = baseUrl + "/api/internal/onboardings/" + announcementId;
