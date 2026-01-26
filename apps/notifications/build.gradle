@@ -23,6 +23,7 @@ dependencies {
 
         //공고 의존
         implementation project(':apps:announcements')
+        implementation project(':apps:auth')
 
         implementation 'org.springframework.boot:spring-boot-starter-web'
         implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
