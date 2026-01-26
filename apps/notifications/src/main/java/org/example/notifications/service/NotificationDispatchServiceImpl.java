@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.notifications.api.AnnouncementApi;
 import org.example.notifications.api.AnnouncementApplicationApi;
+import org.example.notifications.api.KakaoAccessTokenApi;
 import org.example.notifications.api.MypageNotificationConsentApi;
 import org.example.notifications.domain.Notification;
 import org.example.notifications.domain.NotificationButton;
@@ -13,6 +14,7 @@ import org.example.notifications.dto.NotificationTargetButton;
 import org.example.notifications.dto.api.AnnouncementIds;
 import org.example.notifications.dto.api.AnnouncementSnapshot;
 import org.example.notifications.dto.api.AppliedUserIds;
+import org.example.notifications.job.KakaoMessageSender;
 import org.example.notifications.repository.NotificationButtonRepository;
 import org.example.notifications.repository.NotificationRepository;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -39,10 +41,13 @@ public class NotificationDispatchServiceImpl implements NotificationDispatchServ
     //외부 조회 포트
     private final AnnouncementApi announcementApi;
     private final AnnouncementApplicationApi announcementApplicationApi;
+    private final KakaoAccessTokenApi kakaoAccessTokenApi;
 
     //마이페이지 조회 api
     private final MypageNotificationConsentApi mypageNotificationConsentApi;
 
+    //카카오 발송 어댑터
+    private final KakaoMessageSender kakaoMessageSender;
 
     //알림 서버 내부 접근
     private final NotificationRepository notificationRepository;
@@ -155,8 +160,29 @@ public class NotificationDispatchServiceImpl implements NotificationDispatchServ
 
                 boolean created = saveNotificationWithButtons(target);
 
-                if (created) createdCount++;
-                else skippedDup++;
+                //DB를 저장 성공한 경우에만 실제 발송시도
+                if (created) {
+                    createdCount++;
+
+                    try {
+                        //유저의 엑세스 토큰 가져오기
+                        String accessToken = kakaoAccessTokenApi
+                                .getOrRefreshAccessToken(userId)
+                                .accessToken();
+
+                        // 카카오 나에게 보내기 전송
+                        kakaoMessageSender.sendToMe(target, accessToken);
+
+                    } catch (Exception e) {
+                        //일단 무시하고 mvp이후에 실패유저들 어떻게할지 수정하기
+                        log.error("[notif] kakao send failed: userId={}, template={}, announcementId={}",
+                                userId, templateCode, announcementId, e);
+                    }
+
+                } else {
+                    // 중복이면 스킵
+                    skippedDup++;
+                }
             }
         }
 
