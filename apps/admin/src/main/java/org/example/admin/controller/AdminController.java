@@ -14,17 +14,17 @@ import org.springframework.web.bind.annotation.*;
 public class AdminController {
     private final adminService adminService;
 
-    @GetMapping("/api/admin/inbox")
+    @GetMapping("/api/admin/inboxes")
     public ResponseEntity<AnnouncementInboxResponse> getNewAnnouncement() {
         return ResponseEntity.ok(adminService.getNewAnnouncement());
     }
 
-    @GetMapping("/api/admin/announcement/{announcementId}")
+    @GetMapping("/api/admin/announcements/{announcementId}")
     public ResponseEntity<AnnouncementAdminResponse> getAdminAnnouncement(@PathVariable long announcementId){
         return ResponseEntity.ok(adminService.getAdminAnnouncement(announcementId));
     }
 
-    @PostMapping("/api/admin/announcement/{announcementId}")
+    @PostMapping("/api/admin/announcements/{announcementId}")
     public ResponseEntity<Void> postAdminAnnouncement(@PathVariable long announcementId, @RequestBody AnnouncementDetailRequest request){
         adminService.postAdminAnnouncement(announcementId, request);
         return ResponseEntity.noContent().build();
