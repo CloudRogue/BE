@@ -23,6 +23,7 @@ public class AnnouncementOutboundLog {
     private String userId; // 유저 ID (ULID)
 
 
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "announcement_id", nullable = false)
     private Announcement announcement; // 대상 공고

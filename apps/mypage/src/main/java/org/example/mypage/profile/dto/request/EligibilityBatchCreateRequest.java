@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import org.example.mypage.profile.domain.enums.UiBlockType;
-
 import java.util.List;
+
 
 public record EligibilityBatchCreateRequest(
         @NotEmpty List<@Valid Item> items
