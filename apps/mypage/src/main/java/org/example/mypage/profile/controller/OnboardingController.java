@@ -40,18 +40,18 @@ public class OnboardingController {
         return ResponseEntity.ok(onboardingService.getDetailProfile(jwt.getSubject()));
     }
 
-    @GetMapping("/required-onboarding")
+    @GetMapping("/required-onboardings")
     public ResponseEntity<OnboardingQuestionResponse> getRequiredOnboarding() {
         return ResponseEntity.ok(onboardingService.getRequiredQuestions());
     }
 
-    @GetMapping("/onboarding")
+    @GetMapping("/onboardings")
     public ResponseEntity<OnboardingQuestionResponse> getAddOnboarding() {
         return ResponseEntity.ok(onboardingService.getAddQuestions());
     }
 
     // 프론트엔드 요청으로 경로 분리
-    @PutMapping("/onboarding")
+    @PostMapping("/onboardings")
     public ResponseEntity<Void> putOnboarding(@AuthenticationPrincipal Jwt jwt,
                                               @Valid @RequestBody OnboardingRequest onboardingRequest) {
 
@@ -60,7 +60,7 @@ public class OnboardingController {
     }
 
     // 내부 호출
-    @PostMapping("/internal/onboarding")
+    @PostMapping("/internal/onboardings")
     public ResponseEntity<EligibilityCatalogResponse> getOnboardingAdmin() {
         return ResponseEntity.ok(onboardingService.getEligibilityCatalog());
     }

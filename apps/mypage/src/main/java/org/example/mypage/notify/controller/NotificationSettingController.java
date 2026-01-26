@@ -51,12 +51,12 @@ public class NotificationSettingController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/reminder-settings")
+    @GetMapping("/notification-settings/reminder-settings")
     public ResponseEntity<ReminderSettingResponse> getReminder(@AuthenticationPrincipal Jwt jwt) {
         return ResponseEntity.ok(notificationSettingService.getReminderSetting(jwt.getSubject()));
     }
 
-    @PutMapping("/reminder-settings")
+    @PutMapping("/notification-settings/reminder-settings")
     public ResponseEntity<Void> putReminder(
             @AuthenticationPrincipal Jwt jwt,
             @Valid @RequestBody ReminderSettingUpsertRequest req

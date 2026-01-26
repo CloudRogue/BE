@@ -25,6 +25,26 @@ public class ScrapsController {
         return ResponseEntity.ok(scrapScrollFacade.getScraps(jwt.getSubject(), cursor, limit));
     }
 
+    @PostMapping("/api/mypage/scraps")
+    public ResponseEntity<Void> postScrapsPublic(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestParam Long announcementId
+    ) {
+        String userId = jwt.getSubject();
+        scrapService.addScrap(userId, announcementId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/api/mypage/scraps")
+    public ResponseEntity<Void> deleteScrapsPublic(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestParam Long announcementId
+    ) {
+        String userId = jwt.getSubject();
+        scrapService.deleteScraps(userId, announcementId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PostMapping("/internal/mypage/scraps")
     public ResponseEntity<Void> postScraps(@RequestParam String userId, @RequestParam Long announcementId){
         scrapService.addScrap(userId, announcementId);

@@ -19,7 +19,19 @@ public class OutboundController {
     private final OutboundScrollFacade outboundScrollFacade;
     private final OutboundService outboundService;
 
-    @GetMapping("/internal/mypage/outbound")
+
+    @GetMapping("/api/mypage/outbounds")
+    public ResponseEntity<OutboundResponse> getOutbounds(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = "20") int limit
+    ) {
+        String userId = jwt.getSubject();
+        return ResponseEntity.ok(outboundScrollFacade.getOutbound(userId, cursor, limit));
+    }
+
+
+    @GetMapping("/api/internal/mypage/outbound")
     public ResponseEntity<OutboundResponse> getOutbound(
             @AuthenticationPrincipal Jwt jwt,
             @RequestParam(required = false) Long cursor,
@@ -29,7 +41,7 @@ public class OutboundController {
         return ResponseEntity.ok(outboundScrollFacade.getOutbound(userId, cursor, limit));
     }
 
-    @PostMapping("/internal/mypage/outbound")
+    @PostMapping("/api/internal/mypage/outbound")
     public ResponseEntity<Void> postOutbound(
             @RequestParam String userId,
             @RequestParam Long announcementId
