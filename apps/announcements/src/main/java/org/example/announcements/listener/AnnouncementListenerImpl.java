@@ -24,7 +24,7 @@ public class AnnouncementListenerImpl implements AnnouncementListener{
 
     // 아이디랑 검수트루인 공고만 단건조회
     public Announcement getAnnouncement(Long announcementId){
-        return announcementRepository.findByIdAndAdminCheckedTrue(announcementId)
+        return announcementRepository.findByIdAndAdminCheckedFalse(announcementId)
                 .orElseThrow(() -> new BusinessException(
                         ErrorCode.ANNOUNCEMENT_NOT_FOUND,
                         "검수된 공고를 찾을 수 없습니다. announcementId=" + announcementId

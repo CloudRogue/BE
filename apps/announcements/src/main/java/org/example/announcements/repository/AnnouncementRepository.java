@@ -35,6 +35,8 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Long
     //어드민체크 트루 검증
     Optional<Announcement> findByIdAndAdminCheckedTrue(Long id);
 
+    Optional<Announcement> findByIdAndAdminCheckedFalse(Long id);
+
     boolean existsByIdAndAdminCheckedTrue(Long id);
 
     //파싱서버에서 넘어온 공고를 db에 저장하기 위해 사용
