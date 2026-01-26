@@ -1,6 +1,5 @@
 package org.example.auth.service;
 
-import com.nimbusds.oauth2.sdk.TokenResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.auth.domain.RefreshToken;
@@ -79,7 +78,7 @@ public class JwtService {
         // 있으면 업데이트(Rotation), 없으면 새로 생성
         RefreshToken tokenEntity = refreshTokenRepository.findByUserId(principal.getUserId())
                 .map(entity -> {
-                    entity.updateToken(refreshToken, expiryDate); // 도메인의 updateToken 메서드 사용!
+                    entity.updateToken(refreshToken, expiryDate);
                     return entity;
                 })
                 .orElse(new RefreshToken(refreshToken, principal.getUserId(), expiryDate));
@@ -111,8 +110,7 @@ public class JwtService {
         Users user = userRepository.findByUserId(userId)
                 .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
-        // 4. [기존 코드 훼손 없이 직접 생성]
-        // 엔티티의 정보를 바탕으로 UsersPrincipal 객체를 직접 생성합니다.
+        // 4. 엔티티의 정보를 바탕으로 UsersPrincipal 객체를 직접 생성
         UsersPrincipal principal = new UsersPrincipal(
                 user.getUserId(),
                 user.getName(),

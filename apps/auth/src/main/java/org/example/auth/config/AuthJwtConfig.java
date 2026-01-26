@@ -4,20 +4,22 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
+import org.bouncycastle.openssl.PEMParser;
+import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource; // 필수: 이 Resource여야 합니다.
+import org.springframework.core.io.Resource;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
-import java.security.KeyFactory;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Base64;
 
 @Configuration
 public class AuthJwtConfig {
@@ -31,12 +33,12 @@ public class AuthJwtConfig {
     @Bean
     public RSAKey rsaKey() throws Exception {
         // getInputStream()은 Resource 인터페이스에서 제공하는 메서드입니다.
-        String privateKeyPem = new String(privateKeyResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-        String publicKeyPem = new String(publicKeyResource.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+        byte[] privateKeyBytes = privateKeyResource.getInputStream().readAllBytes();
+        byte[] publicKeyBytes = publicKeyResource.getInputStream().readAllBytes();
 
-        // 아래에 정의한 메서드를 호출합니다.
-        RSAPrivateKey privateKey = readPrivateKey(privateKeyPem);
-        RSAPublicKey publicKey = readPublicKey(publicKeyPem);
+        // 수정된 메서드 호출
+        RSAPrivateKey privateKey = parsePrivateKey(new String(privateKeyBytes, StandardCharsets.UTF_8));
+        RSAPublicKey publicKey = parsePublicKey(new String(publicKeyBytes, StandardCharsets.UTF_8));
 
         return new RSAKey.Builder(publicKey)
                 .privateKey(privateKey)
@@ -44,26 +46,30 @@ public class AuthJwtConfig {
                 .build();
     }
 
-    // 직접 작성해야 하는 파싱 메서드입니다.
-    private RSAPrivateKey readPrivateKey(String pem) throws Exception {
-        String key = pem.replace("-----BEGIN RSA PRIVATE KEY-----", "")
-                .replace("-----END RSA PRIVATE KEY-----", "")
-                .replace("-----BEGIN PRIVATE KEY-----", "")
-                .replace("-----END PRIVATE KEY-----", "")
-                .replaceAll("\\s+", "");
-        byte[] encoded = Base64.getDecoder().decode(key);
-        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(encoded);
-        return (RSAPrivateKey) KeyFactory.getInstance("RSA").generatePrivate(keySpec);
+    // PKCS#1과 #8을 모두 수용하는 파싱 로직
+    private RSAPrivateKey parsePrivateKey(String pem) throws Exception {
+        try (PEMParser pemParser = new PEMParser(new StringReader(pem))) {
+            Object object = pemParser.readObject();
+            JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
+
+            // 만료되었거나 규격이 다른 객체들을 PrivateKeyInfo로 변환하여 로드
+            if (object instanceof org.bouncycastle.openssl.PEMKeyPair) {
+                // PKCS#1 형식일 경우 여기서 처리됨
+                return (RSAPrivateKey) converter.getPrivateKey(((org.bouncycastle.openssl.PEMKeyPair) object).getPrivateKeyInfo());
+            } else if (object instanceof PrivateKeyInfo) {
+                // PKCS#8 형식일 경우 여기서 처리됨
+                return (RSAPrivateKey) converter.getPrivateKey((PrivateKeyInfo) object);
+            }
+            throw new IllegalArgumentException("지원하지 않는 개인키 형식입니다.");
+        }
     }
 
-    // 직접 작성해야 하는 파싱 메서드입니다.
-    private RSAPublicKey readPublicKey(String pem) throws Exception {
-        String key = pem.replace("-----BEGIN PUBLIC KEY-----", "")
-                .replace("-----END PUBLIC KEY-----", "")
-                .replaceAll("\\s+", "");
-        byte[] encoded = Base64.getDecoder().decode(key);
-        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(encoded);
-        return (RSAPublicKey) KeyFactory.getInstance("RSA").generatePublic(keySpec);
+    private RSAPublicKey parsePublicKey(String pem) throws Exception {
+        try (PEMParser pemParser = new PEMParser(new StringReader(pem))) {
+            Object object = pemParser.readObject();
+            JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
+            return (RSAPublicKey) converter.getPublicKey((org.bouncycastle.asn1.x509.SubjectPublicKeyInfo) object);
+        }
     }
 
     @Bean
@@ -75,5 +81,10 @@ public class AuthJwtConfig {
     @Bean
     public JwtEncoder jwtEncoder(JWKSource<SecurityContext> jwkSource) {
         return new NimbusJwtEncoder(jwkSource);
+    }
+
+    @Bean
+    public JwtDecoder jwtDecoder(RSAKey rsaKey) throws Exception {
+        return NimbusJwtDecoder.withPublicKey(rsaKey.toRSAPublicKey()).build();
     }
 }

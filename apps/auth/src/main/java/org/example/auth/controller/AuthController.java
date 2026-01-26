@@ -1,6 +1,5 @@
 package org.example.auth.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.example.auth.dto.TokenResponseDto;
