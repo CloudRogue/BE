@@ -1,6 +1,7 @@
 package org.example.mypage.profile.domain;
 
 
+import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -11,7 +12,7 @@ import lombok.Setter;
 import org.example.mypage.profile.domain.enums.UiBlockType;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import tools.jackson.databind.JsonNode;
+
 
 @Getter
 @Entity

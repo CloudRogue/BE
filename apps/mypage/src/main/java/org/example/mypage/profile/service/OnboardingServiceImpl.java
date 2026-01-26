@@ -19,6 +19,7 @@ import org.example.mypage.profile.repository.AnnouncementEligibilityRepository;
 import org.example.mypage.profile.repository.EligibilityAnswerRepository;
 import org.example.mypage.profile.repository.EligibilityOptionRepository;
 import org.example.mypage.profile.repository.EligibilityRepository;
+import org.example.mypage.util.JsonBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.JsonNode;
@@ -100,7 +101,13 @@ public class OnboardingServiceImpl implements OnboardingService{
                             i.type()
                     );
                     if (i.options() != null) {
-                        e.setValue(objectMapper.valueToTree(i.options()));
+                        tools.jackson.databind.JsonNode toolsTree =
+                                objectMapper.valueToTree(i.options());
+
+                        com.fasterxml.jackson.databind.JsonNode jacksonTree =
+                                JsonBridge.toFasterxml(toolsTree);
+
+                        e.setValue(jacksonTree);
                     } else {
                         e.setValue(null);
                     }
@@ -195,7 +202,8 @@ public class OnboardingServiceImpl implements OnboardingService{
             Long eligibilityId = a.additionalOnboardingId();
             Eligibility eligibility = eligibilityMap.get(eligibilityId);
 
-            JsonNode value = a.value();
+            com.fasterxml.jackson.databind.JsonNode value =
+                    JsonBridge.toFasterxml(a.value());
 
             toCreateMappings.add(AnnouncementEligibility.of(announcementId, eligibility, value));
         }
@@ -291,7 +299,8 @@ public class OnboardingServiceImpl implements OnboardingService{
             Long additionalOnboardingId = e.getId();
             String key = e.getQuestion();
 
-            JsonNode expectedNode = ae.getExpectedValue();
+            com.fasterxml.jackson.databind.JsonNode expectedNode = ae.getExpectedValue();
+
             if (expectedNode == null || expectedNode.isNull()) {
                 throw new IllegalArgumentException("expectedValue must not be null. additionalOnboardingId=" + additionalOnboardingId);
             }
@@ -393,7 +402,8 @@ public class OnboardingServiceImpl implements OnboardingService{
                 throw new AddOnboardingException(ErrorCode.ADD_ONBOARDING_TYPE_MISMATCH);
             }
 
-            JsonNode newValue = a.value();
+            com.fasterxml.jackson.databind.JsonNode newValue =
+                    JsonBridge.toFasterxml(a.value());
 
             EligibilityAnswer old = existingMap.get(e.getId());
             if (old != null) {
