@@ -60,7 +60,7 @@ public class OnboardingController {
     }
 
     // 내부 호출
-    @PostMapping("/internal/onboardings")
+    @GetMapping("/internal/onboardings")
     public ResponseEntity<EligibilityCatalogResponse> getOnboardingAdmin() {
         return ResponseEntity.ok(onboardingService.getEligibilityCatalog());
     }
