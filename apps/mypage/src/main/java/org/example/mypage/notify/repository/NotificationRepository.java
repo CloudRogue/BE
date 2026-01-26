@@ -4,7 +4,9 @@ import org.example.mypage.notify.domain.NotificationSetting;
 import org.example.mypage.notify.dto.EmailEnabledView;
 import org.example.mypage.notify.dto.KakaoEnabledView;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -58,4 +60,12 @@ public interface NotificationRepository extends JpaRepository<NotificationSettin
      * @return 이메일 활성화 여부 뷰(없으면 {@link Optional#empty()})
      */
     Optional<EmailEnabledView> findEmailEnabledByUserId(String userId);
+
+    //카카오 동의한 유저만 userId반환
+    @Query("""
+        select s.userId
+        from NotificationSetting s
+        where s.kakaoEnabled = true
+    """)
+    List<String> findAllUserIdsByKakaoEnabledTrue();
 }
