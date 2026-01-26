@@ -51,7 +51,7 @@ public class MyPageApi {
 
 
     public AdditionalOnboardingBatchCreateResponse createAdditionalOnboardings(EligibilityBatchCreateRequest request) {
-        String url = baseUrl + "/internal/additional-onboardings";
+        String url = baseUrl + "/api/internal/additional-onboardings";
 
         try {
             return restClient.post()
