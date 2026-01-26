@@ -97,7 +97,9 @@ public class SecurityConfig {
 
         config.setAllowedOriginPatterns(List.of(
                 "https://zipchakfe.vercel.app",
-                "https://*.dsm27o99pz956.amplifyapp.com"
+                "https://*.dsm27o99pz956.amplifyapp.com",
+                "http://localhost:3000",
+                "http://127.0.0.1:3000"
         ));
 
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
