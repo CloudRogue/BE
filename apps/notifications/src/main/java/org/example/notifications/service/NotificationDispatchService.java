@@ -4,16 +4,7 @@ import java.time.LocalDate;
 
 public interface NotificationDispatchService {
 
-    //공고 접수 마감 D-7
-    void sendApplyD7(LocalDate today);
-
-    //공고 접수 마감 D-Day
-    void sendApplyDDay(LocalDate today);
-
-    //서류발표 D-7
-    void sendDocD7(LocalDate today);
-
-    //서류발표 D-Day
-    void sendDocDDay(LocalDate today);
+    //매일 아침 9시에 알림 배치 실행
+    void runMorningBatch(LocalDate today);
 
 }

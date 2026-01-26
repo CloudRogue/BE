@@ -4,25 +4,27 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.notifications.api.AnnouncementApi;
 import org.example.notifications.api.AnnouncementApplicationApi;
+import org.example.notifications.api.KakaoAccessTokenApi;
+import org.example.notifications.api.MypageNotificationConsentApi;
 import org.example.notifications.domain.Notification;
 import org.example.notifications.domain.NotificationButton;
-import org.example.notifications.domain.NotificationPreference;
 import org.example.notifications.domain.NotificationTemplateCode;
 import org.example.notifications.dto.NotificationTarget;
 import org.example.notifications.dto.NotificationTargetButton;
 import org.example.notifications.dto.api.AnnouncementIds;
 import org.example.notifications.dto.api.AnnouncementSnapshot;
 import org.example.notifications.dto.api.AppliedUserIds;
+import org.example.notifications.job.KakaoMessageSender;
 import org.example.notifications.repository.NotificationButtonRepository;
-import org.example.notifications.repository.NotificationPreferenceRepository;
 import org.example.notifications.repository.NotificationRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,106 +36,156 @@ public class NotificationDispatchServiceImpl implements NotificationDispatchServ
     //정렬첫번째 숫자 상수로 고정
     private static final int FIRST_SORT_ORDER = 1;
 
+    private static final int DAYS_BEFORE_D7 = 7; // D-7 알림 기준
+
     //외부 조회 포트
     private final AnnouncementApi announcementApi;
     private final AnnouncementApplicationApi announcementApplicationApi;
+    private final KakaoAccessTokenApi kakaoAccessTokenApi;
+
+    //마이페이지 조회 api
+    private final MypageNotificationConsentApi mypageNotificationConsentApi;
+
+    //카카오 발송 어댑터
+    private final KakaoMessageSender kakaoMessageSender;
 
     //알림 서버 내부 접근
-    private final NotificationPreferenceRepository preferenceRepository;
     private final NotificationRepository notificationRepository;
     private final NotificationButtonRepository buttonRepository;
 
     //템플릿 설정 및 렌더
     private final NotificationTargetFactory targetFactory;
 
-    //접수마감 D-7
+
+
     @Override
     @Transactional
-    public void sendApplyD7(LocalDate today) {
-        dispatch(NotificationTemplateCode.APPLY_D7,
-                announcementApi.findAnnouncementIdsByEndDate(today.plusDays(7)));
+    public void runMorningBatch(LocalDate today) {
+
+        // 카카오 동의 유저목록 딱 1회만 호출
+        Set<String> allowedUsers = fetchKakaoAllowedUsers();
+
+        // 동의 유저가 없으면 끝
+        if (allowedUsers.isEmpty()) {
+            log.info("[notif] morning-batch skipped: no kakao allowed users");
+            return;
+        }
+
+        //  템플릿별로 필요한 공고 id 목록을 만들어서 dispatch 실행
+        dispatch(
+                NotificationTemplateCode.APPLY_D7,
+                announcementApi.findAnnouncementIdsByEndDate(today.plusDays(DAYS_BEFORE_D7)),
+                allowedUsers
+        );
+
+        dispatch(
+                NotificationTemplateCode.APPLY_DDAY,
+                announcementApi.findAnnouncementIdsByEndDate(today),
+                allowedUsers
+        );
+
+        dispatch(
+                NotificationTemplateCode.DOC_D7,
+                announcementApi.findAnnouncementIdsByDocumentPublishedAt(today.plusDays(DAYS_BEFORE_D7)),
+                allowedUsers
+        );
+
+        dispatch(
+                NotificationTemplateCode.DOC_DDAY,
+                announcementApi.findAnnouncementIdsByDocumentPublishedAt(today),
+                allowedUsers
+        );
     }
 
-    //접수마감 D-Day
-    @Override
-    @Transactional
-    public void sendApplyDDay(LocalDate today) {
-        dispatch(NotificationTemplateCode.APPLY_DDAY,
-                announcementApi.findAnnouncementIdsByEndDate(today));
+    // 카카오 동의 유저 목록 가져오기
+    private Set<String> fetchKakaoAllowedUsers() {
+        List<String> list = mypageNotificationConsentApi.findKakaoAllowedUserIds();
+        if (list == null || list.isEmpty()) return Collections.emptySet();
+
+        // 중복 제거를 위해
+        return list.stream()
+                .filter(Objects::nonNull)
+                .map(String::trim)
+                .filter(s -> !s.isBlank())
+                .collect(Collectors.toSet());
     }
 
-    //서류발표 D-7
-    @Override
-    @Transactional
-    public void sendDocD7(LocalDate today) {
-        dispatch(NotificationTemplateCode.DOC_D7,
-                announcementApi.findAnnouncementIdsByDocumentPublishedAt(today.plusDays(7)));
-    }
-
-    //서류발표 D-Day
-    @Override
-    @Transactional
-    public void sendDocDDay(LocalDate today) {
-        dispatch(NotificationTemplateCode.DOC_DDAY,
-                announcementApi.findAnnouncementIdsByDocumentPublishedAt(today));
-    }
 
     // 공고 꺼내고 알림허용한 유저들 찾고 공고별로 처리하는 공통 파이프라인 메서드
-    private void dispatch(NotificationTemplateCode templateCode, AnnouncementIds announcementIds) {
+    private void dispatch(
+            NotificationTemplateCode templateCode,
+            AnnouncementIds announcementIds,
+            Set<String> allowedUsers
+    ) {
 
         // 공고 리스트로 변환
-        List<Long> ids = announcementIds.announcementIds();
+        List<Long> ids = (announcementIds == null) ? List.of() : announcementIds.announcementIds();
 
         if (ids.isEmpty()) {
             log.info("[notif] {} no announcements", templateCode);
             return;
         }
 
-        // 허용한 유저들로 조회
-        Set<String> allowedUsers = preferenceRepository.findAllByAllowedTrue().stream()
-                .map(NotificationPreference::getUserId)
-                .collect(Collectors.toSet());
+        int createdCount = 0;   // 실제 저장 성공한 알림 수
+        int skippedDup = 0;     // 유니크 충돌로 인한 스킵 수
 
-
-        if (allowedUsers.isEmpty()) {
-            log.info("[notif] {} no allowed users", templateCode);
-            return;
-        }
-
-        int createdCount = 0;   // 실제로 저장 성공한 알림수
-        int skippedDup = 0;     // 유니크 충돌로 인한 스킵수
-
-        //  공고별 처리
+        // 공고별 처리
         for (Long announcementId : ids) {
 
             // 문구/버튼 치환용 스냅샷
             AnnouncementSnapshot snap = announcementApi.getSnapshot(announcementId);
 
-            AppliedUserIds applied = announcementApplicationApi.findApplicationUserIds(announcementId);
-            List<String> users = applied.userIds();
+            if (snap == null) {
+                log.warn("[notif] {} snapshot null, skip announcementId={}", templateCode, announcementId);
+                continue;
+            }
 
-            // 담은 유저가 없으면 다음 공고로
+            // 해당 공고에 지원한유저들의  목록 (지원관리 기준 대상)
+            AppliedUserIds applied = announcementApplicationApi.findApplicationUserIds(announcementId);
+            List<String> users = (applied == null || applied.userIds() == null) ? List.of() : applied.userIds();
+
             if (users.isEmpty()) continue;
 
             // 유저별 처리
             for (String userId : users) {
 
-                // 알림 허용 유저만
+                // 카카오 동의 유저만 통과
                 if (!allowedUsers.contains(userId)) continue;
 
-                // 팩토리로 구성
+                // 버튼구성
                 NotificationTarget target = targetFactory.create(
                         userId, announcementId, templateCode, snap
                 );
 
+
                 boolean created = saveNotificationWithButtons(target);
 
-                if (created) createdCount++;
-                else skippedDup++;
+                //DB를 저장 성공한 경우에만 실제 발송시도
+                if (created) {
+                    createdCount++;
+
+                    try {
+                        //유저의 엑세스 토큰 가져오기
+                        String accessToken = kakaoAccessTokenApi
+                                .getOrRefreshAccessToken(userId)
+                                .accessToken();
+
+                        // 카카오 나에게 보내기 전송
+                        kakaoMessageSender.sendToMe(target, accessToken);
+
+                    } catch (Exception e) {
+                        //일단 무시하고 mvp이후에 실패유저들 어떻게할지 수정하기
+                        log.error("[notif] kakao send failed: userId={}, template={}, announcementId={}",
+                                userId, templateCode, announcementId, e);
+                    }
+
+                } else {
+                    // 중복이면 스킵
+                    skippedDup++;
+                }
             }
         }
 
-        // 결과 로그
         log.info("[notif] {} created={}, skippedDup={}", templateCode, createdCount, skippedDup);
     }
 
@@ -166,5 +218,6 @@ public class NotificationDispatchServiceImpl implements NotificationDispatchServ
             return false;
         }
     }
+
 
 }
