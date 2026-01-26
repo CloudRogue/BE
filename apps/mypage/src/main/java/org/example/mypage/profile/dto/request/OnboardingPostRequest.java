@@ -1,15 +1,12 @@
 package org.example.mypage.profile.dto.request;
-import com.fasterxml.jackson.databind.JsonNode;
+
+
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 import org.example.mypage.profile.domain.enums.UiBlockType;
+import tools.jackson.databind.JsonNode;
+
 import java.util.List;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-
-
 
 public record OnboardingPostRequest(
         @NotEmpty List<@Valid Answer> answers
@@ -18,34 +15,26 @@ public record OnboardingPostRequest(
             @NotNull @Positive Long additionalOnboardingId,
             @NotNull UiBlockType type,
             @NotNull Boolean unknown,
-            Object value,
+            JsonNode value,
+
             List<String> options
     ) {
 
-        private static final ObjectMapper OM = new ObjectMapper();
-
-        public JsonNode valueNode() {
-            if (value == null) return null;
-            if (value instanceof JsonNode j) return j;
-            return OM.valueToTree(value);
-        }
-
         @AssertTrue(message = "value type mismatch")
         public boolean isValueTypeValid() {
-            JsonNode v = valueNode();
-
             if (Boolean.TRUE.equals(unknown)) {
-                return v == null || v.isNull();
+                return value == null || value.isNull();
             }
-            if (v == null || v.isNull()) return false;
+            if (value == null || value.isNull()) return false;
 
             return switch (type) {
-                case BOOLEAN -> v.isBoolean();
-                case TEXT_INPUT, SELECT_SINGLE -> v.isTextual();
-                case NUMBER_INPUT -> v.isNumber();
-                case SELECT_MULTI -> v.isArray() && allText(v);
+                case BOOLEAN -> value.isBoolean();
+                case TEXT_INPUT, SELECT_SINGLE -> value.isTextual();
+                case NUMBER_INPUT -> value.isNumber();
+                case SELECT_MULTI -> value.isArray() && allText(value);
             };
         }
+
 
         @AssertTrue(message = "options required for select type")
         public boolean isOptionsRequiredForSelect() {
@@ -59,19 +48,17 @@ public record OnboardingPostRequest(
         public boolean isValueWithinOptions() {
             if (Boolean.TRUE.equals(unknown)) return true;
 
-            JsonNode v = valueNode();
-
             if (type == UiBlockType.SELECT_SINGLE) {
-                if (v == null || !v.isTextual()) return false;
+                if (value == null || !value.isTextual()) return false;
                 if (options == null || options.isEmpty()) return false;
-                return options.contains(v.asText());
+                return options.contains(value.asText());
             }
 
             if (type == UiBlockType.SELECT_MULTI) {
-                if (v == null || !v.isArray()) return false;
+                if (value == null || !value.isArray()) return false;
                 if (options == null || options.isEmpty()) return false;
 
-                for (JsonNode e : v) {
+                for (JsonNode e : value) {
                     if (!e.isTextual()) return false;
                     if (!options.contains(e.asText())) return false;
                 }

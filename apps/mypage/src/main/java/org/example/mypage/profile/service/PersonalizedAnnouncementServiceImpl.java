@@ -1,6 +1,6 @@
 package org.example.mypage.profile.service;
 
-import com.fasterxml.jackson.databind.JsonNode;
+
 import lombok.RequiredArgsConstructor;
 import org.example.mypage.exception.OnboardingIncompleteException;
 import org.example.mypage.profile.domain.AnnouncementEligibility;
@@ -12,6 +12,7 @@ import org.example.mypage.profile.repository.EligibilityAnswerRepository;
 import org.example.mypage.profile.repository.EligibilityRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.JsonNode;
 
 
 import java.util.*;

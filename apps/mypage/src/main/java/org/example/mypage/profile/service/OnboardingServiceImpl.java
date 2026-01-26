@@ -1,8 +1,6 @@
 package org.example.mypage.profile.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.mypage.exception.AdminOnboardingException;
@@ -23,6 +21,8 @@ import org.example.mypage.profile.repository.EligibilityOptionRepository;
 import org.example.mypage.profile.repository.EligibilityRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.*;
 import java.util.function.Function;
@@ -195,7 +195,7 @@ public class OnboardingServiceImpl implements OnboardingService{
             Long eligibilityId = a.additionalOnboardingId();
             Eligibility eligibility = eligibilityMap.get(eligibilityId);
 
-            JsonNode value = a.valueNode();
+            JsonNode value = a.value();
 
             toCreateMappings.add(AnnouncementEligibility.of(announcementId, eligibility, value));
         }
@@ -302,7 +302,7 @@ public class OnboardingServiceImpl implements OnboardingService{
             } else {
                 try {
                     expectedValueStr = objectMapper.writeValueAsString(expectedNode);
-                } catch (com.fasterxml.jackson.core.JsonProcessingException ex) {
+                } catch (Exception ex) {
                     throw new IllegalArgumentException("failed to serialize expectedValue. additionalOnboardingId=" + additionalOnboardingId, ex);
                 }
             }
@@ -340,7 +340,7 @@ public class OnboardingServiceImpl implements OnboardingService{
             if (a != null && a.getValue() != null && !a.getValue().isNull()) {
                 try {
                     answerValueStr = objectMapper.writeValueAsString(a.getValue());
-                } catch (JsonProcessingException e) {
+                } catch (Exception e) {
                     throw new IllegalArgumentException("failed to serialize answer value", e);
                 }
             }
@@ -393,7 +393,7 @@ public class OnboardingServiceImpl implements OnboardingService{
                 throw new AddOnboardingException(ErrorCode.ADD_ONBOARDING_TYPE_MISMATCH);
             }
 
-            JsonNode newValue = a.valueNode();
+            JsonNode newValue = a.value();
 
             EligibilityAnswer old = existingMap.get(e.getId());
             if (old != null) {

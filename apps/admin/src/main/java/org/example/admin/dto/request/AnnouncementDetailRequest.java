@@ -1,6 +1,7 @@
 package org.example.admin.dto.request;
 
-import com.fasterxml.jackson.databind.JsonNode;
+
+import tools.jackson.databind.JsonNode;
 
 import java.util.List;
 
@@ -27,7 +28,7 @@ public record AnnouncementDetailRequest(
                 long additionalOnboardingId,
                 String type,
                 boolean unknown,
-                Object value,
+                JsonNode value,
                 List<String> options
         ) {}
     }

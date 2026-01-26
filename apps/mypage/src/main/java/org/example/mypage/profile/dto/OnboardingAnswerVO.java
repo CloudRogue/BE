@@ -1,9 +1,10 @@
 package org.example.mypage.profile.dto;
 
 
-import com.fasterxml.jackson.databind.JsonNode;
+
 import jakarta.validation.constraints.NotNull;
 import org.example.mypage.profile.domain.enums.UiBlockType;
+import tools.jackson.databind.JsonNode;
 
 import java.util.List;
 

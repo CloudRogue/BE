@@ -1,6 +1,6 @@
 package org.example.mypage.profile.domain;
 
-import com.fasterxml.jackson.databind.JsonNode;
+
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import tools.jackson.databind.JsonNode;
+
 import java.time.Instant;
 
 /**

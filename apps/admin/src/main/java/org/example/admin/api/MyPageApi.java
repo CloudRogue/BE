@@ -1,7 +1,5 @@
 package org.example.admin.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.admin.dto.request.AnnouncementDetailRequest;
 import org.example.admin.dto.request.EligibilityBatchCreateRequest;
 import org.example.admin.dto.response.AdditionalOnboardingBatchCreateResponse;
@@ -14,6 +12,8 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientResponseException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 
 @Component
 public class MyPageApi {

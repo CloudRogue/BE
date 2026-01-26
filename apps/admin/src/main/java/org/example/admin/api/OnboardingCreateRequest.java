@@ -1,6 +1,8 @@
 package org.example.admin.api;
 
-import com.fasterxml.jackson.databind.JsonNode;
+
+
+import tools.jackson.databind.JsonNode;
 
 import java.util.List;
 
