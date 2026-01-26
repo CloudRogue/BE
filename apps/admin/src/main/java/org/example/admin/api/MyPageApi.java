@@ -38,9 +38,9 @@ public class MyPageApi {
     }
 
     public EligibilityCatalogResponse getOnboardingAdminCatalog() {
-        String url = baseUrl + "/api/internal/onboarding";
+        String url = baseUrl + "/api/internal/onboardings";
 
-        return restClient.post()
+        return restClient.get()
                 .uri(url)
                 .accept(MediaType.APPLICATION_JSON)
                 .retrieve()
@@ -48,7 +48,7 @@ public class MyPageApi {
     }
 
     public void postOnboarding(long announcementId, AnnouncementDetailRequest detailRequest) {
-        String url = baseUrl + "/api/internal/onboarding/" + announcementId;
+        String url = baseUrl + "/api/internal/onboardings/" + announcementId;
 
         OnboardingCreateRequest body = new OnboardingCreateRequest(
                 new OnboardingCreateRequest.Eligibility(

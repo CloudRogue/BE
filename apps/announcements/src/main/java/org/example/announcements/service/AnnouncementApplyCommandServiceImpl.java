@@ -18,6 +18,7 @@ public class AnnouncementApplyCommandServiceImpl implements AnnouncementApplyCom
     private final AnnouncementRepository announcementRepository;
     private final AnnouncementApplicationRepository announcementApplicationRepository;
 
+
     @Override
     @Transactional
     public void apply(String userId, Long announcementId) {

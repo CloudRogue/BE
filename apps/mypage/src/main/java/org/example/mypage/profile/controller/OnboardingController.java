@@ -65,7 +65,7 @@ public class OnboardingController {
         return ResponseEntity.ok(onboardingService.getEligibilityCatalog());
     }
 
-    @PostMapping("/internal/onboarding/{announcementId}")
+    @PostMapping("/internal/onboardings/{announcementId}")
     public ResponseEntity<Void> postOnboarding(@PathVariable long announcementId,
                                                @RequestBody @Valid EligibilityAnswersRequest request) {
         onboardingService.saveAnnouncementOnboarding(announcementId, request);
@@ -87,7 +87,4 @@ public class OnboardingController {
                                                                   @RequestParam @NotBlank String userId) {
         return ResponseEntity.ok(onboardingService.getDiagnose(announcementId, userId));
     }
-
-
-
 }

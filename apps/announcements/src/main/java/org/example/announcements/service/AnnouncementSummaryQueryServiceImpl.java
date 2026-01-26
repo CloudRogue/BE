@@ -25,6 +25,7 @@ public class AnnouncementSummaryQueryServiceImpl implements AnnouncementSummaryQ
         Announcement a = announcementRepository.findByIdAndAdminCheckedTrue(announcementId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.ANNOUNCEMENT_NOT_FOUND));
 
+
         // 요약은 없을 수 있으므로 널가능
         String summary = summaryRepository.findByAnnouncementId(a.getId())
                 .map(AnnouncementSummary::getSummary)
