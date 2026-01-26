@@ -45,6 +45,7 @@ public class SecurityConfig {
 
         config.setAllowCredentials(true);
         config.setAllowedOriginPatterns(List.of(
+                "https://zipchak.deving.xyz",
                 "https://zipchakfe.vercel.app",
                 "https://*.dsm27o99pz956.amplifyapp.com",
                 "http://localhost:3000",
