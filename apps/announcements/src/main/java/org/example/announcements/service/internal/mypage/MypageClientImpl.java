@@ -13,6 +13,8 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
+import java.util.List;
+
 import static org.springframework.http.HttpMethod.*;
 
 @Component
@@ -73,7 +75,8 @@ public class MypageClientImpl  implements MypageClient {
 
     @Override
     public MypagePersonalizedResponse getPersonalized(String userId) {
-        return mypageRestClient.get()
+
+        List<Long> ids = mypageRestClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/api/internal/personalized")
                         .queryParam("userId", userId)
@@ -92,7 +95,11 @@ public class MypageClientImpl  implements MypageClient {
                             "mypage personalized 호출 실패. status=" + res.getStatusCode().value()
                     );
                 })
-                .body(MypagePersonalizedResponse.class);
+                .body(new org.springframework.core.ParameterizedTypeReference<>() {
+                });
+
+        if (ids == null) ids = java.util.Collections.emptyList();
+        return new MypagePersonalizedResponse(ids);
     }
 
     @Override
