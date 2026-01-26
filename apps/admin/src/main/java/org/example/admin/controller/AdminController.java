@@ -30,6 +30,7 @@ public class AdminController {
         return ResponseEntity.noContent().build();
     }
 
+
     @GetMapping("/api/admin/additional-onboardings")
     public ResponseEntity<EligibilityCatalogResponse> getEligibility(){
         return ResponseEntity.ok(adminService.getOnboardingAdminCatalog());
