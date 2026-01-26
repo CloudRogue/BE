@@ -74,6 +74,7 @@ public class OnboardingController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+
     // 내부 호출
     @GetMapping("/internal/onboardings")
     public ResponseEntity<EligibilityCatalogResponse> getOnboardingAdmin() {

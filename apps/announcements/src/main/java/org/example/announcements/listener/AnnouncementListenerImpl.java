@@ -22,6 +22,7 @@ public class AnnouncementListenerImpl implements AnnouncementListener{
     }
 
 
+
     // 아이디랑 검수트루인 공고만 단건조회
     public Announcement getAnnouncement(Long announcementId){
         return announcementRepository.findByIdAndAdminCheckedFalse(announcementId)
