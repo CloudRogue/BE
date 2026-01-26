@@ -173,18 +173,14 @@ public class OnboardingServiceImpl implements OnboardingService{
     @Transactional(readOnly = true)
     public AiQuestionsResponse getAiQuestions(long announcementId) {
 
-        List<AnnouncementEligibility> mappings =
-                announcementEligibilityRepository.findAllByAnnouncementIdFetch(announcementId);
-
-        List<AiQuestionsResponse.Question> questions = mappings.stream()
-                .map(ae -> {
-                    Eligibility e = ae.getEligibility();
-                    return new AiQuestionsResponse.Question(
-                            e.getTitle(),
-                            e.getOnboardingDescription(),
-                            e.getQuestion()
-                    );
-                })
+        List<AiQuestionsResponse.Question> questions = eligibilityRepository
+                .findAllByOrderByIdAsc()
+                .stream()
+                .map(e -> new AiQuestionsResponse.Question(
+                        e.getTitle(),
+                        e.getOnboardingDescription(),
+                        e.getQuestion()
+                ))
                 .toList();
 
         return new AiQuestionsResponse(questions);

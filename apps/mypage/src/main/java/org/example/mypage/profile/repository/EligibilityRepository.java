@@ -28,5 +28,5 @@ public interface EligibilityRepository extends JpaRepository<Eligibility, Long> 
     """)
     List<Long> findRequiredOnboardingBooleanOrSingleIds();
 
-
+    List<Eligibility> findAllByOrderByIdAsc();
 }
