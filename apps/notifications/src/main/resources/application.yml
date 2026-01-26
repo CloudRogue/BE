@@ -29,3 +29,7 @@ notifications:
       button1-url: ${NOTIF_DOC_DDAY_BTN1_URL}
       button2-name: ${NOTIF_DOC_DDAY_BTN2_NAME}
       button2-url: ${NOTIF_DOC_DDAY_BTN2_URL}
+      
+external:
+  mypage:
+    base-url: ${MYPAGE_BASE_URL}
