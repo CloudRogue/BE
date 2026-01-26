@@ -40,6 +40,7 @@ public class AnnouncementOverviewQueryServiceImpl implements AnnouncementOvervie
                 .distinct()
                 .toList();
 
+
         return AnnouncementOverviewResponse.of(
                 a.getId(),
                 overview.getContent(),
