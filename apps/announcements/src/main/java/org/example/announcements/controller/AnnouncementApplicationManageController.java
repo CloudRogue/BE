@@ -26,6 +26,7 @@ public class AnnouncementApplicationManageController {
     @Value("${announcements.application-manage.size.max}")
     private int maxSize;
 
+
     //신청관리 - 지원 완료 후에 진행중인 공고 목록 조회
     @GetMapping("/applied")
     public ResponseEntity<ApplicationManageListResponse> getApplied(
