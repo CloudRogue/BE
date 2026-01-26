@@ -36,6 +36,7 @@ public class AnnouncementController {
     }
 
 
+
     // 지원관리 담기
     @PostMapping("/{announcementId}/apply")
     public ResponseEntity<Void> apply(
