@@ -1,4 +1,4 @@
-package org.example.auth.Controller;
+package org.example.auth.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

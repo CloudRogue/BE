@@ -38,7 +38,7 @@ public class JwtService {
     @Value("${jwt.refresh-token-expire-seconds}")
     private long refreshTokenExpireSeconds;
 
-    // --- 토큰 생성 로직 ---
+    // --- 토큰 발급 로직 ---
     public String createAccessToken(UsersPrincipal principal) {
         Instant now = Instant.now();
         JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256).build();
@@ -53,7 +53,8 @@ public class JwtService {
 
         return jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
     }
-
+    
+    // --- 토큰 저장 로직 ---
     public String createRefreshToken(UsersPrincipal principal) {
         Instant now = Instant.now();
         JwsHeader jwsHeader = JwsHeader.with(SignatureAlgorithm.RS256).build();
@@ -68,6 +69,25 @@ public class JwtService {
 
         return jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
     }
+
+    @Transactional
+    public void saveRefreshToken(UsersPrincipal principal, String refreshToken) {
+        // 1. 만료 시간 계산 (설정값 사용)
+        Instant expiryDate = Instant.now().plusSeconds(refreshTokenExpireSeconds);
+
+        // 2. 이미 해당 유저의 토큰이 DB에 있는지 확인
+        // 있으면 업데이트(Rotation), 없으면 새로 생성
+        RefreshToken tokenEntity = refreshTokenRepository.findByUserId(principal.getUserId())
+                .map(entity -> {
+                    entity.updateToken(refreshToken, expiryDate); // 도메인의 updateToken 메서드 사용!
+                    return entity;
+                })
+                .orElse(new RefreshToken(refreshToken, principal.getUserId(), expiryDate));
+
+        // 3. 최종 저장
+        refreshTokenRepository.save(tokenEntity);
+    }
+    
 
     // --- 리프레시 로직 (Rotation) ---
     @Transactional
