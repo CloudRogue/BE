@@ -28,7 +28,7 @@ public class MypageClientImpl  implements MypageClient {
     @Override
     public void postOutbound(MypageOutboundRequest request) {
         mypageRestClient.post()
-                .uri("/internal/mypage/outbound")
+                .uri("/api/internal/mypage/outbound")
                 .body(request)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, (req, res) -> {
@@ -43,7 +43,7 @@ public class MypageClientImpl  implements MypageClient {
     @Override
     public void postScrap(MypageScrapRequest request) {
         mypageRestClient.post()
-                .uri("/internal/mypage/scraps")
+                .uri("/api/internal/mypage/scraps")
                 .body(request)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, (req, res) -> {
@@ -59,7 +59,7 @@ public class MypageClientImpl  implements MypageClient {
     public void deleteScrap(MypageScrapRequest request) {
 
         mypageRestClient.method(DELETE)
-                .uri("/internal/mypage/scraps")
+                .uri("/api/internal/mypage/scraps")
                 .body(request)
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, (req, res) -> {
@@ -75,7 +75,7 @@ public class MypageClientImpl  implements MypageClient {
     public MypagePersonalizedResponse getPersonalized(String userId) {
         return mypageRestClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/internal/personalized")
+                        .path("/api/internal/personalized")
                         .queryParam("userId", userId)
                         .build()
                 )
@@ -99,7 +99,7 @@ public class MypageClientImpl  implements MypageClient {
     public EligibilityDiagnoseRequest getDiagnose(long announcementId, String userId) {
         return mypageRestClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/internal/diagnose/{announcementId}")
+                        .path("/api/internal/diagnose/{announcementId}")
                         .queryParam("userId", userId)
                         .build(announcementId)
                 )

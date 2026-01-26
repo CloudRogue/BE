@@ -28,7 +28,7 @@ public class MyPageApi {
     }
 
     public AiQuestionsResponse getAiQuestions(long announcementId) {
-        String url = baseUrl + "/internal/ai-questions/" + announcementId;
+        String url = baseUrl + "/api/internal/ai-questions/" + announcementId;
 
         return restClient.get()
                 .uri(url)
@@ -38,7 +38,7 @@ public class MyPageApi {
     }
 
     public EligibilityCatalogResponse getOnboardingAdminCatalog() {
-        String url = baseUrl + "/internal/onboarding/";
+        String url = baseUrl + "/api/internal/onboarding/";
 
         return restClient.post()
                 .uri(url)
@@ -48,7 +48,7 @@ public class MyPageApi {
     }
 
     public void postOnboarding(long announcementId, AnnouncementDetailRequest detailRequest) {
-        String url = baseUrl + "/internal/onboarding/" + announcementId;
+        String url = baseUrl + "/api/internal/onboarding/" + announcementId;
 
         OnboardingCreateRequest body = new OnboardingCreateRequest(
                 new OnboardingCreateRequest.Eligibility(
