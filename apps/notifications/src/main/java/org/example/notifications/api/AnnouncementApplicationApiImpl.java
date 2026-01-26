@@ -17,6 +17,7 @@ public class AnnouncementApplicationApiImpl implements AnnouncementApplicationAp
     @Override
     public AppliedUserIds findApplicationUserIds(Long announcementId) {
         List<String> userIds = announcementApplicationForNotificationListener.findApplicantUserIds(announcementId);
-        return new AppliedUserIds(userIds);
+
+        return new AppliedUserIds(userIds == null ? List.of() : userIds);
     }
 }
