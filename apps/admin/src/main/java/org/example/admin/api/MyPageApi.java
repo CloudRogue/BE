@@ -87,7 +87,7 @@ public class MyPageApi {
                                         a.additionalOnboardingId(),
                                         a.type(),
                                         a.unknown(),
-                                        a.value(),
+                                        objectMapper.valueToTree(a.value()),
                                         a.options()
                                 ))
                                 .toList()

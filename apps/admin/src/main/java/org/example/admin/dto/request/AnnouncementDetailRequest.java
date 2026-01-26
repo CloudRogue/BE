@@ -27,7 +27,7 @@ public record AnnouncementDetailRequest(
                 long additionalOnboardingId,
                 String type,
                 boolean unknown,
-                JsonNode value,
+                Object value,
                 List<String> options
         ) {}
     }

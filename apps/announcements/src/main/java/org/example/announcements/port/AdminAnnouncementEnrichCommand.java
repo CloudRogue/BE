@@ -24,6 +24,8 @@ public record AdminAnnouncementEnrichCommand(
         OverviewSummary overviewSummary
 ) {
 
+
+
     //제출 관련정보
     public record Submission(
         Dates dates, //날짜 관련된거
