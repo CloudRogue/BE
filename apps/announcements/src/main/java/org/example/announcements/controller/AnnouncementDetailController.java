@@ -45,6 +45,7 @@ public class AnnouncementDetailController {
         return ResponseEntity.ok(detailQueryService.getDetail(announcementId, userId));
     }
 
+
     @PutMapping("/{announcementId}/detail/eligibility/check")
     public ResponseEntity<EligibilityDiagnoseResponse> eligibilityCheck(@PathVariable Long announcementId, @AuthenticationPrincipal Jwt jwt ){
 
