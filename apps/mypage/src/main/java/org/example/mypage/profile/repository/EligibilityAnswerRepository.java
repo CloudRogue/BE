@@ -2,6 +2,7 @@ package org.example.mypage.profile.repository;
 
 import org.example.mypage.profile.domain.EligibilityAnswer;
 import org.example.mypage.profile.dto.OnboardingAnswer;
+import org.example.mypage.profile.dto.OnboardingAnswerRow;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,13 +12,13 @@ import java.util.Set;
 
 public interface EligibilityAnswerRepository extends JpaRepository<EligibilityAnswer, Long> {
 
-            @Query(value = """
+        @Query(value = """
                 SELECT
                     e.id                  AS profileId,
                     e.title               AS title,
                     e.type                AS type,
-                    opt.options           AS options,   -- 없으면 NULL
-                    a.value               AS value,
+                    opt.options           AS options,
+                    a.value::text         AS value,     
                     e.required_onboarding AS requiredOnboarding
                 FROM eligibility_answer a
                 JOIN eligibility e
@@ -33,7 +34,7 @@ public interface EligibilityAnswerRepository extends JpaRepository<EligibilityAn
                 WHERE a.user_id = :userId
                 ORDER BY e.title ASC
             """, nativeQuery = true)
-        List<OnboardingAnswer> findAllByUserId(@Param("userId") String userId);
+        List<OnboardingAnswerRow> findAllByUserId(@Param("userId") String userId);
 
         List<EligibilityAnswer> findAllByUserIdAndEligibilityIdIn(String userId, Set<Long> idSet);
 

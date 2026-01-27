@@ -8,7 +8,9 @@ import org.example.mypage.profile.domain.AnnouncementEligibility;
 import org.example.mypage.profile.domain.Eligibility;
 import org.example.mypage.profile.domain.EligibilityAnswer;
 import org.example.mypage.profile.domain.EligibilityOption;
+import org.example.mypage.profile.domain.enums.UiBlockType;
 import org.example.mypage.profile.dto.OnboardingAnswer;
+import org.example.mypage.profile.dto.OnboardingAnswerRow;
 import org.example.mypage.profile.dto.OnboardingAnswerVO;
 import org.example.mypage.profile.dto.request.*;
 import org.example.mypage.exception.AddOnboardingException;
@@ -63,30 +65,39 @@ public class OnboardingServiceImpl implements OnboardingService{
 
     @Override
     public OnboardingProfileResponse getDetailProfile(String userId) {
-        List<OnboardingAnswer> profileAnswers = answerRepository.findAllByUserId(userId);
+        List<OnboardingAnswerRow> profileAnswers = answerRepository.findAllByUserId(userId);
+
         List<OnboardingAnswerVO> answerList = new ArrayList<>();
         List<OnboardingAnswerVO> addAnswerList = new ArrayList<>();
 
-        if(profileAnswers.isEmpty()){
-            throw new OnboardingIncompleteException();
-
-        } else if (profileAnswers.size() > ONBOARDING_HARD_LIMIT) {
-
+        if (profileAnswers.isEmpty()) throw new OnboardingIncompleteException();
+        if (profileAnswers.size() > ONBOARDING_HARD_LIMIT) {
             log.warn("Onboarding answers exceeded hard limit. userId={}, size={}, hardLimit={}",
                     userId, profileAnswers.size(), ONBOARDING_HARD_LIMIT);
         }
 
-        for(OnboardingAnswer answer : profileAnswers){
-            OnboardingAnswerVO vo = new OnboardingAnswerVO(answer.profileId(), answer.title(), answer.type(), answer.options(), answer.value());
+        for (OnboardingAnswerRow answer : profileAnswers) {
+            com.fasterxml.jackson.databind.JsonNode valueNode = JsonBridge.fromText(answer.getValue());
 
-            if(answer.requiredOnboarding()){
-                answerList.add(vo);
-            }
+            List<String> options = (answer.getOptions() == null) ? null : Arrays.asList(answer.getOptions());
+
+            OnboardingAnswerVO vo = new OnboardingAnswerVO(
+                    answer.getProfileId(),
+                    answer.getTitle(),
+                    UiBlockType.valueOf(answer.getType()),
+                    options,
+                    valueNode
+            );
+
+            if (Boolean.TRUE.equals(answer.getRequiredOnboarding())) answerList.add(vo);
             else addAnswerList.add(vo);
         }
 
         return new OnboardingProfileResponse(answerList, addAnswerList);
     }
+
+
+
 
     @Transactional
     public AdditionalOnboardingBatchCreateResponse createBatch(EligibilityBatchCreateRequest req) {

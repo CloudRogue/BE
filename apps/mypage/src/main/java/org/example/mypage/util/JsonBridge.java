@@ -16,4 +16,16 @@ public final class JsonBridge {
             throw new IllegalArgumentException("tools JsonNode -> fasterxml JsonNode convert failed", e);
         }
     }
+
+
+    public static com.fasterxml.jackson.databind.JsonNode fromText(String valueText) {
+        if (valueText == null) return null;
+        try {
+            return JACKSON.readTree(valueText);
+        } catch (Exception e) {
+
+            return JACKSON.getNodeFactory().textNode(valueText);
+        }
+    }
+
 }
