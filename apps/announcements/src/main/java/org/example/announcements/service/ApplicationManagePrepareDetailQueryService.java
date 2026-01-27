@@ -5,5 +5,5 @@ import org.example.announcements.dto.ApplicationManagePrepareDetailResponse;
 
 public interface ApplicationManagePrepareDetailQueryService {
 
-    ApplicationManagePrepareDetailResponse getDetail(Long announcementId);
+    ApplicationManagePrepareDetailResponse getDetail(String userId, Long announcementId);
 }

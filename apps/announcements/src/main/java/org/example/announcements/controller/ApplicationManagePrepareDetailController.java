@@ -2,12 +2,17 @@ package org.example.announcements.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.example.announcements.dto.ApplicationManagePrepareDetailResponse;
+import org.example.announcements.exception.BusinessException;
 import org.example.announcements.service.ApplicationManagePrepareDetailQueryService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import static org.example.announcements.exception.ErrorCode.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -16,11 +21,17 @@ public class ApplicationManagePrepareDetailController {
 
     private final ApplicationManagePrepareDetailQueryService queryService;
 
-    //신청관리 - 준비화면 데이터조회
+    // 신청관리 - 준비화면 데이터조회 (회원 전용)
     @GetMapping("/application-manage/{announcementId}/detail")
     public ResponseEntity<ApplicationManagePrepareDetailResponse> getPrepareDetail(
-            @PathVariable Long announcementId
+            @PathVariable Long announcementId,
+            @AuthenticationPrincipal Jwt jwt
     ) {
-        return ResponseEntity.ok(queryService.getDetail(announcementId));
+
+        if (jwt == null) {
+            throw new BusinessException(UNAUTHORIZED, "비로그인/토큰 만료");
+        }
+        String userId = jwt.getSubject();
+        return ResponseEntity.ok(queryService.getDetail(userId, announcementId));
     }
 }

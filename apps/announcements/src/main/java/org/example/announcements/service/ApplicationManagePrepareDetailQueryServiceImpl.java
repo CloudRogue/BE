@@ -8,7 +8,6 @@ import org.example.announcements.dto.ApplicationManagePrepareDetailResponse;
 import org.example.announcements.repository.AnnouncementDocumentRepository;
 import org.example.announcements.repository.AnnouncementRepository;
 import org.example.announcements.repository.AnnouncementSummaryRepository;
-import org.example.announcements.util.AnnouncementStatusUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +26,7 @@ public class ApplicationManagePrepareDetailQueryServiceImpl implements Applicati
     private final AnnouncementSummaryRepository announcementSummaryRepository;
 
     @Override
-    public ApplicationManagePrepareDetailResponse getDetail(Long announcementId) {
+    public ApplicationManagePrepareDetailResponse getDetail(String userId, Long announcementId) {
         //공고 로드
         Announcement ann = announcementRepository.findByIdAndAdminCheckedTrue(announcementId)
                 .orElseThrow(() -> new IllegalArgumentException("announcement not found: " + announcementId));

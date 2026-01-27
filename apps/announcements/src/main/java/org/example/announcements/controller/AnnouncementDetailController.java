@@ -41,7 +41,7 @@ public class AnnouncementDetailController {
             @PathVariable Long announcementId,
             @AuthenticationPrincipal Jwt jwt
     ) {
-        String userId = jwt.getSubject();
+        String userId = (jwt != null) ? jwt.getSubject() : null; // 비회원이면 null
         return ResponseEntity.ok(detailQueryService.getDetail(announcementId, userId));
     }
 
