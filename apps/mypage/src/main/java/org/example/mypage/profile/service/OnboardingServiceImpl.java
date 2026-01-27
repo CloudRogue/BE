@@ -9,7 +9,6 @@ import org.example.mypage.profile.domain.Eligibility;
 import org.example.mypage.profile.domain.EligibilityAnswer;
 import org.example.mypage.profile.domain.EligibilityOption;
 import org.example.mypage.profile.domain.enums.UiBlockType;
-import org.example.mypage.profile.dto.OnboardingAnswer;
 import org.example.mypage.profile.dto.OnboardingAnswerRow;
 import org.example.mypage.profile.dto.OnboardingAnswerVO;
 import org.example.mypage.profile.dto.request.*;
@@ -24,7 +23,6 @@ import org.example.mypage.profile.repository.EligibilityRepository;
 import org.example.mypage.util.JsonBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
 import java.util.*;
@@ -62,7 +60,6 @@ public class OnboardingServiceImpl implements OnboardingService{
     private final EligibilityOptionRepository eligibilityOptionRepository;
     private final ObjectMapper objectMapper;
 
-
     @Override
     public OnboardingProfileResponse getDetailProfile(String userId) {
         List<OnboardingAnswerRow> profileAnswers = answerRepository.findAllByUserId(userId);
@@ -78,6 +75,7 @@ public class OnboardingServiceImpl implements OnboardingService{
 
         for (OnboardingAnswerRow answer : profileAnswers) {
             com.fasterxml.jackson.databind.JsonNode valueNode = JsonBridge.fromText(answer.getValue());
+            Object value = objectMapper.convertValue(valueNode, Object.class);
 
             List<String> options = (answer.getOptions() == null) ? null : Arrays.asList(answer.getOptions());
 
@@ -86,7 +84,7 @@ public class OnboardingServiceImpl implements OnboardingService{
                     answer.getTitle(),
                     UiBlockType.valueOf(answer.getType()),
                     options,
-                    valueNode
+                    value
             );
 
             if (Boolean.TRUE.equals(answer.getRequiredOnboarding())) answerList.add(vo);
@@ -95,8 +93,6 @@ public class OnboardingServiceImpl implements OnboardingService{
 
         return new OnboardingProfileResponse(answerList, addAnswerList);
     }
-
-
 
 
     @Transactional
@@ -357,18 +353,24 @@ public class OnboardingServiceImpl implements OnboardingService{
             EligibilityAnswer a = answerMap.get(eligibilityId);
 
             String answerValueStr = null;
-            if (a != null && a.getValue() != null && !a.getValue().isNull()) {
-                try {
-                    answerValueStr = objectMapper.writeValueAsString(a.getValue());
-                } catch (Exception e) {
-                    throw new IllegalArgumentException("failed to serialize answer value", e);
+            if (a != null) {
+                var v = a.getValue();
+                if (v != null && !v.isNull()) {
+                    if (v.isTextual() || v.isNumber() || v.isBoolean()) {
+
+                        answerValueStr = v.asText();
+                    } else {
+
+                        try {
+                            answerValueStr = objectMapper.writeValueAsString(v);
+                        } catch (Exception e) {
+                            throw new IllegalArgumentException("failed to serialize answer value", e);
+                        }
+                    }
                 }
             }
 
-            answerItems.add(new EligibilityDiagnoseRequest.AnswerItem(
-                    eligibilityId,
-                    answerValueStr
-            ));
+            answerItems.add(new EligibilityDiagnoseRequest.AnswerItem(eligibilityId, answerValueStr));
         }
 
         return new EligibilityDiagnoseRequest(requirements, answerItems);

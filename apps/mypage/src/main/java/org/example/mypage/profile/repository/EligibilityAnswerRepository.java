@@ -1,7 +1,6 @@
 package org.example.mypage.profile.repository;
 
 import org.example.mypage.profile.domain.EligibilityAnswer;
-import org.example.mypage.profile.dto.OnboardingAnswer;
 import org.example.mypage.profile.dto.OnboardingAnswerRow;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
