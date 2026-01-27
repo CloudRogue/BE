@@ -50,7 +50,7 @@ public class OnboardingController {
     }
 
 
-    @GetMapping("/internal/onboardings")
+    @GetMapping("/onboardings")
     public ResponseEntity<OnboardingQuestionResponse> getOnboarding(
             @RequestParam(name = "ids", required = false) List<Long> ids) {
 
