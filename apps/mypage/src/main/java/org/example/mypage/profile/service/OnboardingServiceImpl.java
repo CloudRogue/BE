@@ -75,7 +75,7 @@ public class OnboardingServiceImpl implements OnboardingService{
 
         for (OnboardingAnswerRow answer : profileAnswers) {
             com.fasterxml.jackson.databind.JsonNode valueNode = JsonBridge.fromText(answer.getValue());
-            Object value = objectMapper.convertValue(valueNode, Object.class);
+            Object value = JsonBridge.toPlainValue(valueNode);
 
             List<String> options = (answer.getOptions() == null) ? null : Arrays.asList(answer.getOptions());
 

@@ -28,4 +28,14 @@ public final class JsonBridge {
         }
     }
 
+    public static Object toPlainValue(com.fasterxml.jackson.databind.JsonNode node) {
+        if (node == null || node.isNull()) return null;
+        try {
+
+            return JACKSON.readValue(node.toString(), Object.class);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("JsonNode -> plain Object convert failed", e);
+        }
+    }
+
 }
