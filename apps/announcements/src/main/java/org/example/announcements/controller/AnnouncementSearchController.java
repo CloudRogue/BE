@@ -13,7 +13,10 @@ import org.example.announcements.service.PersonalizedAnnouncementQueryService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
+
+import static org.example.announcements.exception.ErrorCode.UNAUTHORIZED;
 
 @RestController
 @RequiredArgsConstructor
@@ -127,11 +130,16 @@ public class AnnouncementSearchController {
     //맞춤 공고 목록 조회
     @GetMapping("/personalized")
     public ResponseEntity<ApiListResponse<AnnouncementSearchItemResponse>> getPersonalized(
-            @AuthenticationPrincipal(expression = "userId") String userId, // ✅ 쿠키(JWT) 인증 기반
+            @AuthenticationPrincipal Jwt jwt,
             @RequestParam(required = false) String cursor,
             @RequestParam(required = false) Integer limit,
             @RequestParam(required = false) PersonalizedSort sort
     ) {
+
+        if (jwt == null) throw new BusinessException(UNAUTHORIZED, "비로그인/토큰 만료");
+
+        String userId = jwt.getSubject();
+
         int validatedLimit = requireValidLimit(limit);
 
         return ResponseEntity.ok(
