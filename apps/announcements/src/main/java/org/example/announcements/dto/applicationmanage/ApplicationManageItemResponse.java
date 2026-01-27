@@ -13,7 +13,7 @@ public class ApplicationManageItemResponse {
     private final String title;
     private final Long dDay;
     private final String publisher;
-    private final String housingType;
+    private final String supplyType;
 
     private final String currentStatus;
 

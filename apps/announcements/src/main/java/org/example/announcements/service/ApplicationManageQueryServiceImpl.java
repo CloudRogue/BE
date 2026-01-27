@@ -11,7 +11,6 @@ import org.example.announcements.dto.applicationmanage.ApplicationManageSummaryC
 import org.example.announcements.exception.BusinessException;
 import org.example.announcements.exception.ErrorCode;
 import org.example.announcements.repository.AnnouncementApplicationRepository;
-import org.example.announcements.util.AnnouncementStatusUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -139,7 +138,7 @@ public class ApplicationManageQueryServiceImpl implements ApplicationManageQuery
                             r.getTitle(),
                             dDay,
                             r.getPublisher(),
-                            r.getHousingType(),
+                            r.getSupplyType(),
                             fixedStatus,
                             r.getEndDate(),
                             r.getDocumentPublishedAt(),

@@ -33,7 +33,7 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
                                 announcement.id,
                                 announcement.title,
                                 announcement.publisher,
-                                announcement.housingType,
+                                announcement.supplyType,
                                 announcement.endDate,
                                 announcement.documentPublishedAt,
                                 announcement.finalPublishedAt
@@ -71,7 +71,7 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
                                 announcement.id,
                                 announcement.title,
                                 announcement.publisher,
-                                announcement.housingType,
+                                announcement.supplyType,
                                 announcement.endDate,
                                 announcement.documentPublishedAt,
                                 announcement.finalPublishedAt
@@ -106,7 +106,7 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
                                 announcement.id,
                                 announcement.title,
                                 announcement.publisher,
-                                announcement.housingType,
+                                announcement.supplyType,
                                 announcement.endDate,
                                 announcement.documentPublishedAt,
                                 announcement.finalPublishedAt
@@ -143,7 +143,7 @@ public class AnnouncementApplicationManageQueryRepositoryImpl implements Announc
                                 announcement.id,
                                 announcement.title,
                                 announcement.publisher,
-                                announcement.housingType,
+                                announcement.supplyType,
                                 announcement.endDate,
                                 announcement.documentPublishedAt,
                                 announcement.finalPublishedAt
