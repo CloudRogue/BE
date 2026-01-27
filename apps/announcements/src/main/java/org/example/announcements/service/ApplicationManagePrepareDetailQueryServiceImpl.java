@@ -5,6 +5,9 @@ import org.example.announcements.domain.Announcement;
 import org.example.announcements.domain.AnnouncementDocument;
 import org.example.announcements.domain.AnnouncementDocumentPhase;
 import org.example.announcements.dto.ApplicationManagePrepareDetailResponse;
+import org.example.announcements.exception.BusinessException;
+import org.example.announcements.exception.ErrorCode;
+import org.example.announcements.repository.AnnouncementApplicationRepository;
 import org.example.announcements.repository.AnnouncementDocumentRepository;
 import org.example.announcements.repository.AnnouncementRepository;
 import org.example.announcements.repository.AnnouncementSummaryRepository;
@@ -24,9 +27,21 @@ public class ApplicationManagePrepareDetailQueryServiceImpl implements Applicati
     private final AnnouncementRepository announcementRepository;
     private final AnnouncementDocumentRepository announcementDocumentRepository;
     private final AnnouncementSummaryRepository announcementSummaryRepository;
+    private final AnnouncementApplicationRepository announcementApplicationRepository;
+
 
     @Override
     public ApplicationManagePrepareDetailResponse getDetail(String userId, Long announcementId) {
+
+        boolean applied = announcementApplicationRepository
+                .existsByUserIdAndAnnouncementId(userId, announcementId);
+
+        if (!applied) {
+            throw new BusinessException(
+                    ErrorCode.APPLICATION_NOT_FOUND,
+                    "지원(신청) 기록이 없습니다. announcementId=" + announcementId
+            );
+        }
         //공고 로드
         Announcement ann = announcementRepository.findByIdAndAdminCheckedTrue(announcementId)
                 .orElseThrow(() -> new IllegalArgumentException("announcement not found: " + announcementId));
@@ -51,16 +66,18 @@ public class ApplicationManagePrepareDetailQueryServiceImpl implements Applicati
 
         //단계별 제출서류 조회
         List<ApplicationManagePrepareDetailResponse.DocumentItem> applyDocs =
-                toDocumentItems(announcementId,
+                toDocumentItems(
                         announcementDocumentRepository.findAllByAnnouncement_IdAndPhaseOrderByIdAsc(
                                 announcementId, AnnouncementDocumentPhase.APPLY
-                        ));
+                        )
+                );
 
         List<ApplicationManagePrepareDetailResponse.DocumentItem> docResultDocs =
-                toDocumentItems(announcementId,
+                toDocumentItems(
                         announcementDocumentRepository.findAllByAnnouncement_IdAndPhaseOrderByIdAsc(
                                 announcementId, AnnouncementDocumentPhase.DOC_RESULT
-                        ));
+                        )
+                );
 
         //summary 조회
         String summary = announcementSummaryRepository.findSummaryTextByAnnouncementId(announcementId).orElse(null);
@@ -95,12 +112,11 @@ public class ApplicationManagePrepareDetailQueryServiceImpl implements Applicati
 
     // 응답용으로 변환
     private static List<ApplicationManagePrepareDetailResponse.DocumentItem> toDocumentItems(
-            Long announcementId,
             List<AnnouncementDocument> docs
     ) {
         return docs.stream()
                 .map(d -> new ApplicationManagePrepareDetailResponse.DocumentItem(
-                        announcementId,
+                        d.getId(),
                         d.getName(),
                         d.getScope().name()
                 ))

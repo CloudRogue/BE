@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
 
 
+    APPLICATION_NOT_FOUND("APPLICATION_NOT_FOUND", HttpStatus.NOT_FOUND, "신청(지원) 기록이 없습니다."),
     // 공고
     ANNOUNCEMENT_NOT_FOUND("ANNOUNCEMENT_NOT_FOUND", HttpStatus.NOT_FOUND, "공고를 찾을 수 없습니다."),
 
