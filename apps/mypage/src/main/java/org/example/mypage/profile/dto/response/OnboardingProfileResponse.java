@@ -16,6 +16,7 @@ public record OnboardingProfileResponse(
         @NotEmpty
         List<@NotNull OnboardingAnswerVO> requiredOnboardingAnswers,
 
+
         @NotEmpty
         List<@NotNull OnboardingAnswerVO> additionalOnboardingAnswers
 

@@ -47,16 +47,7 @@ public class adminServiceImpl implements adminService {
                 toAIApiQuestions(qs)
         );
 
-        //List<AIApiResponse> digests = aiApi.ingest(req);
-
-        List<AIApiResponse> digests = List.of(
-                new AIApiResponse("청약통장", "목 데이터 입니다..."),
-                new AIApiResponse("무주택 여부", "무주택"),
-                new AIApiResponse("소득 요건", "판단불가"),
-                new AIApiResponse("거주지", "서울"),
-                new AIApiResponse("연령", "만 29세")
-        );
-
+        List<AIApiResponse> digests = aiApi.ingest(req);
 
         return new AnnouncementAdminResponse(
                 m.announcementId(),
