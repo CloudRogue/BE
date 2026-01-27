@@ -30,8 +30,12 @@ public class MypageClientImpl  implements MypageClient {
     @Override
     public void postOutbound(MypageOutboundRequest request) {
         mypageRestClient.post()
-                .uri("/api/internal/mypage/outbound")
-                .body(request)
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/internal/mypage/outbound")
+                        .queryParam("userId", request.userId())
+                        .queryParam("announcementId", request.announcementId())
+                        .build()
+                )
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, (req, res) -> {
                     throw new BusinessException(
@@ -45,8 +49,12 @@ public class MypageClientImpl  implements MypageClient {
     @Override
     public void postScrap(MypageScrapRequest request) {
         mypageRestClient.post()
-                .uri("/api/internal/mypage/scraps")
-                .body(request)
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/internal/mypage/scraps")
+                        .queryParam("userId", request.userId())
+                        .queryParam("announcementId", request.announcementId())
+                        .build()
+                )
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, (req, res) -> {
                     throw new BusinessException(
@@ -59,10 +67,13 @@ public class MypageClientImpl  implements MypageClient {
 
     @Override
     public void deleteScrap(MypageScrapRequest request) {
-
-        mypageRestClient.method(DELETE)
-                .uri("/api/internal/mypage/scraps")
-                .body(request)
+        mypageRestClient.delete()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/internal/mypage/scraps")
+                        .queryParam("userId", request.userId())
+                        .queryParam("announcementId", request.announcementId())
+                        .build()
+                )
                 .retrieve()
                 .onStatus(HttpStatusCode::isError, (req, res) -> {
                     throw new BusinessException(
