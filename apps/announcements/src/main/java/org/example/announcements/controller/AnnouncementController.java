@@ -7,9 +7,9 @@ import org.example.announcements.exception.BusinessException;
 import org.example.announcements.service.AnnouncementApplyCommandService;
 import org.example.announcements.service.AnnouncementSearchService;
 import org.example.announcements.service.MypageActionService;
+import org.example.auth.dto.UsersPrincipal;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,11 +32,11 @@ public class AnnouncementController {
     // 공고 열람기록
     @PostMapping("/{announcementId}/outbounds")
     public ResponseEntity<Void> postOutbound(
-            @AuthenticationPrincipal Jwt jwt,
+            @AuthenticationPrincipal UsersPrincipal principal,
             @PathVariable Long announcementId
     ) {
-        if (jwt == null) throw new BusinessException(UNAUTHORIZED, "비로그인/토큰 만료");
-        String userId = jwt.getSubject();
+        if (principal == null) throw new BusinessException(UNAUTHORIZED, "비로그인/토큰 만료");
+        String userId = principal.getName();
 
         mypageActionService.recordOutbound(userId, announcementId);
         return ResponseEntity.noContent().build();
@@ -46,11 +46,11 @@ public class AnnouncementController {
     // 지원관리 담기
     @PostMapping("/{announcementId}/apply")
     public ResponseEntity<Void> apply(
-            @AuthenticationPrincipal Jwt jwt,
+            @AuthenticationPrincipal UsersPrincipal principal,
             @PathVariable Long announcementId
     ) {
-        if (jwt == null) throw new BusinessException(UNAUTHORIZED, "비로그인/토큰 만료");
-        String userId = jwt.getSubject();
+        if (principal == null) throw new BusinessException(UNAUTHORIZED, "비로그인/토큰 만료");
+        String userId = principal.getName();
 
         applyCommandService.apply(userId, announcementId);
         return ResponseEntity.noContent().build();
@@ -59,11 +59,11 @@ public class AnnouncementController {
     // 공고 찜 추가
     @PostMapping("/{announcementId}/scrap")
     public ResponseEntity<Void> postScrap(
-            @AuthenticationPrincipal Jwt jwt,
+            @AuthenticationPrincipal UsersPrincipal principal,
             @PathVariable Long announcementId
     ) {
-        if (jwt == null) throw new BusinessException(UNAUTHORIZED, "비로그인/토큰 만료");
-        String userId = jwt.getSubject();
+        if (principal == null) throw new BusinessException(UNAUTHORIZED, "비로그인/토큰 만료");
+        String userId = principal.getName();
 
         mypageActionService.addScrap(userId, announcementId);
         return ResponseEntity.noContent().build();
@@ -72,11 +72,11 @@ public class AnnouncementController {
     // 공고 찜 해제
     @DeleteMapping("/{announcementId}/scrap")
     public ResponseEntity<Void> deleteScrap(
-            @AuthenticationPrincipal Jwt jwt,
+            @AuthenticationPrincipal UsersPrincipal principal,
             @PathVariable Long announcementId
     ) {
-        if (jwt == null) throw new BusinessException(UNAUTHORIZED, "비로그인/토큰 만료");
-        String userId = jwt.getSubject();
+        if (principal == null) throw new BusinessException(UNAUTHORIZED, "비로그인/토큰 만료");
+        String userId = principal.getName();
         mypageActionService.removeScrap(userId, announcementId);
         return ResponseEntity.noContent().build();
     }
