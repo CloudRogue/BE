@@ -56,7 +56,7 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
                                 today, today, position, Limit.of(limit)
                         );
 
-        return toResponse(window, limit);
+        return toResponse(window, limit, a -> AnnouncementOpenItemResponse.from(a, calcStatus(a.getStartDate(), a.getEndDate(), today)));
     }
 
     //접수전 공고 목록 조회
@@ -79,7 +79,7 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
                                 today, position, Limit.of(limit)
                         );
 
-        return toResponse(window, limit);
+        return toResponse(window, limit, a -> AnnouncementOpenItemResponse.from(a, calcStatus(a.getStartDate(), a.getEndDate(), today)));
     }
 
     //마감  공고 조회
@@ -94,7 +94,7 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
                         today, position, Limit.of(limit)
                 );
 
-        return toResponse(window, limit);
+        return toResponse(window, limit, a -> AnnouncementOpenItemResponse.from(a, calcStatus(a.getStartDate(), a.getEndDate(), today)));
     }
 
     // 접수중인 공고 목록을 발행처로 검색
@@ -218,7 +218,12 @@ public class AnnouncementListQueryServiceImpl implements AnnouncementListQuerySe
             Window<Announcement> window,
             int limit
     ) {
-        return toResponse(window, limit, AnnouncementOpenItemResponse::from);
+        LocalDate today = LocalDate.now();
+        return toResponse(window, limit, a ->
+                AnnouncementOpenItemResponse.from(
+                        a, calcStatus(a.getStartDate(), a.getEndDate(), today)
+                )
+        );
     }
 
     // publisher,housing,region전용

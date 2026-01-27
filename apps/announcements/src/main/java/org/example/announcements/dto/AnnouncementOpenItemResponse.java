@@ -19,7 +19,9 @@ public class AnnouncementOpenItemResponse {
     private final LocalDate startDate;  // 모집 시작일
     private final LocalDate endDate;    // 모집 마감일
 
-    public static AnnouncementOpenItemResponse from(Announcement a) {
+    private final String status;
+
+    public static AnnouncementOpenItemResponse from(Announcement a, String status) {
         return new AnnouncementOpenItemResponse(
                 a.getId(),
                 a.getTitle(),
@@ -28,7 +30,8 @@ public class AnnouncementOpenItemResponse {
                 a.getPublisher(),
                 a.getRegionName(),
                 a.getStartDate(),
-                a.getEndDate()
+                a.getEndDate(),
+                status
         );
     }
 }

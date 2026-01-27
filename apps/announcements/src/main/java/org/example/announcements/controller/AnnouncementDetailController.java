@@ -12,6 +12,7 @@ import org.example.announcements.service.AnnouncementOverviewQueryService;
 import org.example.announcements.service.AnnouncementSummaryQueryService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -38,13 +39,16 @@ public class AnnouncementDetailController {
     @GetMapping("/{announcementId}/detail")
     public ResponseEntity<AnnouncementDetailResponse> getDetail(
             @PathVariable Long announcementId,
-            @AuthenticationPrincipal(expression = "userId") String userId
+            @AuthenticationPrincipal Jwt jwt
     ) {
+        String userId = jwt.getSubject();
         return ResponseEntity.ok(detailQueryService.getDetail(announcementId, userId));
     }
 
-    @PutMapping("/api/announcements/{announcementId}/detail/eligibility/check")
-    public ResponseEntity<EligibilityDiagnoseResponse> eligibilityCheck(@PathVariable Long announcementId, @AuthenticationPrincipal(expression = "userId") String userId){
+    @PutMapping("/{announcementId}/detail/eligibility/check")
+    public ResponseEntity<EligibilityDiagnoseResponse> eligibilityCheck(@PathVariable Long announcementId, @AuthenticationPrincipal Jwt jwt ){
+
+        String userId = jwt.getSubject();
         return ResponseEntity.ok(announcementAiService.diagnose(announcementId, userId));
     }
 
