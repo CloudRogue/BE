@@ -37,6 +37,8 @@ public class OutBoundServiceImpl implements OutboundService {
         return outboundRepository.scrollByUserId(userId, cursor, pageable);
     }
 
+
+
     /**
      * 사용자의 공고 접속 이력을 저장합니다.
      * <p>히스토리 성격이므로 동일 공고를 다시 접속해도 새 레코드가 추가될 수 있습니다.</p>
