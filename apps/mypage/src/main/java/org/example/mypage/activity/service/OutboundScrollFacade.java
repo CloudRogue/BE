@@ -104,6 +104,15 @@ public class OutboundScrollFacade {
             ));
         }
 
+
+        log.info("[OUTBOUND] userId={}, cursor={}, limit={}, fetchedOutbounds={}, hasNext={}, nextCursor={}",
+                userId, cursor, limit, outbounds.size(), hasNext, nextCursor);
+
+        log.info("[OUTBOUND] idsInOrder.size={}, distinctIds.size={}",
+                idsInOrder.size(), idsInOrder.stream().distinct().count());
+
+        log.info("[OUTBOUND] announcements fetched.size={}", fetched.size());
+
         return new OutboundResponse(items, nextCursor, hasNext);
     }
 
