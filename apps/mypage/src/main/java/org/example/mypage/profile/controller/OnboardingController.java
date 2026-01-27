@@ -50,6 +50,13 @@ public class OnboardingController {
     }
 
 
+    @GetMapping("/internal/onboardings")
+    public ResponseEntity<OnboardingQuestionResponse> getOnboarding(
+            @RequestParam(name = "ids", required = false) List<Long> ids) {
+
+        return ResponseEntity.ok(onboardingService.getAddQuestions(ids));
+    }
+
     @PostMapping("/onboardings")
     public ResponseEntity<Void> putOnboarding(@AuthenticationPrincipal Jwt jwt,
                                               @Valid @RequestBody OnboardingRequest onboardingRequest) {
