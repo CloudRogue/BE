@@ -5,7 +5,10 @@ import org.example.announcements.dto.AnnouncementOpenItemResponse;
 import org.example.announcements.repository.AnnouncementRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
+
+import static org.example.announcements.util.AnnouncementStatusUtil.calcStatus;
 
 @Service
 @RequiredArgsConstructor
@@ -19,10 +22,15 @@ public class AnnouncementSearchServiceImpl implements AnnouncementSearchService{
             return List.of();
         }
 
+        LocalDate today = LocalDate.now();
+
         return announcementRepository
                 .findTop50ByTitleStartingWithIgnoreCaseOrderByCreatedAtDesc(q)
                 .stream()
-                .map(AnnouncementOpenItemResponse::from)
+                .map(a -> AnnouncementOpenItemResponse.from(
+                        a,
+                        calcStatus(a.getStartDate(), a.getEndDate(), today)
+                ))
                 .toList();
     }
 
