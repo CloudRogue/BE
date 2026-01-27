@@ -13,7 +13,7 @@ public class ApplicationManageAnnouncementRow {
     private final Long announcementId;
     private final String title;
     private final String publisher;
-    private final String housingType;
+    private final String supplyType;
 
     private final LocalDate endDate;
     private final LocalDate documentPublishedAt;
