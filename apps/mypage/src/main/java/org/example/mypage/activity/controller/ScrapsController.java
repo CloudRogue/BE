@@ -45,13 +45,13 @@ public class ScrapsController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/internal/mypage/scraps")
+    @PostMapping("/api/internal/mypage/scraps")
     public ResponseEntity<Void> postScraps(@RequestParam String userId, @RequestParam Long announcementId){
         scrapService.addScrap(userId, announcementId);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/internal/mypage/scraps")
+    @DeleteMapping("/api/internal/mypage/scraps")
     public ResponseEntity<Void> deleteScraps(@RequestParam String userId, @RequestParam Long announcementId){
         scrapService.deleteScraps(userId, announcementId);
         return ResponseEntity.ok().build();
