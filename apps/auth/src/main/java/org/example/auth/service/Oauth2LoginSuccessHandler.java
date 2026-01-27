@@ -39,6 +39,8 @@ public class Oauth2LoginSuccessHandler implements AuthenticationSuccessHandler {
         String accessToken  = jwtService.createAccessToken(principal);
         String refreshToken = jwtService.createRefreshToken(principal);
 
+        jwtService.saveRefreshToken(principal, refreshToken);
+
         ResponseCookie accessCookie = ResponseCookie.from("ACCESS_TOKEN", accessToken)
                 .httpOnly(true)
                 .secure(true)
