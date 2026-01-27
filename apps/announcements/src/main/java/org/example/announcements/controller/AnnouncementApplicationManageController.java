@@ -8,10 +8,13 @@ import org.example.announcements.service.ApplicationManageQueryService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import static org.example.announcements.exception.ErrorCode.UNAUTHORIZED;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,10 +33,13 @@ public class AnnouncementApplicationManageController {
     //신청관리 - 지원 완료 후에 진행중인 공고 목록 조회
     @GetMapping("/applied")
     public ResponseEntity<ApplicationManageListResponse> getApplied(
-            @AuthenticationPrincipal(expression = "userId") String userId,
+            @AuthenticationPrincipal Jwt jwt,
             @RequestParam(required = false) Long cursor,
             @RequestParam(required = false) Integer size
     ) {
+        if (jwt == null) throw new BusinessException(UNAUTHORIZED, "비로그인/토큰 만료");
+        String userId = jwt.getSubject();
+
         int validatedSize = requireValidSize(size);
 
         return ResponseEntity.ok(
@@ -44,10 +50,12 @@ public class AnnouncementApplicationManageController {
     //신청관리 - 서류 발표대기
     @GetMapping("/document-pending")
     public ResponseEntity<ApplicationManageListResponse> getDocumentPending(
-            @AuthenticationPrincipal(expression = "userId") String userId,
+            @AuthenticationPrincipal  Jwt jwt,
             @RequestParam(required = false) Long cursor,
             @RequestParam(required = false) Integer size
     ) {
+        if (jwt == null) throw new BusinessException(UNAUTHORIZED, "비로그인/토큰 만료");
+        String userId = jwt.getSubject();
         int validatedSize = requireValidSize(size);
 
         return ResponseEntity.ok(
@@ -57,10 +65,12 @@ public class AnnouncementApplicationManageController {
     //신청관리 - 최종 발표대기
     @GetMapping("/final-pending")
     public ResponseEntity<ApplicationManageListResponse> getFinalPending(
-            @AuthenticationPrincipal(expression = "userId") String userId,
+            @AuthenticationPrincipal Jwt jwt,
             @RequestParam(required = false) Long cursor,
             @RequestParam(required = false) Integer size
     ) {
+        if (jwt == null) throw new BusinessException(UNAUTHORIZED, "비로그인/토큰 만료");
+        String userId = jwt.getSubject();
         int validatedSize = requireValidSize(size);
 
         return ResponseEntity.ok(
@@ -71,10 +81,12 @@ public class AnnouncementApplicationManageController {
     //신청관리 - 발표마감
     @GetMapping("/closed")
     public ResponseEntity<ApplicationManageListResponse> getClosed(
-            @AuthenticationPrincipal(expression = "userId") String userId,
+            @AuthenticationPrincipal Jwt jwt,
             @RequestParam(required = false) Long cursor,
             @RequestParam(required = false) Integer size
     ) {
+        if (jwt == null) throw new BusinessException(UNAUTHORIZED, "비로그인/토큰 만료");
+        String userId = jwt.getSubject();
         int validatedSize = requireValidSize(size);
 
         return ResponseEntity.ok(
