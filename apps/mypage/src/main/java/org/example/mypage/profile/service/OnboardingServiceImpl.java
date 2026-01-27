@@ -60,6 +60,8 @@ public class OnboardingServiceImpl implements OnboardingService{
     private final EligibilityOptionRepository eligibilityOptionRepository;
     private final ObjectMapper objectMapper;
 
+
+
     @Override
     public OnboardingProfileResponse getDetailProfile(String userId) {
         List<OnboardingAnswerRow> profileAnswers = answerRepository.findAllByUserId(userId);
@@ -93,6 +95,33 @@ public class OnboardingServiceImpl implements OnboardingService{
 
         return new OnboardingProfileResponse(answerList, addAnswerList);
     }
+
+
+    @Transactional(readOnly = true)
+    public List<Long> findMissingEligibilityIds(String userId, long announcementId) {
+
+        List<Long> eligibilityIds = announcementEligibilityRepository
+                .findEligibilityIdsByAnnouncementId(announcementId);
+
+        if (eligibilityIds == null || eligibilityIds.isEmpty()) return List.of();
+
+        List<Long> distinct = eligibilityIds.stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        if (distinct.isEmpty()) return List.of();
+
+
+        Set<Long> answeredSet = new HashSet<>(
+                answerRepository.findAnsweredEligibilityIds(userId, distinct)
+        );
+
+        return distinct.stream()
+                .filter(id -> !answeredSet.contains(id))
+                .toList();
+    }
+
 
 
     @Transactional
@@ -148,10 +177,23 @@ public class OnboardingServiceImpl implements OnboardingService{
     }
 
     @Transactional(readOnly = true)
-    public OnboardingQuestionResponse getAddQuestions() {
-        List<Eligibility> eligibilitieList =
-                eligibilityRepository.findAllByRequiredOnboardingFalseOrderByIdAsc();
-        return buildResponse(eligibilitieList);
+    public OnboardingQuestionResponse getAddQuestions(List<Long> ids) {
+
+        List<Eligibility> eligibilityList;
+
+        if (ids == null || ids.isEmpty()) {
+            eligibilityList = eligibilityRepository.findAllByRequiredOnboardingFalseOrderByIdAsc();
+        } else {
+            List<Long> distinct = ids.stream()
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .toList();
+
+            eligibilityList = eligibilityRepository
+                    .findAllByIdInAndRequiredOnboardingFalseOrderByIdAsc(distinct);
+        }
+
+        return buildResponse(eligibilityList);
     }
 
     @Transactional

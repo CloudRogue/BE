@@ -58,4 +58,13 @@ public interface EligibilityAnswerRepository extends JpaRepository<EligibilityAn
 
 
 
+    @Query("""
+        select ea.eligibility.id
+        from EligibilityAnswer ea
+        where ea.userId = :userId
+          and ea.eligibility.id in :eligibilityIds
+    """)
+    List<Long> findAnsweredEligibilityIds(@Param("userId") String userId,
+                                          @Param("eligibilityIds") List<Long> eligibilityIds);
+
 }

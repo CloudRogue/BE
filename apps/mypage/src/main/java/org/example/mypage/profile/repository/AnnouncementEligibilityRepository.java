@@ -29,4 +29,12 @@ public interface AnnouncementEligibilityRepository extends JpaRepository<Announc
     List<AnnouncementEligibility> findAllRequiredBoolOrSingleConditionsFetch();
 
     boolean existsByAnnouncementId(long announcementId);
+
+    @Query("""
+        select ae.eligibility.id
+        from AnnouncementEligibility ae
+        where ae.announcementId = :announcementId
+    """)
+    List<Long> findEligibilityIdsByAnnouncementId(@Param("announcementId") long announcementId);
+
 }

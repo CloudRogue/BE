@@ -50,9 +50,11 @@ public class OnboardingController {
     }
 
 
-    @GetMapping("/onboardings")
-    public ResponseEntity<OnboardingQuestionResponse> getAddOnboarding() {
-        return ResponseEntity.ok(onboardingService.getAddQuestions());
+    @GetMapping("/internal/onboardings")
+    public ResponseEntity<OnboardingQuestionResponse> getOnboardingAdmin(
+            @RequestParam(name = "ids", required = false) List<Long> ids) {
+
+        return ResponseEntity.ok(onboardingService.getAddQuestions(ids));
     }
 
     @PostMapping("/onboardings")
@@ -62,7 +64,6 @@ public class OnboardingController {
         onboardingService.upsertOnboarding(jwt.getSubject(), onboardingRequest);
         return ResponseEntity.noContent().build();
     }
-
 
     @PostMapping("/internal/additional-onboardings")
     public ResponseEntity<AdditionalOnboardingBatchCreateResponse> createAdditionalOnboardings(
@@ -103,4 +104,14 @@ public class OnboardingController {
                                                                   @RequestParam @NotBlank String userId) {
         return ResponseEntity.ok(onboardingService.getDiagnose(announcementId, userId));
     }
+
+    @GetMapping("/internal/need-onboarding/{announcementId}")
+    public ResponseEntity<List<Long>> getNeedOnboarding(
+            @PathVariable long announcementId,
+            @RequestParam @NotBlank String userId
+    ) {
+        return ResponseEntity.ok(onboardingService.findMissingEligibilityIds(userId, announcementId));
+    }
+
+
 }

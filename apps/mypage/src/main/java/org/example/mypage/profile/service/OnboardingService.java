@@ -7,16 +7,20 @@ import org.example.mypage.profile.dto.request.EligibilityDiagnoseRequest;
 import org.example.mypage.profile.dto.request.OnboardingRequest;
 import org.example.mypage.profile.dto.response.*;
 
+import java.util.List;
+
 
 public interface OnboardingService {
 
     OnboardingProfileResponse getDetailProfile(String userId);
     void upsertOnboarding(String userId, OnboardingRequest request);
     OnboardingQuestionResponse getRequiredQuestions();
-    OnboardingQuestionResponse getAddQuestions();
+    OnboardingQuestionResponse getAddQuestions(List<Long> ids);
     AiQuestionsResponse getAiQuestions(long announcementId);
     void saveAnnouncementOnboarding(long announcementId, EligibilityAnswersRequest request);
     EligibilityDiagnoseRequest getDiagnose(long announcementId, String userId);
     EligibilityCatalogResponse getEligibilityCatalog();
     AdditionalOnboardingBatchCreateResponse createBatch(EligibilityBatchCreateRequest req);
+
+    List<Long> findMissingEligibilityIds(String userId, long announcementId);
 }

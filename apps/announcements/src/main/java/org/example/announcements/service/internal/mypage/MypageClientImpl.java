@@ -138,4 +138,32 @@ public class MypageClientImpl  implements MypageClient {
     }
 
 
+    @Override
+    public List<Long> getNeedOnboarding(long announcementId, String userId) {
+
+        List<Long> missing = mypageRestClient.get()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/internal/need-onboarding/{announcementId}")
+                        .queryParam("userId", userId)
+                        .build(announcementId)
+                )
+                .retrieve()
+                .onStatus(status -> status.value() == 401, (req, res) -> {
+                    throw new BusinessException(ErrorCode.UNAUTHORIZED, "비로그인/토큰 만료");
+                })
+                .onStatus(status -> status.value() == 403, (req, res) -> {
+                    throw new BusinessException(ErrorCode.FORBIDDEN, "온보딩 미완료");
+                })
+                .onStatus(HttpStatusCode::isError, (req, res) -> {
+                    throw new BusinessException(
+                            ErrorCode.INTERNAL_ERROR,
+                            "mypage need-onboarding 호출 실패. status=" + res.getStatusCode().value()
+                    );
+                })
+                .body(new org.springframework.core.ParameterizedTypeReference<List<Long>>() {});
+
+        return missing == null ? java.util.Collections.emptyList() : missing;
+    }
+
+
 }
