@@ -41,7 +41,7 @@ public class Outbound {
     private Long id;
 
     @NotBlank
-    @Column(name = "user_id", nullable = false, length = 24)
+    @Column(name = "user_id", nullable = false)
     private String userId;
 
     @NotNull
