@@ -39,15 +39,25 @@ public class adminServiceImpl implements adminService {
     public AnnouncementAdminResponse getAdminAnnouncement(long announcementId) {
 
         AnnouncementAdminMaterialResponse m = announcementApi.getAdminMaterial(announcementId);
-        AiQuestionsResponse qs = myPageApi.getAiQuestions(announcementId);
+      //  AiQuestionsResponse qs = myPageApi.getAiQuestions(announcementId);
 
-        AIApiRequest req = new AIApiRequest(
-                m.url(),
-                m.publisher(),
-                toAIApiQuestions(qs)
+//        AIApiRequest req = new AIApiRequest(
+//                m.url(),
+//                m.publisher(),
+//                toAIApiQuestions(qs)
+//        );
+//
+//
+//
+//        List<AIApiResponse> digests = aiApi.ingest(req);
+
+        List<AIApiResponse> digests = List.of(
+                new AIApiResponse("테스트 : ", "테스트를 위해 잠시 AI 연결 해제"),
+                new AIApiResponse("테스트 : ", "테스트를 위해 잠시 AI 연결 해제"),
+                new AIApiResponse("테스트 : ", "테스트를 위해 잠시 AI 연결 해제"),
+                new AIApiResponse("테스트 : ", "테스트를 위해 잠시 AI 연결 해제")
         );
 
-        List<AIApiResponse> digests = aiApi.ingest(req);
 
         return new AnnouncementAdminResponse(
                 m.announcementId(),
