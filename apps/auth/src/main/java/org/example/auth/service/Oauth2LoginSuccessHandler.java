@@ -21,6 +21,7 @@ import java.util.Objects;
 public class Oauth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
     private final JwtService jwtService;
+    private final StaticUserUlidStore ulidStore;
 
     @Value("${auth.redirect.success-url}")
     private String successRedirectUrl;
@@ -35,8 +36,19 @@ public class Oauth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                                         @Nonnull HttpServletResponse response,
                                         @Nonnull Authentication authentication) throws IOException {
 
-        UsersPrincipal principal = (UsersPrincipal) authentication.getPrincipal();
-        Objects.requireNonNull(principal, "principal must not be null");
+//        UsersPrincipal principal = (UsersPrincipal) authentication.getPrincipal();
+//        Objects.requireNonNull(principal, "principal must not be null");
+
+
+        String username = authentication.getName(); // login id
+        String userIdUlid = ulidStore.getUlid(username);
+
+        UsersPrincipal principal = new UsersPrincipal(
+                userIdUlid,
+                username,
+                authentication.getAuthorities(),
+                false
+        );
 
         String accessToken  = jwtService.createAccessToken(principal);
         String refreshToken = jwtService.createRefreshToken(principal);

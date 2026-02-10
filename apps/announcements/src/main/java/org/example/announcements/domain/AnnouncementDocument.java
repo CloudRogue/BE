@@ -59,5 +59,4 @@ public class AnnouncementDocument {
         d.name = name;
         return d;
     }
-
 }

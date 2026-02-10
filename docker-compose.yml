@@ -1,0 +1,176 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    command: ["mysqld", "--default-authentication-plugin=mysql_native_password"]
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpw
+      MYSQL_DATABASE: app
+      MYSQL_USER: app
+      MYSQL_PASSWORD: apppw
+      TZ: Asia/Seoul
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./csvs:/csvs:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -prootpw --silent"]
+      interval: 5s
+      timeout: 3s
+      retries: 60
+    networks: [appnet]
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: apppw
+      TZ: Asia/Seoul
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./csvs:/csvs:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app -d app"]
+      interval: 5s
+      timeout: 3s
+      retries: 60
+    networks: [appnet]
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 60
+    networks: [appnet]
+
+  adminer:
+    image: adminer:4
+    container_name: adminer
+    depends_on:
+      mysql:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql
+    ports:
+      - "8088:8080"
+    networks: [appnet]
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: pgadmin
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@local.dev
+      PGADMIN_DEFAULT_PASSWORD: adminpw
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "8089:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks: [appnet]
+
+  core:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: core
+    image: myorg/core:latest
+    container_name: core
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: "8080"
+      TZ: Asia/Seoul
+
+      SPRING_DATASOURCE_URL: "jdbc:mysql://mysql:3306/app?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+      SPRING_DATASOURCE_USERNAME: "app"
+      SPRING_DATASOURCE_PASSWORD: "apppw"
+
+      REDIS_HOST: "redis"
+      REDIS_PORT: "6379"
+
+      JPA_DDL: "create-drop"
+
+      JWT_ISSUER: "http://core:8080"
+      JWT_ACCESS_TOKEN_EXPIRE_SECONDS: "3600"
+      JWT_REFRESH_TOKEN_EXPIRE_SECONDS: "1209600"
+
+      AUTH_REDIRECT_SUCCESS_URL: "http://localhost:3000/success"
+      AUTH_REDIRECT_SUCCESS_NEW_URL: "http://localhost:3000/new/success"
+
+      INTERNAL_MYPAGE_BASE_URL: "http://mypage:8081"
+
+      LOG_SECURITY_LEVEL: "INFO"
+      LOG_WEB_LEVEL: "INFO"
+
+      AI_API_BASE_URL: "http://localhost:9999"
+      MYPAGE_API_BASE_URL: "http://mypage:8081"
+      INTERNAL_AI_BASE_URL: "http://localhost:9999"
+    ports:
+      - "8080:8080"
+    networks: [appnet]
+
+  mypage:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        APP_NAME: mypage
+    image: myorg/mypage:latest
+    container_name: mypage
+    depends_on:
+      postgres:
+        condition: service_healthy
+      core:
+        condition: service_started
+    restart: unless-stopped
+    environment:
+      SERVER_PORT: "8081"
+      TZ: Asia/Seoul
+
+      # ⚠️ 여기 키는 네 프로젝트가 따로 바인딩 안 해두면 안 먹음.
+      # 보통은 SPRING_DATASOURCE_* 로 쓰는 게 정석.
+      # 네가 지금 properties를 SPRING_POSTGRE_*로 직접 읽고 있는 게 아니라면 아래 3줄로 바꾸는 게 맞음.
+      SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/app"
+      SPRING_DATASOURCE_USERNAME: "app"
+      SPRING_DATASOURCE_PASSWORD: "apppw"
+
+      JPA_DDL: "create-drop"
+
+      JWT_JWK_SET_URI: "http://core:8080/.well-known/jwks.json"
+    ports:
+      - "8081:8081"
+    networks: [appnet]
+
+networks:
+  appnet:
+
+volumes:
+  mysql_data:
+  pg_data:
+  redis_data:
+  pgadmin_data:

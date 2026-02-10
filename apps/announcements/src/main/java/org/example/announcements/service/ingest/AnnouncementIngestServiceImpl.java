@@ -26,17 +26,10 @@ public class AnnouncementIngestServiceImpl implements AnnouncementIngestService 
     private final AnnouncementRepository announcementRepository;
     private final SeenStdIdWriterPort seenStdIdWriterPort;
 
-    @Value("${announcements.ingest.scope}")
-    private String ingestScope;
-
-    @Value("${announcements.ingest.sh-category}")
-    private String shFixedCategory;
-
-    @Value("${announcements.apply.lh}")
-    private String lhApplyEntryUrl;
-
-    @Value("${announcements.apply.sh}")
-    private String shApplyEntryUrl;
+    private static final String ingestScope = "tmp";
+    private static final String shFixedCategory = "tmp";
+    private static final String lhApplyEntryUrl = "LH";
+    private static final String shApplyEntryUrl = "SH";
 
     @Transactional
     @Override

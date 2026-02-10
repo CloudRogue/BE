@@ -14,13 +14,20 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractAuthenticationFilterConfigurer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.server.resource.web.BearerTokenResolver;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -48,33 +55,16 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-                .formLogin(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractAuthenticationFilterConfigurer::permitAll
+                )
                 .httpBasic(AbstractHttpConfigurer::disable)
-
-                // ⚠️ 토이 프로젝트 편의 설정: 운영 환경에서는 사용 금지
-                // - 모든 엔드포인트를 인증 없이 허용합니다.
-                // - 운영에서는 최소한 /api/**, /ws 등은 인증/인가 정책을 반드시 적용하세요.
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
+                                .anyRequest().permitAll()
+                        // .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(authEntryPoint)       // 401: 인증 없음/실패
-                        .accessDeniedHandler(authAccessDeniedHandler)   // 403: 권한 부족
-                )
-                .oauth2Login(oauth2 -> oauth2
-                        .userInfoEndpoint(userInfo -> userInfo
-                                .userService(customOAuth2UserService)
-                        )
-                        .successHandler(oauth2LoginSuccessHandler)
-                        .failureHandler((request, response, exception) -> {
-                            org.slf4j.LoggerFactory.getLogger("OAUTH2_FAIL").error(
-                                    "@@@@@@@@@@@@@@@@@OAUTH2_FAIL@@@@@@@@@@@@@@@@@ exClass={} msg={}",
-                                    exception.getClass().getName(),
-                                    exception.getMessage(),
-                                    exception
-                            );
-                            response.sendRedirect("https://localhost:3000/fail");
-                        })
+                        .authenticationEntryPoint(authEntryPoint)
+                        .accessDeniedHandler(authAccessDeniedHandler)
                 )
                 .oauth2ResourceServer(resource -> resource
                         .authenticationEntryPoint(authEntryPoint)
@@ -88,6 +78,32 @@ public class SecurityConfig {
 
         return http.build();
     }
+
+    @Bean
+    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
+        UserDetails u1 = User.withUsername("user")
+                .password(passwordEncoder.encode("0000"))
+                .roles("USER")
+                .build();
+
+        UserDetails u2 = User.withUsername("userS")
+                .password(passwordEncoder.encode("0000"))
+                .roles("USER")
+                .build();
+
+        UserDetails u3 = User.withUsername("userA")
+                .password(passwordEncoder.encode("0000"))
+                .roles("USER")
+                .build();
+
+        return new InMemoryUserDetailsManager(u1, u2, u3);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
