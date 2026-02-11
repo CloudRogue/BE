@@ -3,11 +3,11 @@ package org.example.auth.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 import java.time.Duration;
 
 
@@ -22,6 +22,12 @@ public class AuthController {
         response.addHeader(HttpHeaders.SET_COOKIE, expire("REFRESH_TOKEN", "/api/auth").toString());
 
         return ResponseEntity.noContent().build(); // 204
+    }
+
+
+    @GetMapping("/__login")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void loginTrigger() {
     }
 
     private static ResponseCookie expire(String name, String path) {

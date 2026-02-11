@@ -152,9 +152,6 @@ services:
       SERVER_PORT: "8081"
       TZ: Asia/Seoul
 
-      # ⚠️ 여기 키는 네 프로젝트가 따로 바인딩 안 해두면 안 먹음.
-      # 보통은 SPRING_DATASOURCE_* 로 쓰는 게 정석.
-      # 네가 지금 properties를 SPRING_POSTGRE_*로 직접 읽고 있는 게 아니라면 아래 3줄로 바꾸는 게 맞음.
       SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/app"
       SPRING_DATASOURCE_USERNAME: "app"
       SPRING_DATASOURCE_PASSWORD: "apppw"
